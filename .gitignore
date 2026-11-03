@@ -1,0 +1,25 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# Executable and build
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go
+/vendor/
+
+# Editor
+.vscode/
+.idea/
+
+# Operating System
+.DS_Store
+Thumbs.db
+
+catatan.txt
