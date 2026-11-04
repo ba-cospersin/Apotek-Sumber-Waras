@@ -18,6 +18,7 @@ type User struct {
 	ID       int64
 	Nama     string
 	Username string
+	Email    string
 	Role     string
 	IsActive bool
 }

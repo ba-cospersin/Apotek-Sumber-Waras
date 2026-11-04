@@ -16,15 +16,18 @@ type Config struct {
 	DBUser     string
 	DBPassword string
 	DBName     string
-	SessionKey string
 }
 
 func Load() (Config, error) {
-	// File .env boleh tidak ada jika environment
-	// sudah disediakan oleh sistem deployment.
+	// Membaca file .env jika tersedia.
+	// Pada deployment, konfigurasi dapat diberikan
+	// melalui environment variable sistem.
 	if err := godotenv.Load(); err != nil &&
 		!errors.Is(err, os.ErrNotExist) {
-		return Config{}, fmt.Errorf("gagal membaca .env: %w", err)
+		return Config{}, fmt.Errorf(
+			"gagal membaca .env: %w",
+			err,
+		)
 	}
 
 	cfg := Config{
@@ -34,15 +37,10 @@ func Load() (Config, error) {
 		DBUser:     getEnv("DB_USER", "root"),
 		DBPassword: os.Getenv("DB_PASSWORD"),
 		DBName:     os.Getenv("DB_NAME"),
-		SessionKey: os.Getenv("SESSION_KEY"),
 	}
 
 	if strings.TrimSpace(cfg.DBName) == "" {
 		return Config{}, fmt.Errorf("DB_NAME belum diatur")
-	}
-
-	if strings.TrimSpace(cfg.SessionKey) == "" {
-		return Config{}, fmt.Errorf("SESSION_KEY belum diatur")
 	}
 
 	if strings.TrimSpace(cfg.DBUser) == "" {

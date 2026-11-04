@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -13,14 +15,20 @@ import (
 )
 
 func main() {
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func run() error {
 	cfg, err := config.Load()
 	if err != nil {
-		log.Fatalf("gagal membaca konfigurasi: %v", err)
+		return fmt.Errorf("gagal membaca konfigurasi: %w", err)
 	}
 
 	db, err := database.Connect(cfg)
 	if err != nil {
-		log.Fatalf("gagal terhubung ke database: %v", err)
+		return fmt.Errorf("gagal terhubung ke database: %w", err)
 	}
 	defer db.Close()
 
@@ -36,52 +44,86 @@ func main() {
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`
 
 	if _, err := db.ExecContext(ctx, createMigrationTable); err != nil {
-		log.Fatalf("gagal membuat tabel pencatatan migration: %v", err)
+		return fmt.Errorf("gagal membuat tabel pencatatan migration: %w", err)
 	}
 
-	const version = "001_init"
-
-	var alreadyApplied int
-	err = db.QueryRowContext(
-		ctx,
-		"SELECT COUNT(*) FROM schema_migrations WHERE version = ?",
-		version,
-	).Scan(&alreadyApplied)
+	// Baca seluruh file migration dan urutkan berdasarkan nama file.
+	files, err := filepath.Glob(filepath.Join("migrations", "*.sql"))
 	if err != nil {
-		log.Fatalf("gagal memeriksa status migration: %v", err)
+		return fmt.Errorf("gagal mencari file migration: %w", err)
+	}
+	sort.Strings(files)
+
+	if len(files) == 0 {
+		return fmt.Errorf("tidak ditemukan file .sql di folder migrations/")
 	}
 
-	if alreadyApplied > 0 {
-		log.Printf("Migration %s sudah pernah dijalankan; dilewati.", version)
-		return
-	}
+	for _, file := range files {
+		name := filepath.Base(file)
+		version := strings.TrimSuffix(name, filepath.Ext(name))
 
-	sqlBytes, err := os.ReadFile("migrations/001_init.sql")
-	if err != nil {
-		log.Fatalf("gagal membaca migrations/001_init.sql: %v", err)
-	}
+		var alreadyApplied int
+		err := db.QueryRowContext(
+			ctx,
+			"SELECT COUNT(*) FROM schema_migrations WHERE version = ?",
+			version,
+		).Scan(&alreadyApplied)
+		if err != nil {
+			return fmt.Errorf("gagal memeriksa status migration %s: %w", version, err)
+		}
 
-	// File migration ini berisi perintah SQL biasa yang dipisahkan titik koma.
-	// Jangan gunakan titik koma di dalam nilai string atau stored procedure.
-	statements := strings.Split(string(sqlBytes), ";")
-	for i, statement := range statements {
-		statement = strings.TrimSpace(statement)
-		if statement == "" {
+		if alreadyApplied > 0 {
+			fmt.Printf("[SKIP] %s sudah pernah dijalankan.\n", version)
 			continue
 		}
 
-		if _, err := db.ExecContext(ctx, statement); err != nil {
-			log.Fatalf("migration %s gagal pada perintah ke-%d: %v", version, i+1, err)
+		sqlBytes, err := os.ReadFile(file)
+		if err != nil {
+			return fmt.Errorf("gagal membaca %s: %w", file, err)
 		}
+
+		// File migration hanya berisi perintah SQL biasa yang dipisahkan
+		// titik koma. Hindari titik koma di dalam string literal atau stored procedure.
+		statements := strings.Split(string(sqlBytes), ";")
+		for i, statement := range statements {
+			statement = stripLeadingComments(statement)
+			if statement == "" {
+				continue
+			}
+
+			if _, err := db.ExecContext(ctx, statement); err != nil {
+				return fmt.Errorf(
+					"migration %s gagal pada perintah ke-%d: %w",
+					version,
+					i+1,
+					err,
+				)
+			}
+		}
+
+		if _, err := db.ExecContext(
+			ctx,
+			"INSERT INTO schema_migrations (version) VALUES (?)",
+			version,
+		); err != nil {
+			return fmt.Errorf("gagal mencatat migration %s: %w", version, err)
+		}
+
+		fmt.Printf("[OK] Migration %s berhasil diterapkan.\n", version)
 	}
 
-	if _, err := db.ExecContext(
-		ctx,
-		"INSERT INTO schema_migrations (version) VALUES (?)",
-		version,
-	); err != nil {
-		log.Fatalf("gagal mencatat migration %s: %v", version, err)
-	}
+	fmt.Println("Semua migration selesai diproses.")
+	return nil
+}
 
-	fmt.Printf("Migration %s berhasil diterapkan.\n", version)
+func stripLeadingComments(statement string) string {
+	statement = strings.TrimSpace(statement)
+	for strings.HasPrefix(statement, "--") {
+		newline := strings.IndexByte(statement, '\n')
+		if newline == -1 {
+			return ""
+		}
+		statement = strings.TrimSpace(statement[newline+1:])
+	}
+	return statement
 }
