@@ -19,8 +19,8 @@ Aplikasi web untuk membantu pengelolaan persediaan obat di Apotek Sumber Waras d
 8. [Migration Database](#8-migration-database)
 9. [Seed Data Dummy](#9-seed-data-dummy)
 10. [Menjalankan Aplikasi](#10-menjalankan-aplikasi)
-11. [Struktur Folder dan Kepemilikan File](#11-struktur-folder-dan-kepemilikan-file)
-12. [Pedoman Pengembangan Tim](#12-pedoman-pengembangan-tim)
+11. [Struktur Folder Proyek](#11-struktur-folder-proyek)
+12. [Pembagian Tanggung Jawab dan Pedoman Pengembangan](#12-pembagian-tanggung-jawab-dan-pedoman-pengembangan)
 13. [Dokumentasi Tambahan](#13-dokumentasi-tambahan)
 14. [Batasan Sistem](#14-batasan-sistem)
 
@@ -97,7 +97,9 @@ Sistem memiliki tiga role pengguna.
 | **KASIR** | Melakukan transaksi penjualan dan mencatat retur konsumen. |
 | **GUDANG** | Mengelola penerimaan barang, memantau persediaan, melakukan stock opname, serta mencatat pemusnahan dan retur ke PBF. |
 
-Setiap pengguna harus melakukan login. Tidak tersedia registrasi akun secara publik. Pengelolaan akun dilakukan oleh OWNER. Tidak ada role SUPERADMIN terpisah dalam rancangan database; akun OWNER digunakan untuk pengelolaan sistem sesuai hak aksesnya.
+Setiap pengguna harus melakukan login. Tidak tersedia registrasi akun secara publik. Pengelolaan akun dilakukan oleh OWNER.
+
+Tidak ada role SUPERADMIN terpisah dalam rancangan database. Akun OWNER digunakan untuk pengelolaan sistem sesuai hak aksesnya.
 
 ## 4. Aturan Bisnis Utama
 
@@ -151,14 +153,18 @@ Database menggunakan MySQL/MariaDB dengan 14 tabel inti sesuai ERD proyek.
 | Stock opname | `stock_opnames`, `stock_opname_details` |
 | Tindak lanjut stok | `batch_disposals` |
 
-Selain 14 tabel inti tersebut, aplikasi menggunakan dua tabel teknis untuk pencatatan proses:
+### 5.1 Tabel Teknis
 
-- `schema_migrations` mencatat migration database yang sudah diterapkan.
-- `seed_runs` mencatat file seed yang sudah berhasil dijalankan.
+Selain 14 tabel inti, terdapat dua tabel teknis yang dibuat untuk membantu pencatatan proses database:
 
-Kedua tabel teknis tersebut bukan bagian dari 14 tabel bisnis pada ERD.
+- `schema_migrations`: mencatat migration yang sudah diterapkan.
+- `seed_runs`: mencatat file seed yang sudah berhasil dijalankan.
 
-### 5.1 Prinsip Struktur Database
+Kedua tabel tersebut bukan bagian dari 14 tabel bisnis pada ERD.
+
+Tabel `sessions` belum tersedia pada migration awal di repository saat ini. Tabel tersebut akan ditambahkan melalui migration lanjutan ketika integrasi autentikasi berbasis database selesai.
+
+### 5.2 Prinsip Struktur Database
 
 - Stok tidak disimpan langsung pada tabel `medicines`; jumlah stok diperoleh dari lapisan penerimaan pada `batch_receipts`.
 - `batches` menyimpan identitas batch fisik. `batch_receipts` menyimpan penerimaan batch pada faktur tertentu.
@@ -183,27 +189,31 @@ Perubahan struktur tabel harus dilakukan melalui migration dan dikoordinasikan d
 | MySQL/MariaDB | Penyimpanan data relasional |
 | Git dan GitHub | Version control dan kolaborasi tim |
 
-### 6.2 Library Eksternal
+### 6.2 Library Eksternal Go
 
-| Module/Library | Kegunaan |
-|---|---|
-| `github.com/go-sql-driver/mysql` | Driver MySQL untuk `database/sql` |
-| `github.com/joho/godotenv` | Membaca konfigurasi dari file `.env` |
-| `golang.org/x/crypto/bcrypt` | Hashing password menggunakan bcrypt |
-| `github.com/gorilla/sessions` | Pengelolaan session pengguna |
+Proyek menggunakan tiga modul eksternal utama.
+
+| Modul | Package yang Digunakan | Kegunaan |
+|---|---|---|
+| `github.com/go-sql-driver/mysql` | `github.com/go-sql-driver/mysql` | Driver MySQL untuk `database/sql`. |
+| `github.com/joho/godotenv` | `github.com/joho/godotenv` | Membaca konfigurasi dari file `.env`. |
+| `golang.org/x/crypto` | `golang.org/x/crypto/bcrypt` | Hashing dan verifikasi password menggunakan bcrypt. |
+
+**Catatan:** bcrypt merupakan package di dalam modul `golang.org/x/crypto`, bukan modul terpisah. Package ini digunakan pada implementasi autentikasi. Password tidak disimpan dalam bentuk teks biasa.
 
 ### 6.3 Package Bawaan Go
 
 Beberapa package bawaan Go yang digunakan:
 
-- `net/http` — server dan HTTP handler.
+- `net/http` — server, HTTP handler, dan cookie.
 - `html/template` — menampilkan halaman HTML.
 - `database/sql` — antarmuka interaksi database.
 - `context` — pengaturan batas waktu dan pembatalan operasi.
 - `os` — membaca environment variable dan file.
 - `log` — pencatatan log aplikasi.
 - `time` — pengelolaan tanggal dan waktu.
-- `encoding/csv` — mendukung pengolahan data CSV apabila diperlukan.
+- `crypto/rand` — menghasilkan token acak untuk session.
+- `encoding/hex` — mengubah token acak ke format hexadecimal.
 - `testing` — pengujian aplikasi.
 
 Package bawaan Go tidak perlu diinstal menggunakan `go get`.
@@ -214,7 +224,7 @@ Package bawaan Go tidak perlu diinstal menggunakan `go get`.
 
 Pastikan perangkat telah memiliki:
 
-- Go sesuai versi yang tercantum pada `go.mod`.
+- Go versi yang sesuai dengan `go.mod` (repository saat ini mencantumkan Go 1.27.0).
 - MySQL atau MariaDB. Untuk pengembangan lokal, database dapat dijalankan melalui XAMPP.
 - Git.
 - Browser untuk mengakses aplikasi.
@@ -228,7 +238,7 @@ cd Apotek-Sumber-Waras
 
 Jika alamat repository berubah, gunakan URL clone yang ditampilkan pada halaman GitHub repository.
 
-### 7.3 Unduh Dependency
+### 7.3 Mengunduh Dependency
 
 Setelah melakukan clone repository, jalankan:
 
@@ -238,9 +248,11 @@ go mod download
 
 Perintah tersebut mengunduh dependency yang sudah tercantum pada `go.mod`.
 
-`go mod tidy` tidak perlu dijalankan setiap kali membuat atau mengubah satu file `.go`. Jalankan ketika ada perubahan import atau dependency, kemudian periksa perubahan pada `go.mod` dan `go.sum` sebelum melakukan commit.
+`go mod tidy` tidak perlu dijalankan setiap kali membuat atau mengubah satu file `.go`. Jalankan ketika terdapat perubahan import atau dependency, kemudian periksa perubahan pada `go.mod` dan `go.sum` sebelum melakukan commit.
 
-Perlu diperhatikan bahwa `go mod tidy` dapat menghapus dependency yang belum digunakan oleh kode. Jika suatu library baru akan digunakan pada fitur yang belum diimplementasikan, dependency tersebut dapat ditambahkan ketika fitur mulai mengimpornya.
+Perlu diperhatikan bahwa `go mod tidy` dapat menghapus dependency yang belum digunakan oleh kode. Package bcrypt akan benar-benar digunakan ketika implementasi login dibuat oleh Backend Owner. Jika belum ada import bcrypt, dependency tersebut dapat dikeluarkan oleh `go mod tidy` dan perlu ditambahkan kembali ketika implementasinya dimulai.
+
+Setiap perubahan dependency harus dikoordinasikan agar seluruh anggota menggunakan versi yang konsisten.
 
 ### 7.4 Konfigurasi Environment
 
@@ -258,7 +270,7 @@ Linux/macOS:
 cp .env.example .env
 ```
 
-Sesuaikan konfigurasi database dan session pada `.env` dengan perangkat masing-masing.
+Sesuaikan konfigurasi database pada `.env` dengan perangkat masing-masing.
 
 ```env
 APP_PORT=8080
@@ -269,21 +281,24 @@ DB_USER=root
 DB_PASSWORD=
 DB_NAME=apotek_sumber_waras
 
-SESSION_KEY=replace-with-a-random-secret-at-least-32-bytes
+SESSION_KEY=isi-dengan-secret-acak-minimal-32-byte
 ```
 
 Catatan:
 
 - Pastikan MySQL/MariaDB sudah berjalan.
 - Sesuaikan `DB_USER`, `DB_PASSWORD`, dan `DB_PORT` dengan konfigurasi lokal.
-- `SESSION_KEY` digunakan untuk menandatangani cookie session dan harus berupa secret acak minimal 32 byte.
-- Untuk membuat secret acak, dapat menggunakan `openssl rand -base64 32` apabila OpenSSL tersedia.
-- File `.env` berisi konfigurasi lokal dan rahasia, sehingga tidak boleh diunggah ke GitHub.
-- Gunakan `.env.example` sebagai acuan konfigurasi bersama; jangan menaruh secret asli di dalamnya.
+- `SESSION_KEY` masih divalidasi oleh konfigurasi aplikasi yang tersedia pada repository saat ini. Penggunaan akhirnya perlu diselaraskan ketika integrasi session database diselesaikan.
+- Jangan menggunakan secret contoh untuk lingkungan produksi.
+- File `.env` berisi konfigurasi lokal dan rahasia sehingga tidak boleh diunggah ke GitHub.
+- Gunakan `.env.example` sebagai acuan konfigurasi bersama.
+- Pastikan `.env` benar-benar tidak ter-commit. Jika sebelumnya sudah masuk pelacakan Git, keluarkan dari index menggunakan `git rm --cached .env`.
 
 ### 7.5 Membuat Database Kosong
 
-Buat database kosong dengan nama yang sama seperti `DB_NAME` pada `.env`. Contoh melalui phpMyAdmin atau MySQL client:
+Buat database kosong dengan nama yang sama seperti `DB_NAME` pada `.env`.
+
+Contoh melalui phpMyAdmin atau MySQL client:
 
 ```sql
 CREATE DATABASE apotek_sumber_waras
@@ -291,13 +306,13 @@ CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 ```
 
-Pembuatan database kosong ini dilakukan satu kali pada setiap lingkungan lokal. Tabel dan relasi tidak perlu dibuat secara manual karena akan dibuat oleh migration.
+Pembuatan database kosong dilakukan satu kali pada setiap lingkungan lokal. Tabel dan relasi tidak perlu dibuat secara manual karena akan dibuat oleh migration.
 
 ## 8. Migration Database
 
 Migration digunakan untuk membuat struktur database, termasuk tabel, kolom, primary key, foreign key, unique key, dan indeks.
 
-File migration awal:
+File migration awal yang tersedia saat ini:
 
 ```text
 migrations/
@@ -310,7 +325,7 @@ Jalankan dari direktori utama repository:
 go run ./cmd/migrate
 ```
 
-Migration runner akan:
+Migration runner saat ini akan:
 
 1. Membaca konfigurasi `.env`.
 2. Menghubungkan aplikasi ke MySQL/MariaDB.
@@ -319,15 +334,41 @@ Migration runner akan:
 5. Menjalankan `migrations/001_init.sql` jika belum tercatat.
 6. Mencatat migration yang berhasil diterapkan.
 
+Migration awal membuat 14 tabel inti berdasarkan ERD.
+
 Jika migration `001_init` sudah tercatat, perintah berikutnya akan melewatinya dan tidak membuat ulang tabel.
 
-**Catatan kemampuan migration saat ini:** runner yang tersedia masih menjalankan satu file yang ditentukan secara langsung, yaitu `migrations/001_init.sql`. Penambahan file seperti `002_...sql` belum otomatis dijalankan oleh runner saat ini. Jika ada perubahan struktur database, koordinasikan terlebih dahulu dengan Backend Lead dan perluas migration runner agar dapat membaca serta mencatat versi migration berikutnya. Jangan menganggap penambahan file SQL baru saja sudah cukup.
+**Batasan migration saat ini:**
 
-### 8.1 Mengulang Database dari Awal
+Runner yang tersedia masih menjalankan satu file yang ditentukan secara langsung, yaitu `migrations/001_init.sql`. Runner belum membaca seluruh file migration secara otomatis.
 
-Belum tersedia perintah `migrate fresh` seperti pada Laravel. Untuk mengulang database pengembangan lokal dari kondisi kosong:
+Apabila terdapat perubahan struktur database, developer mengusulkan migration baru dan berkoordinasi dengan Backend Lead. Runner perlu dikembangkan agar dapat menjalankan file migration berikutnya secara berurutan, misalnya `002_sessions.sql`.
 
-1. Pastikan database tersebut hanya berisi data pengembangan dan tidak memiliki data penting.
+Jangan menganggap menambahkan file SQL baru saja sudah cukup karena runner saat ini belum otomatis menerapkannya.
+
+### 8.1 Rencana Migration Session
+
+Untuk mendukung autentikasi berbasis session database, sistem nantinya memerlukan tabel `sessions`.
+
+Rencananya tabel ini akan ditambahkan melalui:
+
+```text
+migrations/
+├── 001_init.sql
+└── 002_sessions.sql
+```
+
+Tabel `sessions` merupakan tabel teknis, bukan bagian dari 14 tabel inti ERD.
+
+Migration tersebut baru dapat digunakan setelah migration runner mendukung lebih dari satu file SQL dan Backend Owner menyelesaikan integrasi session repository.
+
+### 8.2 Mengulang Database dari Awal
+
+Saat ini belum tersedia perintah `migrate fresh` seperti pada Laravel.
+
+Untuk mengulang database pengembangan lokal dari kondisi kosong:
+
+1. Pastikan database hanya berisi data pengembangan dan tidak memiliki data penting.
 2. Hapus database lokal melalui phpMyAdmin atau MySQL client.
 3. Buat kembali database kosong dengan nama yang sama.
 4. Jalankan migration.
@@ -345,7 +386,9 @@ Kemudian buat kembali database menggunakan perintah pada bagian 7.5.
 
 ## 9. Seed Data Dummy
 
-Seed digunakan untuk memasukkan data dummy ke tabel yang sudah dibuat oleh migration. Seed **tidak membuat 14 tabel inti atau kolom-kolomnya**.
+Seed digunakan untuk memasukkan data dummy ke tabel yang sudah dibuat oleh migration.
+
+Seed tidak membuat tabel inti atau kolom database. Proses pembuatan struktur tetap menjadi tanggung jawab migration.
 
 File seed dipisahkan berdasarkan kelompok data agar lebih mudah dibaca dan diperbarui.
 
@@ -372,7 +415,17 @@ seed/
 | `006_stock_opname.sql` | Hasil stock opname dan detail penyesuaian. |
 | `007_batch_disposals.sql` | Contoh pemusnahan dan retur ke PBF. |
 
-Data dummy disiapkan agar fitur dapat dicoba dengan data awal yang seragam. Di dalamnya terdapat contoh batch aktif, batch mendekati kedaluwarsa, batch diblokir, satu batch dengan beberapa lapisan penerimaan, penjualan yang mengambil stok dari lebih dari satu lapisan, retur, stock opname, serta tindak lanjut batch.
+Data dummy disiapkan agar fitur dapat dicoba dengan data awal yang seragam.
+
+Contoh skenario data yang tersedia:
+
+- Batch aktif dan batch mendekati kedaluwarsa.
+- Batch yang diblokir.
+- Satu batch fisik yang diterima melalui lebih dari satu lapisan penerimaan dengan harga beli berbeda.
+- Transaksi penjualan yang mengambil stok dari beberapa lapisan penerimaan.
+- Retur konsumen yang menunggu pemeriksaan dan yang sudah dinyatakan layak jual.
+- Stock opname dengan selisih stok.
+- Pemusnahan dan retur barang kepada PBF.
 
 ### 9.2 Menjalankan Seed
 
@@ -404,13 +457,15 @@ Seed menyediakan tiga akun untuk pengujian hak akses.
 | KASIR | `kasir` | `Apotek123!` |
 | GUDANG | `gudang` | `Apotek123!` |
 
-Password disimpan sebagai bcrypt hash. Akun tersebut hanya untuk pengembangan dan pengujian lokal. Ganti kredensial demo sebelum aplikasi digunakan untuk data operasional sungguhan.
+Password disimpan dalam bentuk bcrypt hash. Akun tersebut hanya untuk pengembangan dan pengujian lokal.
 
 ### 9.4 Menambahkan atau Mengubah Data Seed
 
-File seed yang sudah berhasil diterapkan tercatat di `seed_runs`. Mengubah isi file yang sudah diterapkan **tidak akan membuat perubahan otomatis pada database** karena runner akan melewati file tersebut.
+File seed yang sudah berhasil diterapkan tercatat di `seed_runs`.
 
-Untuk menambah data dummy, buat file baru dengan nomor berikutnya, misalnya:
+Mengubah isi file yang sudah diterapkan tidak membuat perubahan otomatis pada database karena runner akan melewati file tersebut.
+
+Untuk menambah data dummy, buat file baru dengan nomor berikutnya. Contoh:
 
 ```text
 seed/008_additional_demo_data.sql
@@ -422,11 +477,13 @@ Kemudian jalankan kembali:
 go run ./cmd/seed
 ```
 
-Seed runner akan melewati file lama dan menjalankan file baru yang belum tercatat. Jangan mengubah file seed yang sudah dibagikan dan diterapkan anggota lain dengan harapan perubahan otomatis masuk.
+Seed runner akan melewati file lama dan menjalankan file baru yang belum tercatat.
+
+Jangan mengubah file seed yang sudah dibagikan dan diterapkan anggota lain dengan harapan perubahan otomatis masuk.
 
 ### 9.5 Reset Data Seed
 
-Untuk mengulang seluruh data dari kondisi kosong, reset database pengembangan lokal dengan prosedur pada bagian 8.1, kemudian jalankan migration dan seed lagi.
+Untuk mengulang seluruh data dari kondisi kosong, reset database pengembangan lokal menggunakan prosedur pada bagian 8.2, kemudian jalankan migration dan seed kembali.
 
 Jika database pernah menggunakan seed versi lama tunggal (`001_demo_data`), jangan langsung menjalankan seed terpisah pada database yang sama. Reset database pengembangan lokal terlebih dahulu untuk menghindari duplikasi data.
 
@@ -444,11 +501,25 @@ Port aplikasi mengikuti nilai `APP_PORT` pada file `.env`. Dengan konfigurasi co
 http://localhost:8080
 ```
 
-Endpoint pemeriksaan `/health` digunakan untuk memeriksa status server dan koneksi database apabila koneksi database sudah dipasang pada handler tersebut:
+### 10.1 Endpoint Pemeriksaan
+
+Router saat ini menyediakan endpoint `/health` untuk memeriksa apakah server dan database dapat dihubungi.
+
+Buka:
 
 ```text
 http://localhost:8080/health
 ```
+
+Jika server dan database berjalan dengan baik, response yang diharapkan adalah:
+
+```text
+Server and database are running
+```
+
+Endpoint tersebut hanya digunakan untuk pemeriksaan kondisi server dan koneksi database, bukan sebagai endpoint autentikasi.
+
+### 10.2 Pemeriksaan Build dan Test
 
 Untuk memeriksa apakah seluruh package dapat dikompilasi, jalankan:
 
@@ -462,15 +533,19 @@ Untuk menjalankan pengujian yang tersedia:
 go test ./...
 ```
 
-### 10.1 Urutan Perintah Persiapan Awal
+### 10.3 Urutan Persiapan Awal Anggota
 
 Untuk anggota yang baru melakukan clone dan menggunakan database lokal yang masih kosong, urutannya adalah:
 
 1. Nyalakan MySQL/MariaDB.
 2. Buat database kosong sesuai bagian 7.5.
 3. Salin `.env.example` menjadi `.env`, lalu sesuaikan konfigurasi lokal.
-4. Unduh dependency dan jalankan migration serta seed.
-5. Jalankan server.
+4. Unduh dependency.
+5. Jalankan migration.
+6. Jalankan seed.
+7. Jalankan server.
+
+Perintahnya:
 
 ```bash
 go mod download
@@ -479,15 +554,17 @@ go run ./cmd/seed
 go run ./cmd/server
 ```
 
-Perintah `CREATE DATABASE` pada bagian 7.5 dilakukan sebelum migration apabila database belum tersedia. Perintah migration dan seed dapat dijalankan kembali; file yang sudah tercatat akan dilewati oleh runner masing-masing.
+Setiap anggota menggunakan database lokal masing-masing dengan struktur dan data dummy yang sama.
 
-## 11. Struktur Folder dan Kepemilikan File
+## 11. Struktur Folder Proyek
 
-Struktur proyek dibagi menjadi dua tahap: **struktur awal yang disiapkan Backend Lead** dan **struktur pengembangan yang dibuat oleh anggota sesuai tanggung jawabnya**. Folder fitur tidak perlu dibuat kosong hanya untuk memenuhi contoh struktur.
+Struktur proyek dibagi menjadi dua tahap: **struktur awal yang disiapkan Backend Lead** dan **struktur pengembangan yang dibuat oleh anggota sesuai tanggung jawabnya**.
+
+Folder fitur tidak perlu dibuat kosong hanya untuk memenuhi contoh struktur.
 
 ### 11.1 Struktur Awal Repository
 
-Berikut struktur yang disiapkan Backend Lead sebelum pekerjaan fitur dibagikan kepada anggota lain. Struktur ini hanya mencantumkan fondasi yang sudah memiliki implementasi.
+Berikut struktur awal yang menjadi acuan setelah Backend Lead menyelesaikan fondasi aplikasi.
 
 ```text
 Apotek-Sumber-Waras/
@@ -503,11 +580,17 @@ Apotek-Sumber-Waras/
 ├── internal/
 │   ├── config/
 │   │   └── config.go
+│   │
 │   ├── database/
 │   │   └── db.go
+│   │
+│   ├── model/
+│   │   └── user.go
+│   │
 │   ├── middleware/
 │   │   ├── auth.go
 │   │   └── role.go
+│   │
 │   └── router/
 │       └── router.go
 │
@@ -531,22 +614,30 @@ Apotek-Sumber-Waras/
 └── README.md
 ```
 
-File/folder fondasi tersebut menjadi tanggung jawab awal Backend Lead:
+Keterangan:
 
-- `cmd/server/` — titik awal untuk menjalankan aplikasi web.
-- `cmd/migrate/` — program untuk menerapkan migration database.
-- `cmd/seed/` — program untuk memasukkan data dummy.
-- `internal/config/` — membaca konfigurasi aplikasi dari environment.
-- `internal/database/` — membuat dan mengelola connection pool database.
-- `internal/middleware/` — menyediakan pemeriksaan autentikasi dan pembatasan akses berdasarkan role.
-- `internal/router/` — menyediakan router utama dan endpoint pemeriksaan `/health`.
-- `migrations/` dan `seed/` — menyediakan struktur database dan data dummy standar.
+| File/Folder | Fungsi | Penanggung Jawab |
+|---|---|---|
+| `cmd/server/main.go` | Titik awal untuk menjalankan aplikasi web. | Backend Lead |
+| `cmd/migrate/main.go` | Program untuk menerapkan migration database. | Backend Lead |
+| `cmd/seed/main.go` | Program untuk memasukkan data dummy. | Backend Lead |
+| `internal/config/` | Membaca konfigurasi aplikasi dari `.env`. | Backend Lead |
+| `internal/database/` | Membuat dan mengelola connection pool database. | Backend Lead |
+| `internal/model/` | Menyimpan struct data bersama yang digunakan oleh beberapa lapisan. | Backend Lead dan Backend Developer |
+| `internal/middleware/` | Menyediakan pemeriksaan autentikasi dan pembatasan akses berdasarkan role. | Backend Lead |
+| `internal/router/` | Mengatur route utama dan endpoint pemeriksaan `/health`. | Backend Lead |
+| `migrations/` | Menyimpan struktur database dalam file SQL. | Backend Lead |
+| `seed/` | Menyimpan data dummy standar untuk pengujian. | Backend Lead |
+
+**Catatan:** Struktur ini menampilkan migration yang benar-benar tersedia saat ini. `002_sessions.sql` belum disertakan karena migration runner belum mendukung penerapan file kedua.
 
 Backend Lead tidak perlu membuat folder fitur Owner, Kasir, Gudang, atau halaman frontend kosong. Folder tersebut dibuat oleh anggota yang bertanggung jawab ketika implementasi fiturnya dimulai.
 
 ### 11.2 Struktur Pengembangan Setelah Pekerjaan Dibagikan
 
-Berikut gambaran struktur yang dapat terbentuk setelah Backend Owner, Backend Kasir, Backend Gudang, dan Frontend mulai mengerjakan fiturnya. File di bagian ini merupakan target pengembangan, bukan file yang harus dibuat kosong sejak awal.
+Berikut gambaran struktur yang dapat terbentuk setelah Backend Owner, Backend Kasir, Backend Gudang, serta Frontend mulai mengerjakan fitur masing-masing.
+
+File di bagian ini merupakan target pengembangan, bukan file yang harus dibuat kosong sejak awal.
 
 ```text
 Apotek-Sumber-Waras/
@@ -562,30 +653,47 @@ Apotek-Sumber-Waras/
 ├── internal/
 │   ├── config/
 │   │   └── config.go
+│   │
 │   ├── database/
 │   │   └── db.go
+│   │
+│   ├── model/
+│   │   ├── user.go
+│   │   ├── medicine.go
+│   │   ├── batch.go
+│   │   └── sale.go
+│   │
 │   ├── middleware/
 │   │   ├── auth.go
 │   │   └── role.go
+│   │
 │   ├── router/
 │   │   └── router.go
 │   │
-│   ├── owner/                 # Dibuat Backend Owner
+│   ├── auth/                       # Dibuat Backend Owner
 │   │   ├── handler.go
 │   │   ├── service.go
 │   │   └── repository.go
 │   │
-│   ├── cashier/               # Dibuat Backend Kasir
+│   ├── owner/                      # Dibuat Backend Owner
 │   │   ├── handler.go
 │   │   ├── service.go
 │   │   └── repository.go
 │   │
-│   └── warehouse/             # Dibuat Backend Gudang
-│       ├── handler.go
-│       ├── service.go
-│       └── repository.go
+│   ├── cashier/                    # Dibuat Backend Kasir
+│   │   ├── handler.go
+│   │   ├── service.go
+│   │   └── repository.go
+│   │
+│   ├── warehouse/                  # Dibuat Backend Gudang
+│   │   ├── handler.go
+│   │   ├── service.go
+│   │   └── repository.go
+│   │
+│   └── view/                       # Dibuat saat integrasi render HTML
+│       └── templates.go
 │
-├── web/                       # Dibuat Frontend 1 dan Frontend 2
+├── web/                            # Dibuat Frontend 1 dan Frontend 2
 │   ├── templates/
 │   │   ├── layouts/
 │   │   │   └── base.html
@@ -610,7 +718,8 @@ Apotek-Sumber-Waras/
 │       └── img/
 │
 ├── migrations/
-│   └── 001_init.sql
+│   ├── 001_init.sql
+│   └── 002_sessions.sql          # Setelah runner mendukung migration berikutnya
 │
 ├── seed/
 │   ├── 001_users.sql
@@ -636,37 +745,68 @@ Apotek-Sumber-Waras/
 └── README.md
 ```
 
-Folder `owner`, `cashier`, dan `warehouse` menggunakan pendekatan **feature-based**: kode backend dikelompokkan berdasarkan fitur atau tanggung jawab. Tidak digunakan folder global `handler`, `service`, dan `repository` yang memisahkan seluruh fitur berdasarkan lapisan.
+Folder `auth` dibuat oleh Backend Owner karena berisi proses login, logout, dan pengelolaan autentikasi yang terhubung ke database.
 
-Jika sesuai kebutuhan fitur, setiap modul backend dapat memiliki pola file berikut:
+Folder `owner`, `cashier`, dan `warehouse` menggunakan pendekatan **feature-based**. Kode backend dikelompokkan berdasarkan fitur atau tanggung jawab, bukan berdasarkan folder global `handler`, `service`, dan `repository`.
+
+### 11.3 Pola Penulisan Kode Backend
+
+Setiap modul backend disarankan memisahkan tanggung jawab menggunakan tiga lapisan:
+
+| Lapisan | Tanggung Jawab |
+|---|---|
+| Handler | Menerima HTTP request, memanggil service, dan mengirim response atau merender halaman. |
+| Service | Menjalankan aturan bisnis, validasi, dan koordinasi transaksi. |
+| Repository | Menjalankan query dan interaksi dengan database. |
+
+Contoh struktur modul Gudang:
 
 ```text
 internal/warehouse/
-├── handler.go       # HTTP request dan response
-├── service.go       # Aturan bisnis dan validasi
-└── repository.go    # Query database
+├── handler.go
+├── service.go
+└── repository.go
 ```
 
-Pola tersebut merupakan pedoman, bukan kewajiban mutlak. File tambahan seperti `fefo.go` dapat dibuat apabila logika tertentu perlu dipisahkan. Jangan membuat file kosong hanya untuk mengikuti pola.
+Pola tersebut merupakan pedoman, bukan kewajiban mutlak. File tambahan dapat dibuat ketika suatu logika cukup kompleks untuk dipisahkan, misalnya `fefo.go` untuk aturan FEFO.
 
-### 11.3 Perbedaan `internal/view` dan `web/`
+Jangan membuat file kosong hanya untuk mengikuti pola.
 
-- `web/templates/` berisi file tampilan HTML yang dibuat dan dirawat Frontend.
+### 11.4 Fungsi Model
+
+Folder `internal/model/` menyimpan struct data yang digunakan bersama oleh beberapa lapisan dan modul backend.
+
+Contohnya:
+
+- `user.go` menyimpan struktur data pengguna.
+- `medicine.go` menyimpan struktur data obat.
+- `batch.go` menyimpan struktur data batch.
+- `sale.go` menyimpan struktur data penjualan.
+
+Model tidak berisi query SQL atau business logic. Repository, service, dan handler menggunakan model yang sama agar struktur data tetap konsisten.
+
+File model tambahan dibuat ketika dibutuhkan oleh implementasi fitur dan dikoordinasikan dengan Backend Lead.
+
+### 11.5 Perbedaan `internal/view` dan `web`
+
+- `web/templates/` berisi file tampilan HTML yang dibuat dan dikelola Frontend.
 - `web/static/` berisi CSS, JavaScript, dan gambar.
 - `internal/view/` berisi kode Go untuk memuat dan merender template HTML ketika diperlukan dalam integrasi backend dan frontend.
 
-Dengan demikian, Frontend mengerjakan tampilan halaman, sedangkan kode Go pada `internal/view/` menghubungkan template dengan handler. Folder `internal/view/` tidak harus dibuat pada repository awal sebelum mekanisme render template diimplementasikan.
+Dengan demikian, Frontend mengerjakan isi dan desain halaman, sedangkan kode Go pada `internal/view/` menghubungkan template dengan handler.
 
-## 12. Pedoman Pengembangan Tim
+Folder `internal/view/` tidak harus dibuat pada repository awal sebelum mekanisme render template diimplementasikan.
+
+## 12. Pembagian Tanggung Jawab dan Pedoman Pengembangan
 
 ### 12.1 Pembagian Tanggung Jawab
 
 | Anggota/Bagian | Tanggung Jawab |
 |---|---|
-| **Backend Lead** | Menyiapkan fondasi aplikasi, konfigurasi, koneksi database, middleware bersama, migration awal, seed, standar integrasi, review perubahan skema, dan koordinasi integrasi backend. |
-| **Backend Owner** | Mengembangkan backend manajemen pengguna, autentikasi login yang terhubung ke tabel `users`, data master, dan agregasi dashboard. |
-| **Backend Kasir** | Mengembangkan backend penjualan, FEFO, alokasi stok, pembayaran, retur konsumen, dan perhitungan keuntungan. |
-| **Backend Gudang** | Mengembangkan backend penerimaan, batch, persediaan, stock opname, pemblokiran batch, pemusnahan, dan retur ke PBF. |
+| **Backend Lead** | Menyiapkan fondasi aplikasi, konfigurasi, koneksi database, model bersama awal, middleware, migration awal, seed, standar integrasi, dan review perubahan skema. |
+| **Backend Owner** | Mengembangkan autentikasi login/logout, manajemen pengguna, data master, dan agregasi dashboard. |
+| **Backend Kasir** | Mengembangkan penjualan, FEFO, alokasi stok, pembayaran, retur konsumen, dan perhitungan keuntungan. |
+| **Backend Gudang** | Mengembangkan penerimaan, batch, persediaan, stock opname, pemblokiran batch, pemusnahan, dan retur ke PBF. |
 | **Frontend 1** | Mengembangkan login, layout bersama, data master, penerimaan, persediaan, stock opname, kedaluwarsa, dan manajemen pengguna. |
 | **Frontend 2** | Mengembangkan dashboard, halaman kasir, retur konsumen, dan laporan. |
 
@@ -674,24 +814,37 @@ Pembagian tersebut merupakan tanggung jawab utama masing-masing anggota. Integra
 
 ### 12.2 Kepemilikan Folder dan File
 
-- Backend Lead menjaga fondasi bersama pada `cmd/`, `internal/config/`, `internal/database/`, `internal/middleware/`, dan `internal/router/`.
-- Backend Owner membuat dan mengelola `internal/owner/`.
+- Backend Lead menjaga fondasi bersama pada `cmd/`, `internal/config/`, `internal/database/`, `internal/model/`, `internal/middleware/`, dan `internal/router/`.
+- Backend Owner membuat dan mengelola `internal/auth/` serta `internal/owner/`.
 - Backend Kasir membuat dan mengelola `internal/cashier/`.
 - Backend Gudang membuat dan mengelola `internal/warehouse/`.
 - Frontend 1 dan Frontend 2 membuat serta mengelola halaman dan asset pada `web/` sesuai pembagian fitur.
-- `internal/view/` dapat dibuat ketika proses render HTML perlu diintegrasikan. Penanggung jawab implementasinya disepakati antara Backend Lead/integrator dan Frontend.
+- `internal/view/` dibuat ketika proses render HTML perlu diintegrasikan.
 - `migrations/` dikoordinasikan Backend Lead. Developer fitur boleh mengusulkan perubahan skema melalui migration baru.
 - `seed/` menjadi data dummy standar tim. Penambahan data dummy dilakukan melalui file baru yang berurutan.
+- `docs/` berisi dokumentasi teknis yang disusun dan diperbarui bersama sesuai kebutuhan.
 
-### 12.3 Pola Integrasi Backend
+### 12.3 Dependency dan Integrasi Backend
 
-Setiap modul backend disarankan memisahkan tanggung jawab sebagai berikut:
+Alur dependency aplikasi mengikuti prinsip dependency melalui struct, bukan variabel global.
 
-| Lapisan | Tanggung Jawab |
-|---|---|
-| Handler | Menerima HTTP request, memanggil service, dan mengirim response atau merender halaman. |
-| Service | Menjalankan aturan bisnis, validasi, dan koordinasi transaksi. |
-| Repository | Menjalankan query dan interaksi dengan database. |
+Urutan umum integrasi:
+
+```text
+Database
+   |
+   v
+Repository
+   |
+   v
+Service
+   |
+   v
+Handler
+   |
+   v
+Router
+```
 
 Aturan integrasi:
 
@@ -700,18 +853,50 @@ Aturan integrasi:
 - Query database diletakkan pada repository.
 - Aturan bisnis diletakkan pada service.
 - Handler tidak menjalankan query SQL secara langsung.
+- Model digunakan bersama oleh lapisan yang membutuhkan.
 - Perubahan skema database harus dikoordinasikan dan ditinjau sebelum digabungkan.
 - Validasi stok harus dilakukan di dalam transaksi database untuk mencegah ketidaksesuaian data.
 - Modul yang berbagi proses persediaan harus menggunakan aturan dan mekanisme stok yang konsisten.
 
 ### 12.4 Integrasi Autentikasi dan Role
 
-- Backend Lead menyediakan middleware autentikasi dan pemeriksaan role yang digunakan bersama.
-- Backend Owner mengimplementasikan pemeriksaan username dan password terhadap tabel `users`, termasuk verifikasi bcrypt dan pemeriksaan status akun aktif.
-- Setelah kredensial berhasil diverifikasi, handler login menggunakan fungsi session dari middleware untuk menyimpan identitas pengguna dan role.
-- Frontend membuat halaman login dan form yang mengirimkan data ke endpoint login sesuai kontrak yang disepakati.
-- Setiap route fitur harus menggunakan middleware login dan pembatasan role yang sesuai.
-- Secret session disimpan pada `.env` dan tidak boleh dimasukkan ke repository.
+Pengelolaan autentikasi dibagi antara Backend Lead dan Backend Owner.
+
+**Backend Lead:**
+
+- Menyediakan middleware untuk memeriksa session pengguna.
+- Menyediakan middleware untuk membatasi akses berdasarkan role.
+- Menyediakan fungsi untuk mengambil informasi pengguna dari request context.
+- Mengintegrasikan middleware dengan router utama.
+
+**Backend Owner:**
+
+- Membuat fitur login dan logout.
+- Memeriksa username dan password terhadap tabel `users`.
+- Melakukan verifikasi password menggunakan bcrypt.
+- Memeriksa status akun aktif.
+- Menghasilkan token session acak.
+- Menyimpan, memeriksa, dan menghapus session melalui repository.
+- Mengintegrasikan proses autentikasi dengan middleware yang disediakan Backend Lead.
+- Mengembangkan manajemen akun pengguna sesuai hak akses OWNER.
+
+**Frontend 1:**
+
+- Membuat halaman login.
+- Membuat form username dan password.
+- Mengintegrasikan form dengan endpoint login yang disepakati.
+
+Sistem tidak menyediakan registrasi publik. Akun pengguna dikelola oleh OWNER.
+
+Target mekanisme session yang dikembangkan:
+
+- Satu akun hanya memiliki satu session aktif.
+- Login dari perangkat baru menggantikan session sebelumnya.
+- Session berakhir ketika pengguna tidak aktif selama 30 menit.
+- Masa berlaku maksimum session adalah 8 jam.
+- Logout menghapus session dari database.
+
+Ketentuan tersebut baru dianggap tersedia setelah tabel `sessions`, repository session, dan pemeriksaan middleware selesai diimplementasikan serta diuji. Middleware yang tersedia saat ini masih menyediakan kontrak pemeriksaan session dan belum menjadi implementasi autentikasi lengkap.
 
 ### 12.5 Integrasi Frontend dan Backend
 
@@ -752,7 +937,9 @@ git commit -m "feat: menambahkan fitur penerimaan barang"
 git push origin feature/nama-fitur
 ```
 
-Setelah itu, buat Pull Request ke branch `main`. Aturan review dan perlindungan branch dapat diatur melalui pengaturan repository GitHub. Proyek ini tidak mewajibkan folder atau file `.github`.
+Setelah itu, buat Pull Request ke branch `main`.
+
+Aturan review dan perlindungan branch dapat diatur melalui pengaturan repository GitHub. Proyek ini tidak mewajibkan folder atau file `.github`.
 
 ## 13. Dokumentasi Tambahan
 
