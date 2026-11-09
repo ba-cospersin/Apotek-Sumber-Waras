@@ -1,0 +1,32 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#fff8f6">
+    <title>{{.Title}} — Apotek Sumber Waras</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/layout.css">
+    {{if .PageCSS}}<link rel="stylesheet" href="{{.PageCSS}}">{{end}}
+</head>
+<body data-receipt-url="{{index .Routes "struk_penjualan"}}">
+    <div class="app-shell">
+        {{template "sidebar" .}}
+        <div class="app-main">
+            {{template "header" .}}
+            <main class="page-content">
+                {{template "page-content" .}}
+            </main>
+        </div>
+    </div>
+    <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="true"></div>
+    <script src="/static/js/layout.js" defer></script>
+    {{if .PageJS}}<script src="{{.PageJS}}" defer></script>{{end}}
+    <script src="/static/js/interactions.js" defer></script>
+</body>
+</html>
+{{end}}

@@ -1,0 +1,18 @@
+{{define "header"}}
+<header class="topbar">
+    <div class="topbar-left">
+        <button class="mobile-menu-button" type="button" data-sidebar-toggle aria-label="Buka navigasi">☰</button>
+        <div class="breadcrumb"><span>Apotek Sumber Waras</span><span class="breadcrumb-separator">/</span><strong>{{.Title}}</strong></div>
+    </div>
+    <div class="topbar-right">
+        <div class="topbar-date"><span aria-hidden="true">▣</span>{{.CurrentDate}}</div>
+        <button class="topbar-icon" type="button" aria-label="Notifikasi" data-toast="Belum ada notifikasi baru.">♟<i></i></button>
+        <button class="topbar-icon help-icon" type="button" aria-label="Bantuan" data-toast="Bantuan aplikasi masih dalam tahap pengembangan.">?</button>
+        <div class="user-profile">
+            <span class="avatar" aria-hidden="true">{{.AvatarText}}</span>
+            <span class="user-meta"><strong>{{.User.Nama}}</strong><small>{{.RoleLabel}}</small></span>
+            <span class="role-badge">{{.RoleLabel}}</span>
+        </div>
+    </div>
+</header>
+{{end}}

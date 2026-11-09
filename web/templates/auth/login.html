@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#fff8f5">
+    <title>Masuk — Apotek Sumber Waras</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/login.css">
+    <script src="/static/js/login.js" defer></script>
+</head>
+<body>
+    <div class="login-page">
+        <div class="decoration decoration--blur decoration--blur-one" aria-hidden="true"></div>
+        <div class="decoration decoration--blur decoration--blur-two" aria-hidden="true"></div>
+        <div class="decoration decoration--blur decoration--blur-three" aria-hidden="true"></div>
+        <span class="decoration decoration--pill decoration--pill-one" aria-hidden="true"></span>
+        <span class="decoration decoration--pill decoration--pill-two" aria-hidden="true"></span>
+        <span class="decoration decoration--pill decoration--pill-three" aria-hidden="true"></span>
+        <span class="decoration decoration--pill decoration--pill-four" aria-hidden="true"></span>
+
+        <main class="login-main">
+            <section class="login-card" aria-labelledby="login-title">
+                <header class="brand">
+                    <div class="brand-mark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" role="img">
+                            <path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6V3Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <h1 class="brand-name">APOTEK SUMBER WARAS</h1>
+                    <p class="brand-caption">Sistem Manajemen Stok Apotek</p>
+                </header>
+
+                <div class="login-intro">
+                    <h2 id="login-title">Masuk</h2>
+                    <p>Silakan masuk dengan akun yang dibuat oleh Owner</p>
+                </div>
+
+                {{if .Error}}
+                <div class="alert" role="alert" aria-live="polite">
+                    <svg viewBox="0 0 20 20" aria-hidden="true">
+                        <circle cx="10" cy="10" r="8" fill="currentColor"/>
+                        <path d="M10 5.5v5" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/>
+                        <circle cx="10" cy="13.7" r="1" fill="#fff"/>
+                    </svg>
+                    <span>{{.Error}}</span>
+                </div>
+                {{end}}
+
+                <form class="login-form" action="/login" method="post">
+                    <div class="form-field">
+                        <label for="identifier">Username atau Email</label>
+                        <input
+                            id="identifier"
+                            name="identifier"
+                            type="text"
+                            placeholder="Masukkan username atau email"
+                            value="{{.Identifier}}"
+                            autocomplete="username"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-field">
+                        <label for="password">Password</label>
+                        <div class="password-wrap">
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                placeholder="Masukkan password"
+                                autocomplete="current-password"
+                                required
+                            >
+                            <button
+                                class="password-toggle"
+                                type="button"
+                                data-password-toggle
+                                aria-label="Tampilkan password"
+                                aria-pressed="false"
+                            >
+                                <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"/>
+                                    <circle cx="12" cy="12" r="2.7"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="submit-button" type="submit">Masuk</button>
+                </form>
+
+                <p class="login-note">Gunakan akun yang telah didaftarkan oleh Owner.</p>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

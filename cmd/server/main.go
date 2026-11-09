@@ -27,8 +27,11 @@ func main() {
 
 	log.Println("Koneksi database berhasil.")
 
-	// 3. Menyiapkan router.
-	mux := router.New(db)
+	// 3. Menyiapkan router dan seluruh route aplikasi.
+	mux, err := router.New(db)
+	if err != nil {
+		log.Fatalf("Gagal menyiapkan router: %v", err)
+	}
 
 	// 4. Menjalankan HTTP server.
 	server := &http.Server{

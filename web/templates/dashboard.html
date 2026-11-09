@@ -1,0 +1,97 @@
+{{define "page-content"}}
+<section class="dashboard-page">
+    <div class="page-heading">
+        <h1>Dashboard Manajemen Stok &amp; FEFO</h1>
+        <p>Ringkasan perputaran obat, kedaluwarsa batch, dan performa apotek per 7 November 2026</p>
+    </div>
+
+    <!-- Angka dan baris data di bawah ini adalah data contoh desain Figma. Ganti dengan data dari backend Owner saat integrasi. -->
+    <section class="kpi-grid" aria-label="Ringkasan kondisi apotek">
+        <article class="kpi-card"><div class="kpi-top"><span>Stok Boleh<br>Dijual</span><span class="kpi-icon coral">▣</span></div><div class="kpi-value">1.240 <small>unit</small></div><span class="status-pill safe">Aman</span></article>
+        <article class="kpi-card"><div class="kpi-top"><span>Stok<br>Minimum</span><span class="kpi-icon amber">♧</span></div><div class="kpi-value">12 <small>obat</small></div><span class="status-pill warning">Perlu Restock</span></article>
+        <article class="kpi-card"><div class="kpi-top"><span>Batch<br>Mendekati ED</span><span class="kpi-icon peach">♙</span></div><div class="kpi-value">8 <small>batch</small></div><span class="status-pill warning">8 batch perlu dipantau</span></article>
+        <article class="kpi-card"><div class="kpi-top"><span>Batch<br>Diblokir</span><span class="kpi-icon red">⊘</span></div><div class="kpi-value">2 <small>batch</small></div><span class="status-pill danger">Karantina</span></article>
+        <article class="kpi-card"><div class="kpi-top"><span>Laba Kotor<br>Bulan Ini</span><span class="kpi-icon green">↗</span></div><div class="kpi-value money positive">Rp7.450.000</div><span class="kpi-trend positive">↑ +14,2% dari bln lalu</span></article>
+        <article class="kpi-card"><div class="kpi-top"><span>Kerugian<br>Bulan Ini</span><span class="kpi-icon red">⌁</span></div><div class="kpi-value money negative">Rp620.000</div><span class="kpi-caption">Kerugian rusak/ED</span></article>
+    </section>
+
+    <section class="overview-grid">
+        <article class="panel sales-panel">
+            <div class="panel-heading"><div><h2>Penjualan &amp; Laba Kotor 7 Hari Terakhir</h2><p>Periode 1 Nov – 7 Nov 2026</p></div><div class="chart-legend"><span><i class="legend-bar"></i>Penjualan</span><span><i class="legend-dot"></i>Laba Kotor</span></div></div>
+            <div class="sales-chart" role="img" aria-label="Grafik contoh penjualan dan laba kotor selama tujuh hari">
+                <svg viewBox="0 0 650 230" preserveAspectRatio="none" aria-hidden="true">
+                    <line x1="0" y1="38" x2="650" y2="38" class="chart-gridline"/><line x1="0" y1="105" x2="650" y2="105" class="chart-gridline"/><line x1="0" y1="172" x2="650" y2="172" class="chart-gridline"/>
+                    <rect x="22" y="92" width="38" height="135" rx="7" class="chart-bar"/><rect x="110" y="66" width="38" height="161" rx="7" class="chart-bar"/><rect x="198" y="108" width="38" height="119" rx="7" class="chart-bar"/><rect x="286" y="46" width="38" height="181" rx="7" class="chart-bar"/><rect x="374" y="61" width="38" height="166" rx="7" class="chart-bar"/><rect x="462" y="24" width="38" height="203" rx="7" class="chart-bar"/><rect x="550" y="8" width="38" height="219" rx="7" class="chart-bar chart-bar-today"/>
+                    <polyline points="41,151 129,130 217,164 305,111 393,128 481,83 569,58" class="chart-line"/><circle cx="41" cy="151" r="4" class="chart-point"/><circle cx="129" cy="130" r="4" class="chart-point"/><circle cx="217" cy="164" r="4" class="chart-point"/><circle cx="305" cy="111" r="4" class="chart-point"/><circle cx="393" cy="128" r="4" class="chart-point"/><circle cx="481" cy="83" r="4" class="chart-point"/><circle cx="569" cy="58" r="5" class="chart-point chart-point-today"/>
+                </svg>
+                <div class="chart-axis"><span>1 Nov</span><span>2 Nov</span><span>3 Nov</span><span>4 Nov</span><span>5 Nov</span><span>6 Nov</span><strong>Hari Ini</strong></div>
+            </div>
+            <div class="sales-summary"><div><span>Total Penjualan 7 Hari</span><strong>Rp19.700.000</strong></div><div><span>Total Laba Kotor 7 Hari</span><strong class="positive">Rp4.820.000</strong></div><div><span>Rata-rata Margin</span><strong>24,4%</strong></div></div>
+        </article>
+
+        <article class="panel composition-panel">
+            <div class="panel-heading"><div><h2>Komposisi Status Stok</h2><p>Distribusi kondisi stok farmasi aktif</p></div></div>
+            <div class="stock-progress-title"><strong>Sebaran Proporsi Stok</strong><strong>100% Terpetakan</strong></div>
+            <div class="stock-progress" aria-label="92 persen boleh dijual, 5,3 persen mendekati kedaluwarsa, 1,8 persen diblokir, 0,9 persen kedaluwarsa"><span class="stock-sell"></span><span class="stock-near"></span><span class="stock-blocked"></span><span class="stock-expired"></span></div>
+            <div class="stock-percent">92.0%</div>
+            <div class="stock-legend">
+                <div><i class="swatch sell"></i><span>Boleh Dijual</span><strong>1.240 unit <small>(92,0%)</small></strong></div>
+                <div><i class="swatch near"></i><span>Mendekati ED</span><strong>72 unit <small>(5,3%)</small></strong></div>
+                <div><i class="swatch blocked"></i><span>Diblokir</span><strong>24 unit <small>(1,8%)</small></strong></div>
+                <div><i class="swatch expired"></i><span>Kedaluwarsa</span><strong>12 unit <small>(0,9%)</small></strong></div>
+            </div>
+            <div class="stock-total"><span>Total stok semua status:</span><strong>1.348 unit</strong></div>
+        </article>
+    </section>
+
+    <section class="tables-grid">
+        <article class="panel table-panel">
+            <div class="panel-heading"><div><h2>Peringatan yang Perlu Ditindaklanjuti</h2></div><a class="text-action" href="{{index .Routes "kedaluwarsa"}}"><span class="issue-count">22 isu</span> Lihat Semua ›</a></div>
+            <div class="table-scroll"><table><thead><tr><th>Obat / Produk</th><th>Jenis Peringatan &amp; Detail</th><th>Aksi</th></tr></thead><tbody>
+                <tr><td><strong>Amoxicillin 500mg</strong><small>Batch: B24-098</small></td><td><span class="alert-type amber-text">◷ Hampir ED (18 Nov 2026)</span><small>11 hari tersisa – FEFO Urgen</small></td><td><a class="outline-button" href="{{index .Routes "cek_stok"}}">Lihat</a></td></tr>
+                <tr><td><strong>Paracetamol Sirup 60ml</strong><small>Botol Kaca</small></td><td><span class="alert-type amber-text">⚑ Stok Minimum</span><small>Sisa 3 btl, Min. 15</small></td><td><a class="outline-button" href="{{index .Routes "data_master"}}">Lihat</a></td></tr>
+                <tr><td><strong>Cefixime 100mg</strong><small>Batch: C23-112</small></td><td><span class="alert-type red-text">♙ Batch Diblokir</span><small>Recall Produsen (Karantina)</small></td><td><a class="outline-button" href="{{index .Routes "kedaluwarsa"}}">Lihat</a></td></tr>
+                <tr><td><strong>Omeprazole 20mg</strong><small>Batch: OM-881</small></td><td><span class="alert-type amber-text">◷ Hampir ED (25 Nov 2026)</span><small>18 hari tersisa – FEFO Aktif</small></td><td><a class="outline-button" href="{{index .Routes "cek_stok"}}">Lihat</a></td></tr>
+                <tr><td><strong>Vitamin C 500mg</strong><small>Strip Tablet</small></td><td><span class="alert-type amber-text">⚑ Stok Minimum</span><small>Sisa 5 strip, Min. 20</small></td><td><a class="outline-button" href="{{index .Routes "data_master"}}">Lihat</a></td></tr>
+            </tbody></table></div>
+        </article>
+
+        <article class="panel table-panel">
+            <div class="panel-heading"><div><h2>Batch Mendekati Kedaluwarsa</h2><p>Berdasarkan acuan tanggal hari ini: 7 Nov 2026</p></div><a class="text-action" href="{{index .Routes "kedaluwarsa"}}">Cek Kalender ED ›</a></div>
+            <div class="table-scroll"><table><thead><tr><th>Obat</th><th>No. Batch</th><th>Sisa Stok</th><th>Tgl ED</th><th>Status</th></tr></thead><tbody>
+                <tr><td><strong>Amoxicillin 500mg</strong></td><td class="muted-cell">B24-098</td><td>25 strip</td><td class="amber-text">18 Nov 2026</td><td><span class="status-pill warning">Mendekati batas jual</span></td></tr>
+                <tr><td><strong>Cetirizine 10mg</strong></td><td class="muted-cell">CT-409</td><td>40 tablet</td><td class="amber-text">30 Nov 2026</td><td><span class="status-pill warning">Mendekati batas jual</span></td></tr>
+                <tr><td><strong>Salbutamol Inhaler</strong></td><td class="muted-cell">SB-102</td><td>4 unit</td><td class="amber-text">12 Des 2026</td><td><span class="status-pill warning">Mendekati batas jual</span></td></tr>
+                <tr><td><strong>Antasida Doen Susp</strong></td><td class="muted-cell">AT-991</td><td>8 botol</td><td class="red-text">02 Nov 2026</td><td><span class="status-pill danger">Kedaluwarsa</span></td></tr>
+                <tr><td><strong>Ciprofloxacin 500mg</strong></td><td class="muted-cell">CP-774</td><td>15 strip</td><td class="red-text">05 Nov 2026</td><td><span class="status-pill danger">Tidak boleh dijual</span></td></tr>
+            </tbody></table></div>
+        </article>
+    </section>
+
+    <section class="bottom-grid">
+        <article class="panel activity-panel">
+            <div class="panel-heading"><div><h2>Aktivitas Terbaru</h2><p>Log real-time transaksi dan pergerakan stok farmasi</p></div><span class="sync-badge">● Sinkron Otomatis</span></div>
+            <div class="activity-list">
+                <div class="activity-item"><span class="activity-icon coral">▣</span><div><div class="activity-title"><strong>Penerimaan PBF: PT Anugrah Pharmindo Lestari</strong><time>10 menit lalu</time></div><p>Faktur #APL-88219 diverifikasi, total 12 produk dan 18 batch obat baru berhasil dimasukkan ke sistem FEFO.</p><small>Petugas: Siti (Asisten Apoteker)</small></div></div>
+                <div class="activity-item"><span class="activity-icon green">▤</span><div><div class="activity-title"><strong>Penjualan Resep: R-20261107-042 via Kasir</strong><time>25 menit lalu</time></div><p>Amoxicillin B24-098 &amp; Paracetamol terlayani dengan total transaksi Rp145.000.</p><small>Kasir: Budi</small></div></div>
+                <div class="activity-item"><span class="activity-icon amber">♧</span><div><div class="activity-title"><strong>Retur Konsumen: Paracetamol Sirup Rusak Segel</strong><time>1 jam lalu</time></div><p>Barang rusak segel ditarik ke karantina dan diganti dengan unit baru batch B25-01.</p><small>Petugas: Siti (Asisten Apoteker)</small></div></div>
+                <div class="activity-item"><span class="activity-icon peach">☑</span><div><div class="activity-title"><strong>Stock Opname: Verifikasi Rak A</strong><time>3 jam lalu</time></div><p>Pemeriksaan rak Antibiotik &amp; Analgetik selesai, 45 batch fisik cocok tanpa selisih kuantitas.</p><small>Apoteker: apt. Hendra</small></div></div>
+            </div>
+            <a class="panel-bottom-link" href="{{index .Routes "laporan"}}">Buka Semua Riwayat Aktivitas →</a>
+        </article>
+
+        <article class="panel opname-panel">
+            <div class="panel-heading"><div><h2>Hasil Stock Opname Terakhir</h2><p>Laporan rekonsiliasi stok fisik apotek</p></div><span class="success-check">✓</span></div>
+            <div class="opname-summary">
+                <div><span>Tanggal Pelaksanaan</span><strong>6 November 2026 (Sesi Sore)</strong></div>
+                <div><span>Pelaksana</span><strong>Tim Apoteker &amp; Asisten</strong></div>
+                <div><span>Jumlah Batch Dihitung</span><strong>320 batch <small>(Rak A, B, C)</small></strong></div>
+                <div><span>Selisih Stok</span><strong class="positive">0 unit (Akurat 100%)</strong></div>
+                <div><span>Status Validasi</span><strong class="positive">Selesai &amp; Diverifikasi</strong></div>
+            </div>
+            <div class="opname-note"><strong>ⓘ Catatan Pemeriksaan Apoteker</strong><p>Semua nomor batch dan tanggal ED fisik sesuai dengan data sistem FEFO. Tidak ditemukan obat kedaluwarsa yang bercampur di rak penjualan bebas.</p></div>
+            <div class="opname-footer"><span>Jadwal Opname Berikutnya: 13 Nov 2026</span><a class="outline-button" href="{{index .Routes "stock_opname"}}">Unduh Berita Acara</a></div>
+        </article>
+    </section>
+</section>
+{{end}}

@@ -794,7 +794,7 @@ Apotek-Sumber-Waras/
 ├── migrations/
 │   ├── 001_init.sql
 │   ├── 002_add_email_to_users.sql
-│   └── 003_add_sessions.sql  # Migration berikutnya; belum tersedia
+│   └── 003_add_sessions.sql 
 │
 ├── seed/
 │   ├── 001_users.sql

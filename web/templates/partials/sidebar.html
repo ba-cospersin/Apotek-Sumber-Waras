@@ -1,0 +1,31 @@
+{{define "sidebar"}}
+<aside class="sidebar" id="app-sidebar">
+    <a class="sidebar-brand" href="{{.HomeURL}}" aria-label="Apotek Sumber Waras">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6V3Z" fill="currentColor"/></svg></span>
+        <span class="brand-copy"><strong>APOTEK<br>SUMBER WARAS</strong><small>Sistem Stok Apotek</small></span>
+    </a>
+    <nav class="sidebar-nav" aria-label="Navigasi utama">
+        {{if eq .User.Role "OWNER"}}
+        <a class="nav-link {{if eq .ActivePage "dashboard"}}is-active{{end}}" href="{{index .Routes "dashboard"}}"><span class="nav-icon">▦</span><span>Dashboard</span></a>
+        {{end}}
+        {{if or (eq .User.Role "OWNER") (eq .User.Role "KASIR")}}
+        <a class="nav-link {{if eq .ActivePage "kasir"}}is-active{{end}}" href="{{index .Routes "kasir"}}"><span class="nav-icon">▤</span><span>Kasir</span></a>
+        {{end}}
+        {{if or (eq .User.Role "OWNER") (eq .User.Role "GUDANG")}}
+        <a class="nav-link {{if eq .ActivePage "penerimaan"}}is-active{{end}}" href="{{index .Routes "penerimaan"}}"><span class="nav-icon">▣</span><span>Penerimaan Barang</span></a>
+        <a class="nav-link {{if eq .ActivePage "cek_stok"}}is-active{{end}}" href="{{index .Routes "cek_stok"}}"><span class="nav-icon">☷</span><span>Cek Stok &amp; Batch</span></a>
+        {{end}}
+        <a class="nav-link {{if eq .ActivePage "retur"}}is-active{{end}}" href="{{index .Routes "retur"}}"><span class="nav-icon">♧</span><span>Retur Konsumen</span></a>
+        {{if or (eq .User.Role "OWNER") (eq .User.Role "GUDANG")}}
+        <a class="nav-link {{if eq .ActivePage "stock_opname"}}is-active{{end}}" href="{{index .Routes "stock_opname"}}"><span class="nav-icon">☑</span><span>Stock Opname</span></a>
+        <a class="nav-link {{if eq .ActivePage "kedaluwarsa"}}is-active{{end}}" href="{{index .Routes "kedaluwarsa"}}"><span class="nav-icon">⚠</span><span>Kedaluwarsa &amp; Blokir</span></a>
+        {{end}}
+        {{if eq .User.Role "OWNER"}}
+        <a class="nav-link {{if eq .ActivePage "laporan"}}is-active{{end}}" href="{{index .Routes "laporan"}}"><span class="nav-icon">▧</span><span>Laporan</span></a>
+        <a class="nav-link {{if eq .ActivePage "data_master"}}is-active{{end}}" href="{{index .Routes "data_master"}}"><span class="nav-icon">▤</span><span>Data Master</span></a>
+        <a class="nav-link {{if eq .ActivePage "manajemen_pengguna"}}is-active{{end}}" href="{{index .Routes "manajemen_pengguna"}}"><span class="nav-icon">♙</span><span>Manajemen Pengguna</span></a>
+        {{end}}
+    </nav>
+    <div class="sidebar-footer"><div class="fefo-card"><span class="fefo-icon" aria-hidden="true">⚙</span><span><strong>FEFO AKTIF</strong><small>Batch terdekat didahulukan</small></span></div></div>
+</aside>
+{{end}}
