@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Apotek Sumber Waras - Dashboard</title>
+  
+  <!-- Panggilan ke file CSS di folder static -->
+  <link rel="stylesheet" href="/static/css/style.css" />
+  
+  <!-- CDN Tailwind -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  
+  <!-- Panggilan ke file JS di folder static -->
+  <script src="/static/js/test.js"></script>
+</head>
+<body class="min-h-screen bg-[#FBF9F5] flex flex-row">
+  
+  <!-- 1. Suntikkan Sidebar di sini -->
+  {{ template "partials/sidebar.html" . }}
+
+  <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    
+    <!-- 2. Suntikkan Header di sini -->
+    {{ template "partials/header.html" . }}
+    
+    <!-- 3. Suntikkan Konten Utama (Main) di sini -->
+    {{ template "content" . }}
+    
+  </div>
+</body>
+</html>
