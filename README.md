@@ -174,7 +174,7 @@ Selain 14 tabel inti, terdapat tabel teknis berikut:
 
 - `schema_migrations`: dibuat oleh migration runner untuk mencatat file migration yang berhasil diterapkan.
 - `seed_runs`: dibuat oleh seed runner untuk mencatat file seed yang berhasil dijalankan.
-- `sessions`: **belum dibuat pada ZIP repository saat ini**. Tabel ini merupakan bagian dari rencana autentikasi server-side dan akan ditambahkan melalui migration `003_add_sessions.sql`.
+- `sessions`: dibuat melalui migration `003_add_sessions.sql` untuk mendukung rancangan autentikasi server-side.
 
 Tabel teknis bukan bagian dari 14 tabel bisnis pada ERD. Tabel `sessions` tetap diperlukan pada rancangan autentikasi karena token session akan disimpan dan diperiksa di sisi server melalui database.
 
@@ -345,7 +345,8 @@ Migration yang tersedia pada ZIP repository saat ini:
 ```text
 migrations/
 ├── 001_init.sql
-└── 002_add_email_to_users.sql
+├── 002_add_email_to_users.sql
+└── 003_add_sessions.sql
 ```
 
 Fungsi masing-masing migration:
@@ -354,6 +355,7 @@ Fungsi masing-masing migration:
 |---|---|
 | `001_init.sql` | Membuat 14 tabel inti berdasarkan ERD. |
 | `002_add_email_to_users.sql` | Menambahkan kolom `email` pada tabel `users`, mengisi email sementara untuk akun yang sudah ada, menjadikan email wajib diisi, dan menambahkan unique key. |
+| `003_add_sessions.sql` | Membuat tabel teknis `sessions` untuk rancangan autentikasi server-side. |
 
 Migration `002_add_email_to_users.sql` diperlukan agar struktur database mendukung login menggunakan username atau email. Untuk database yang sudah berisi akun dari migration awal, migration ini mengisi email sementara berdasarkan username. Domain `.test` hanya digunakan untuk pengembangan.
 
@@ -382,28 +384,17 @@ Dengan penamaan berurutan, `001_init.sql` dijalankan sebelum `002_add_email_to_u
 
 ### 8.3 Migration Session untuk Autentikasi
 
-Tabel `sessions` diperlukan untuk rancangan autentikasi **server-side session**. Namun, tabel tersebut belum ada di ZIP repository saat ini dan belum tercantum dalam `001_init.sql` maupun `002_add_email_to_users.sql`.
+File `migrations/003_add_sessions.sql` **sudah tersedia pada repository saat ini**. Migration ini membuat tabel teknis `sessions` untuk rancangan autentikasi server-side. Tabel tersebut bukan bagian dari 14 tabel inti ERD.
 
-Migration berikutnya direncanakan menggunakan nomor `003`:
+Kolom utama yang disediakan:
 
-```text
-migrations/
-├── 001_init.sql
-├── 002_add_email_to_users.sql
-└── 003_add_sessions.sql  # Rencana; belum tersedia
-```
+- `user_id`: relasi ke akun pada tabel `users`; satu akun dibatasi memiliki satu baris session aktif melalui unique key.
+- `token_hash`: hash token session yang disimpan di database, bukan token asli dari cookie.
+- `created_at`: waktu pembuatan session.
+- `last_activity_at`: waktu aktivitas terakhir.
+- `expires_at`: batas maksimum berlakunya session.
 
-Migration `003_add_sessions.sql` nantinya digunakan untuk membuat tabel teknis `sessions`. Rancangannya perlu mendukung sekurang-kurangnya:
-
-- Relasi session terhadap pengguna pada tabel `users`.
-- Identitas/token session yang dapat divalidasi oleh backend.
-- Waktu pembuatan session.
-- Waktu aktivitas terakhir.
-- Waktu kedaluwarsa maksimum session.
-
-Kolom dan constraint final harus disepakati sebelum migration dibuat. Tabel ini bukan bagian dari 14 tabel inti ERD dan tidak perlu diisi melalui seed data bisnis.
-
-Migration runner sudah membaca seluruh file `migrations/*.sql` secara berurutan. Dengan demikian, setelah file `003_add_sessions.sql` dibuat, file tersebut dapat diproses oleh runner tanpa mengganti mekanisme pembacaan migration. File migration lama yang sudah diterapkan tidak boleh diedit untuk menambahkan tabel session.
+Migration runner membaca seluruh `migrations/*.sql` secara berurutan sehingga migration ini diproses setelah migration `001` dan `002`. Namun, tersedianya tabel belum berarti login/session telah berfungsi. Repository session, service autentikasi, handler login/logout, dan integrasi middleware masih perlu diselesaikan.
 
 ### 8.4 Menambahkan Migration Berikutnya
 
@@ -555,7 +546,9 @@ http://localhost:8080
 
 ### 10.1 Endpoint Pemeriksaan
 
-Router pada fondasi repository saat ini menyediakan endpoint `GET /health` untuk memeriksa apakah server dan database dapat dihubungi.
+Router menyediakan endpoint `GET /health` untuk memeriksa koneksi database serta route `GET` halaman frontend berikut: `/dashboard`, `/kasir`, `/penerimaan`, `/cek-stok`, `/retur`, `/stock-opname`, `/kedaluwarsa`, `/laporan`, `/data-master`, `/manajemen-pengguna`, dan `/struk-penjualan`.
+
+Route halaman tersebut saat ini masih menggunakan identitas demo dan belum dipasangi middleware session/role. Route final ini disediakan agar tampilan dapat diuji tanpa prefix `__preview`; jangan menganggapnya sebagai perlindungan akses untuk aplikasi operasional. Lihat `docs/BACKEND_LEAD_HANDOFF.md` untuk status dan tahapan integrasi autentikasi.
 
 Buka alamat:
 
@@ -660,7 +653,8 @@ Apotek-Sumber-Waras/
 │
 ├── migrations/
 │   ├── 001_init.sql
-│   └── 002_add_email_to_users.sql
+│   ├── 002_add_email_to_users.sql
+│   └── 003_add_sessions.sql
 │
 ├── seed/
 │   ├── 001_users.sql
@@ -671,7 +665,7 @@ Apotek-Sumber-Waras/
 │   ├── 006_stock_opname.sql
 │   └── 007_batch_disposals.sql
 │
-├── docs/                       # Belum berisi file dokumentasi
+├── docs/                       # Dokumentasi teknis dan mapping frontend
 ├── tests/                      # Tempat pengujian
 │
 ├── web/
@@ -690,32 +684,32 @@ Apotek-Sumber-Waras/
 └── README.md
 ```
 
-File `.env` juga terdapat pada folder kerja lokal dalam ZIP pengembangan, tetapi tidak ditampilkan sebagai bagian file repository yang harus dibagikan. File tersebut dibuat masing-masing anggota dari `.env.example` dan tidak boleh di-commit.
+File `.env` bersifat lokal dan tidak disertakan dalam ZIP distribusi. Setiap anggota membuat file tersebut dari `.env.example` dan tidak boleh meng-commit kredensialnya.
 
 Sebagian file pada folder fitur masih berupa placeholder. Keberadaan file tersebut menunjukkan tempat modul akan dikembangkan, bukan berarti login, dashboard, penjualan, penerimaan, atau fitur lain sudah selesai.
 
 | File/Folder | Fungsi Saat Ini atau Target | Penanggung Jawab Utama |
 |---|---|---|
-| `cmd/server/main.go` | Titik awal server; saat ini membaca konfigurasi, membuka koneksi database, membuat router, dan menjalankan HTTP server. | Backend Lead |
+| `cmd/server/main.go` | Titik awal server; membaca konfigurasi, membuka koneksi database, memanggil `app.New`, dan menjalankan HTTP server. | Backend Lead |
 | `cmd/migrate/main.go` | Menjalankan seluruh migration SQL yang belum tercatat. | Backend Lead |
 | `cmd/seed/main.go` | Menjalankan file seed yang belum tercatat. | Backend Lead |
-| `internal/app/app.go` | Saat ini masih placeholder `package app`; targetnya menjadi tempat inisialisasi dan penghubung dependency aplikasi. | Backend Lead |
+| `internal/app/app.go` | Menginisialisasi renderer dan router melalui `app.New`; menjadi titik awal dependency wiring modul berikutnya. | Backend Lead |
 | `internal/config/` | Membaca konfigurasi aplikasi dari `.env` atau environment variable. | Backend Lead |
 | `internal/database/` | Membuat dan mengelola connection pool database. | Backend Lead |
 | `internal/model/` | Menyimpan struct data dan error bersama. | Backend Lead dan Backend Developer |
 | `internal/middleware/` | Fondasi pemeriksaan session dan pembatasan akses berdasarkan role. | Backend Lead |
-| `internal/router/` | Mengatur route utama; saat ini menyediakan endpoint `/health`. | Backend Lead |
-| `internal/auth/` | Target modul login, logout, dan autentikasi. File saat ini masih placeholder. | Backend Owner |
+| `internal/router/` | Mendaftarkan URL halaman permanen dan endpoint `/health`. Halaman masih memakai identitas demo sementara, belum memakai middleware session/role. | Backend Lead |
+| `internal/auth/` | Handler halaman login sudah ada, tetapi POST login belum terhubung; repository dan service masih placeholder. | Backend Owner |
 | `internal/owner/` | Target modul manajemen pengguna, data master, dan dashboard. File saat ini masih placeholder. | Backend Owner |
 | `internal/cashier/` | Target modul penjualan dan retur konsumen. File saat ini masih placeholder. | Backend Kasir |
 | `internal/warehouse/` | Target modul penerimaan, batch, persediaan, dan stock opname. File saat ini masih placeholder. | Backend Gudang |
-| `internal/view/` | Target penghubung kode Go dengan template HTML. File saat ini masih placeholder. | Integrasi Backend dan Frontend |
+| `internal/view/` | Memuat template HTML dan merender halaman menggunakan `PageData`. | Integrasi Backend dan Frontend |
 | `web/templates/` | Tempat template HTML yang akan dibuat oleh Frontend. | Frontend 1 dan Frontend 2 |
 | `web/static/` | Tempat CSS, JavaScript, dan gambar antarmuka. | Frontend 1 dan Frontend 2 |
 | `migrations/` | Menyimpan perubahan struktur database. | Backend Lead dan pengusul fitur |
 | `seed/` | Menyimpan data dummy standar untuk pengujian. | Backend Lead dan tim |
 
-**Catatan integrasi saat ini:** `internal/app/app.go` sudah tersedia sebagai file placeholder, tetapi `cmd/server/main.go` belum memanggilnya. Koneksi database dan router masih diinisialisasi langsung dari `main.go`. Ketika komponen aplikasi bertambah, proses dependency wiring dapat dipindahkan ke `internal/app/app.go` agar `main.go` hanya menjadi titik masuk dan pengatur HTTP server.
+**Catatan integrasi saat ini:** `cmd/server/main.go` sudah memanggil `app.New(db)`. Package `internal/app` membuat renderer dan router, sedangkan satu koneksi database diteruskan ke router. Route halaman saat ini sudah menggunakan URL permanen seperti `/dashboard` dan `/cek-stok`, tetapi handler halaman masih memakai identitas demo sementara dan belum dilindungi middleware autentikasi. Rincian pembagian kerja ada pada `docs/BACKEND_LEAD_HANDOFF.md`.
 
 ### 11.2 Target Struktur Pengembangan
 
@@ -878,7 +872,7 @@ Target tanggung jawabnya adalah menghubungkan komponen seperti:
 - Middleware.
 - Router.
 
-Dengan pemisahan tersebut, `cmd/server/main.go` nantinya cukup membaca konfigurasi, membuat aplikasi, mengatur HTTP server, dan menjalankannya. Pada ZIP saat ini, `app.go` masih berupa placeholder dan belum digunakan oleh `main.go`.
+Dengan pemisahan tersebut, `cmd/server/main.go` nantinya cukup membaca konfigurasi, membuat aplikasi, mengatur HTTP server, dan menjalankannya. Pada implementasi saat ini, `app.go` sudah membuat renderer dan router. Dependency repository, service, handler bisnis, dan middleware akan ditambahkan ke wiring ini ketika modul masing-masing selesai.
 
 ### 11.5 Perbedaan `internal/view` dan `web`
 
@@ -1005,7 +999,7 @@ Ketentuan session yang menjadi target implementasi:
 - `internal/middleware/role.go` sudah menyediakan middleware pembatasan role `OWNER`, `KASIR`, dan `GUDANG`.
 - `internal/model/user.go` sudah menyediakan struct `User` dan error `ErrInvalidSession`.
 - Implementasi repository session, proses login/logout, dan integrasi autentikasi ke router belum tersedia.
-- Migration tabel `sessions` juga belum tersedia. Tabel tersebut direncanakan melalui `003_add_sessions.sql`.
+- Migration `003_add_sessions.sql` sudah tersedia dan membuat tabel `sessions`, tetapi repository session dan integrasinya belum tersedia.
 
 Ketentuan satu session per akun, idle timeout 30 menit, dan batas maksimum 8 jam baru dianggap berjalan setelah repository, migration, handler/service autentikasi, dan integrasi middleware selesai dibuat serta diuji.
 
@@ -1060,7 +1054,7 @@ Dokumentasi teknis proyek dapat disimpan pada folder `docs/`, meliputi:
 - Panduan struktur kode, pembagian modul, dan proses integrasi (`DEVELOPMENT.md`).
 - Rancangan antarmuka dan alur proses apabila diperlukan.
 
-Folder `docs/` sudah tersedia pada ZIP saat ini, tetapi belum berisi file dokumentasi. Dokumen dibuat ketika materinya tersedia. Setiap perubahan penting terhadap database atau alur bisnis sebaiknya diperbarui pada dokumentasi terkait.
+Folder `docs/` berisi mapping frontend dan panduan kerja Backend Lead. Setiap perubahan penting terhadap database, kontrak endpoint, atau alur bisnis sebaiknya diperbarui pada dokumentasi terkait.
 
 Folder `tests/` disediakan untuk pengujian unit dan integrasi. Pengujian ditambahkan seiring dengan implementasi fitur.
 

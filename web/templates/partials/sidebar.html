@@ -15,7 +15,9 @@
         <a class="nav-link {{if eq .ActivePage "penerimaan"}}is-active{{end}}" href="{{index .Routes "penerimaan"}}"><span class="nav-icon">▣</span><span>Penerimaan Barang</span></a>
         <a class="nav-link {{if eq .ActivePage "cek_stok"}}is-active{{end}}" href="{{index .Routes "cek_stok"}}"><span class="nav-icon">☷</span><span>Cek Stok &amp; Batch</span></a>
         {{end}}
+        {{if or (eq .User.Role "OWNER") (eq .User.Role "KASIR")}}
         <a class="nav-link {{if eq .ActivePage "retur"}}is-active{{end}}" href="{{index .Routes "retur"}}"><span class="nav-icon">♧</span><span>Retur Konsumen</span></a>
+        {{end}}
         {{if or (eq .User.Role "OWNER") (eq .User.Role "GUDANG")}}
         <a class="nav-link {{if eq .ActivePage "stock_opname"}}is-active{{end}}" href="{{index .Routes "stock_opname"}}"><span class="nav-icon">☑</span><span>Stock Opname</span></a>
         <a class="nav-link {{if eq .ActivePage "kedaluwarsa"}}is-active{{end}}" href="{{index .Routes "kedaluwarsa"}}"><span class="nav-icon">⚠</span><span>Kedaluwarsa &amp; Blokir</span></a>

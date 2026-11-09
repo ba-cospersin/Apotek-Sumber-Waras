@@ -123,17 +123,17 @@ func (rd *Renderer) RenderPage(w http.ResponseWriter, status int, pageName strin
 // RenderDashboard dipertahankan sebagai wrapper agar integrasi lama tidak langsung rusak.
 func (rd *Renderer) RenderDashboard(w http.ResponseWriter, status int, data DashboardData) {
 	routes := map[string]string{
-		"dashboard":          data.DashboardURL,
-		"kasir":              "/__preview/kasir?role=OWNER",
-		"penerimaan":         "/__preview/penerimaan?role=OWNER",
-		"cek_stok":           "/__preview/cek_stok?role=OWNER",
-		"retur":              "/__preview/retur?role=OWNER",
-		"stock_opname":       "/__preview/stock_opname?role=OWNER",
-		"kedaluwarsa":        "/__preview/kedaluwarsa?role=OWNER",
-		"laporan":            "/__preview/laporan?role=OWNER",
-		"data_master":        "/__preview/data_master?role=OWNER",
-		"manajemen_pengguna": "/__preview/manajemen_pengguna?role=OWNER",
-		"struk_penjualan":    "/__preview/struk_penjualan?role=OWNER",
+		"dashboard":          "/dashboard",
+		"kasir":              "/kasir",
+		"penerimaan":         "/penerimaan",
+		"cek_stok":           "/cek-stok",
+		"retur":              "/retur",
+		"stock_opname":       "/stock-opname",
+		"kedaluwarsa":        "/kedaluwarsa",
+		"laporan":            "/laporan",
+		"data_master":        "/data-master",
+		"manajemen_pengguna": "/manajemen-pengguna",
+		"struk_penjualan":    "/struk-penjualan",
 	}
 	homeURL := data.DashboardURL
 	if homeURL == "" {

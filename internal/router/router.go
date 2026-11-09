@@ -3,9 +3,8 @@ package router
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"net/http"
-	"net/url"
-	"strings"
 	"time"
 
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/auth"
@@ -13,7 +12,7 @@ import (
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/view"
 )
 
-type previewPageConfig struct {
+type pageConfig struct {
 	name        string
 	title       string
 	subtitle    string
@@ -23,7 +22,23 @@ type previewPageConfig struct {
 	defaultRole string
 }
 
-var previewPages = []previewPageConfig{
+// pagePaths adalah kontrak URL halaman aplikasi. URL tidak membawa role;
+// hak akses nantinya ditentukan backend berdasarkan session login.
+var pagePaths = map[string]string{
+	"dashboard":          "/dashboard",
+	"kasir":              "/kasir",
+	"penerimaan":         "/penerimaan",
+	"cek_stok":           "/cek-stok",
+	"retur":              "/retur",
+	"stock_opname":       "/stock-opname",
+	"kedaluwarsa":        "/kedaluwarsa",
+	"laporan":            "/laporan",
+	"data_master":        "/data-master",
+	"manajemen_pengguna": "/manajemen-pengguna",
+	"struk_penjualan":    "/struk-penjualan",
+}
+
+var pageConfigs = []pageConfig{
 	{name: "dashboard", title: "Dashboard", subtitle: "Ringkasan pengelolaan stok apotek", css: "/static/css/dashboard.css", active: "dashboard", defaultRole: model.RoleOwner},
 	{name: "kasir", title: "Kasir", subtitle: "Pencatatan transaksi penjualan", css: "/static/css/kasir.css", js: "/static/js/kasir.js", active: "kasir", defaultRole: model.RoleCashier},
 	{name: "penerimaan", title: "Penerimaan Barang", subtitle: "Pencatatan penerimaan obat dari PBF", css: "/static/css/penerimaan.css", active: "penerimaan", defaultRole: model.RoleWarehouse},
@@ -37,13 +52,11 @@ var previewPages = []previewPageConfig{
 	{name: "struk_penjualan", title: "Struk Penjualan", subtitle: "Pratinjau bukti transaksi", css: "/static/css/struk_penjualan.css", active: "kasir", defaultRole: model.RoleCashier},
 }
 
-func New(db *sql.DB) (*http.ServeMux, error) {
-	renderer, err := view.NewRenderer()
-	if err != nil {
-		return nil, err
-	}
-
+// New mendaftarkan route aplikasi menggunakan URL permanen.
+// db boleh nil hanya untuk pengujian halaman; endpoint /health akan mengembalikan 503.
+func New(db *sql.DB, renderer *view.Renderer) *http.ServeMux {
 	mux := http.NewServeMux()
+
 	staticFiles := http.FileServer(http.Dir("web/static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", staticFiles))
 
@@ -60,16 +73,21 @@ func New(db *sql.DB) (*http.ServeMux, error) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	})
 
-	// Handler login tetap disediakan dan dimiliki modul Backend Owner.
-	// Backend Lead hanya mendaftarkan handler yang sudah tersedia.
+	// Handler login tetap dimiliki modul Backend Owner.
+	// Saat ini GET login tersedia; POST akan aktif setelah service autentikasi selesai.
 	authHandler := auth.NewHandler(renderer)
 	mux.HandleFunc("/login", authHandler.Login)
 
-	// Route preview untuk pemeriksaan frontend lokal. Semua endpoint ini
-	// memakai data statis dan sengaja belum dipasangi middleware autentikasi.
-	for _, config := range previewPages {
+	// PERHATIAN: halaman di bawah masih menggunakan identitas dan data demo.
+	// Route sudah memakai URL final agar frontend dapat diuji tanpa __preview.
+	// Route ini BELUM dilindungi session/role dan tidak boleh dianggap siap produksi.
+	for _, config := range pageConfigs {
 		pageConfig := config
-		path := "/__preview/" + pageConfig.name
+		path := pagePaths[pageConfig.name]
+		if path == "" {
+			continue
+		}
+
 		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path != path {
 				http.NotFound(w, r)
@@ -81,11 +99,10 @@ func New(db *sql.DB) (*http.ServeMux, error) {
 				return
 			}
 
-			role := requestedPreviewRole(r, pageConfig.defaultRole)
-			user, roleLabel, avatar := previewUser(role)
-			routes := make(map[string]string, len(previewPages))
-			for _, item := range previewPages {
-				routes[item.name] = "/__preview/" + item.name + "?role=" + url.QueryEscape(role)
+			user, roleLabel, avatar := previewUser(pageConfig.defaultRole)
+			routes := make(map[string]string, len(pagePaths))
+			for name, routePath := range pagePaths {
+				routes[name] = routePath
 			}
 
 			renderer.RenderPage(w, http.StatusOK, pageConfig.name, view.PageData{
@@ -94,10 +111,10 @@ func New(db *sql.DB) (*http.ServeMux, error) {
 				PageCSS:     pageConfig.css,
 				PageJS:      pageConfig.js,
 				ActivePage:  pageConfig.active,
-				CurrentDate: "Sabtu, 7 November 2026",
+				CurrentDate: currentDateIndonesia(),
 				RoleLabel:   roleLabel,
 				AvatarText:  avatar,
-				HomeURL:     previewHomeURL(role),
+				HomeURL:     previewHomeURL(pageConfig.defaultRole),
 				User:        user,
 				Routes:      routes,
 			})
@@ -109,6 +126,10 @@ func New(db *sql.DB) (*http.ServeMux, error) {
 		if r.Method != http.MethodGet {
 			w.Header().Set("Allow", http.MethodGet)
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		if db == nil {
+			http.Error(w, "Database unavailable", http.StatusServiceUnavailable)
 			return
 		}
 
@@ -124,19 +145,11 @@ func New(db *sql.DB) (*http.ServeMux, error) {
 		_, _ = w.Write([]byte("Server and database are running"))
 	})
 
-	return mux, nil
+	return mux
 }
 
-func requestedPreviewRole(r *http.Request, fallback string) string {
-	role := strings.ToUpper(strings.TrimSpace(r.URL.Query().Get("role")))
-	switch role {
-	case model.RoleOwner, model.RoleCashier, model.RoleWarehouse:
-		return role
-	default:
-		return fallback
-	}
-}
-
+// previewUser hanya menyediakan identitas statis untuk pemeriksaan tampilan.
+// Fungsi ini akan digantikan oleh user dari middleware session saat auth diintegrasikan.
 func previewUser(role string) (model.User, string, string) {
 	user := model.User{ID: 1, IsActive: true, Role: role}
 	switch role {
@@ -161,5 +174,19 @@ func previewHomeURL(role string) string {
 	case model.RoleWarehouse:
 		page = "penerimaan"
 	}
-	return "/__preview/" + page + "?role=" + url.QueryEscape(role)
+	return pagePaths[page]
+}
+
+// currentDateIndonesia menampilkan tanggal mengikuti zona waktu operasional Indonesia barat.
+func currentDateIndonesia() string {
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		location = time.Local
+	}
+
+	now := time.Now().In(location)
+	weekdays := [...]string{"Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"}
+	months := [...]string{"Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"}
+
+	return fmt.Sprintf("%s, %d %s %d", weekdays[now.Weekday()], now.Day(), months[int(now.Month())-1], now.Year())
 }
