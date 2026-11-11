@@ -266,3 +266,110 @@ func bulatkan(x float64, desimal int) float64 {
 	p := math.Pow(10, float64(desimal))
 	return math.Round(x*p) / p
 }
+
+// ---------- Riwayat penerimaan ----------
+
+const (
+	perHalamanBawaan = 20
+	perHalamanMaks   = 100
+)
+
+// DaftarPenerimaan mengambil satu halaman daftar faktur.
+func (s *Service) DaftarPenerimaan(
+	ctx context.Context,
+	f FilterPenerimaan,
+) (*DaftarPenerimaan, error) {
+	q, page, perPage, err := siapkanFilter(f)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, total, err := s.repo.ListPenerimaan(ctx, q)
+	if err != nil {
+		return nil, err
+	}
+
+	return &DaftarPenerimaan{
+		Data: rows,
+		Meta: Halaman{
+			Page:         page,
+			PerPage:      perPage,
+			Total:        total,
+			TotalHalaman: (total + perPage - 1) / perPage,
+		},
+	}, nil
+}
+
+// DetailPenerimaan mengambil satu faktur beserta itemnya.
+func (s *Service) DetailPenerimaan(
+	ctx context.Context,
+	id int64,
+) (*DetailPenerimaan, error) {
+	if id <= 0 {
+		return nil, validasi("id faktur tidak valid")
+	}
+
+	d, err := s.repo.GetPenerimaan(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if d == nil {
+		return nil, fmt.Errorf("faktur dengan id %d: %w", id, ErrTidakDitemukan)
+	}
+	return d, nil
+}
+
+// siapkanFilter memvalidasi filter dan mengubah halaman menjadi LIMIT/OFFSET.
+func siapkanFilter(f FilterPenerimaan) (QueryPenerimaan, int, int, error) {
+	var q QueryPenerimaan
+
+	if f.SupplierID < 0 {
+		return q, 0, 0, validasi("supplier_id tidak valid")
+	}
+	if f.Page < 0 || f.PerPage < 0 {
+		return q, 0, 0, validasi("page dan per_page tidak boleh negatif")
+	}
+
+	page := f.Page
+	if page == 0 {
+		page = 1
+	}
+	perPage := f.PerPage
+	if perPage == 0 {
+		perPage = perHalamanBawaan
+	}
+	if perPage > perHalamanMaks {
+		perPage = perHalamanMaks
+	}
+
+	dari := strings.TrimSpace(f.Dari)
+	sampai := strings.TrimSpace(f.Sampai)
+
+	var tDari, tSampai time.Time
+	var err error
+
+	if dari != "" {
+		tDari, err = time.ParseInLocation(layoutTanggal, dari, time.Local)
+		if err != nil {
+			return q, 0, 0, validasi("dari harus berformat YYYY-MM-DD")
+		}
+	}
+	if sampai != "" {
+		tSampai, err = time.ParseInLocation(layoutTanggal, sampai, time.Local)
+		if err != nil {
+			return q, 0, 0, validasi("sampai harus berformat YYYY-MM-DD")
+		}
+	}
+	if dari != "" && sampai != "" && tDari.After(tSampai) {
+		return q, 0, 0, validasi("dari tidak boleh lebih besar dari sampai")
+	}
+
+	q = QueryPenerimaan{
+		SupplierID: f.SupplierID,
+		Dari:       dari,
+		Sampai:     sampai,
+		Limit:      perPage,
+		Offset:     (page - 1) * perPage,
+	}
+	return q, page, perPage, nil
+}

@@ -224,3 +224,149 @@ func (t *TxRepository) UpdatePurchaseTotal(
 	}
 	return nil
 }
+
+// ---------- Riwayat penerimaan (hanya membaca) ----------
+
+// ListPenerimaan mengambil satu halaman daftar faktur beserta total barisnya.
+// Urutan: tanggal faktur terbaru dulu.
+func (r *Repository) ListPenerimaan(
+	ctx context.Context,
+	q QueryPenerimaan,
+) ([]RingkasanPenerimaan, int, error) {
+	// Filter disusun dinamis, tetapi nilainya SELALU lewat tanda tanya (?)
+	// supaya aman dari SQL injection.
+	where := " WHERE 1=1"
+	var args []any
+
+	if q.SupplierID > 0 {
+		where += " AND p.supplier_id = ?"
+		args = append(args, q.SupplierID)
+	}
+	if q.Dari != "" {
+		where += " AND p.tgl_faktur >= ?"
+		args = append(args, q.Dari)
+	}
+	if q.Sampai != "" {
+		where += " AND p.tgl_faktur <= ?"
+		args = append(args, q.Sampai)
+	}
+
+	var total int
+	err := r.db.QueryRowContext(
+		ctx,
+		`SELECT COUNT(*) FROM purchases p`+where,
+		args...,
+	).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("gagal menghitung daftar faktur: %w", err)
+	}
+
+	argsHalaman := append(append([]any{}, args...), q.Limit, q.Offset)
+
+	rows, err := r.db.QueryContext(
+		ctx,
+		`SELECT p.id, p.supplier_id, s.nama_pbf, p.no_faktur, p.tgl_faktur,
+		        p.total, u.nama,
+		        (SELECT COUNT(*) FROM batch_receipts br WHERE br.purchase_id = p.id)
+		   FROM purchases p
+		   JOIN suppliers s ON s.id = p.supplier_id
+		   JOIN users u ON u.id = p.user_id`+where+`
+		  ORDER BY p.tgl_faktur DESC, p.id DESC
+		  LIMIT ? OFFSET ?`,
+		argsHalaman...,
+	)
+	if err != nil {
+		return nil, 0, fmt.Errorf("gagal mengambil daftar faktur: %w", err)
+	}
+	defer rows.Close()
+
+	hasil := make([]RingkasanPenerimaan, 0)
+	for rows.Next() {
+		var it RingkasanPenerimaan
+		var tgl time.Time
+		if err := rows.Scan(
+			&it.PurchaseID, &it.SupplierID, &it.NamaPBF, &it.NoFaktur,
+			&tgl, &it.Total, &it.DicatatOleh, &it.JumlahItem,
+		); err != nil {
+			return nil, 0, fmt.Errorf("gagal membaca daftar faktur: %w", err)
+		}
+		it.TglFaktur = tgl.Format(layoutTanggal)
+		hasil = append(hasil, it)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, 0, fmt.Errorf("gagal membaca daftar faktur: %w", err)
+	}
+
+	return hasil, total, nil
+}
+
+// GetPenerimaan mengambil satu faktur beserta semua lapisan penerimaannya.
+// Mengembalikan nil jika faktur tidak ditemukan.
+func (r *Repository) GetPenerimaan(
+	ctx context.Context,
+	id int64,
+) (*DetailPenerimaan, error) {
+	var d DetailPenerimaan
+	var tgl time.Time
+
+	err := r.db.QueryRowContext(
+		ctx,
+		`SELECT p.id, p.supplier_id, s.nama_pbf, p.no_faktur, p.tgl_faktur,
+		        p.total, u.nama
+		   FROM purchases p
+		   JOIN suppliers s ON s.id = p.supplier_id
+		   JOIN users u ON u.id = p.user_id
+		  WHERE p.id = ?`,
+		id,
+	).Scan(
+		&d.PurchaseID, &d.SupplierID, &d.NamaPBF, &d.NoFaktur,
+		&tgl, &d.Total, &d.DicatatOleh,
+	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("gagal mengambil faktur: %w", err)
+	}
+	d.TglFaktur = tgl.Format(layoutTanggal)
+
+	rows, err := r.db.QueryContext(
+		ctx,
+		`SELECT br.id, br.batch_id, b.medicine_id, m.kode, m.nama, m.satuan_dasar,
+		        b.no_batch, b.tgl_kadaluarsa, b.status_batch,
+		        br.qty_diterima, br.qty_sisa, br.harga_beli_per_dasar,
+		        br.tanggal_terima
+		   FROM batch_receipts br
+		   JOIN batches b ON b.id = br.batch_id
+		   JOIN medicines m ON m.id = b.medicine_id
+		  WHERE br.purchase_id = ?
+		  ORDER BY br.id`,
+		id,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("gagal mengambil item faktur: %w", err)
+	}
+	defer rows.Close()
+
+	d.Items = make([]ItemDetailPenerimaan, 0)
+	for rows.Next() {
+		var it ItemDetailPenerimaan
+		var kadaluarsa, terima time.Time
+		if err := rows.Scan(
+			&it.ReceiptID, &it.BatchID, &it.MedicineID, &it.KodeObat,
+			&it.NamaObat, &it.SatuanDasar, &it.NoBatch, &kadaluarsa,
+			&it.StatusBatch, &it.QtyDiterima, &it.QtySisa,
+			&it.HargaBeliPerDasar, &terima,
+		); err != nil {
+			return nil, fmt.Errorf("gagal membaca item faktur: %w", err)
+		}
+		it.TglKadaluarsa = kadaluarsa.Format(layoutTanggal)
+		it.TanggalTerima = terima.Format("2006-01-02 15:04:05")
+		d.Items = append(d.Items, it)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("gagal membaca item faktur: %w", err)
+	}
+
+	return &d, nil
+}

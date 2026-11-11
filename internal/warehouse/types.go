@@ -97,3 +97,83 @@ type Batch struct {
 	TglKadaluarsa time.Time
 	Status        string
 }
+
+// ---------- Riwayat penerimaan ----------
+
+// ErrTidakDitemukan: data yang diminta tidak ada -> HTTP 404.
+var ErrTidakDitemukan = errors.New("data tidak ditemukan")
+
+// FilterPenerimaan adalah filter dari pengguna untuk daftar faktur.
+// Nilai kosong/0 berarti filter tidak dipakai.
+type FilterPenerimaan struct {
+	SupplierID int64
+	Dari       string // YYYY-MM-DD, berdasarkan tgl_faktur
+	Sampai     string // YYYY-MM-DD, berdasarkan tgl_faktur
+	Page       int
+	PerPage    int
+}
+
+// QueryPenerimaan adalah filter yang sudah divalidasi, siap untuk SQL.
+type QueryPenerimaan struct {
+	SupplierID int64
+	Dari       string
+	Sampai     string
+	Limit      int
+	Offset     int
+}
+
+// RingkasanPenerimaan adalah satu baris pada daftar faktur.
+type RingkasanPenerimaan struct {
+	PurchaseID  int64   `json:"purchase_id"`
+	SupplierID  int64   `json:"supplier_id"`
+	NamaPBF     string  `json:"nama_pbf"`
+	NoFaktur    string  `json:"no_faktur"`
+	TglFaktur   string  `json:"tgl_faktur"`
+	Total       float64 `json:"total"`
+	JumlahItem  int     `json:"jumlah_item"`
+	DicatatOleh string  `json:"dicatat_oleh"`
+}
+
+// Halaman adalah informasi paginasi.
+type Halaman struct {
+	Page         int `json:"page"`
+	PerPage      int `json:"per_page"`
+	Total        int `json:"total"`
+	TotalHalaman int `json:"total_halaman"`
+}
+
+// DaftarPenerimaan adalah satu halaman daftar faktur.
+type DaftarPenerimaan struct {
+	Data []RingkasanPenerimaan `json:"data"`
+	Meta Halaman               `json:"meta"`
+}
+
+// ItemDetailPenerimaan adalah satu lapisan penerimaan pada sebuah faktur.
+// Semua jumlah dan harga dalam satuan dasar.
+type ItemDetailPenerimaan struct {
+	ReceiptID         int64   `json:"receipt_id"`
+	BatchID           int64   `json:"batch_id"`
+	MedicineID        int64   `json:"medicine_id"`
+	KodeObat          string  `json:"kode_obat"`
+	NamaObat          string  `json:"nama_obat"`
+	SatuanDasar       string  `json:"satuan_dasar"`
+	NoBatch           string  `json:"no_batch"`
+	TglKadaluarsa     string  `json:"tgl_kadaluarsa"`
+	StatusBatch       string  `json:"status_batch"`
+	QtyDiterima       float64 `json:"qty_diterima"`
+	QtySisa           float64 `json:"qty_sisa"`
+	HargaBeliPerDasar float64 `json:"harga_beli_per_dasar"`
+	TanggalTerima     string  `json:"tanggal_terima"`
+}
+
+// DetailPenerimaan adalah satu faktur beserta seluruh itemnya.
+type DetailPenerimaan struct {
+	PurchaseID  int64                  `json:"purchase_id"`
+	SupplierID  int64                  `json:"supplier_id"`
+	NamaPBF     string                 `json:"nama_pbf"`
+	NoFaktur    string                 `json:"no_faktur"`
+	TglFaktur   string                 `json:"tgl_faktur"`
+	Total       float64                `json:"total"`
+	DicatatOleh string                 `json:"dicatat_oleh"`
+	Items       []ItemDetailPenerimaan `json:"items"`
+}

@@ -85,3 +85,58 @@ func TestBulatkan(t *testing.T) {
 		t.Fatalf("bulatkan 3 desimal: dapat %v", got)
 	}
 }
+
+func TestSiapkanFilter_Bawaan(t *testing.T) {
+	q, page, perPage, err := siapkanFilter(FilterPenerimaan{})
+	if err != nil {
+		t.Fatalf("seharusnya valid: %v", err)
+	}
+	if page != 1 || perPage != 20 || q.Limit != 20 || q.Offset != 0 {
+		t.Fatalf("bawaan salah: page=%d perPage=%d limit=%d offset=%d",
+			page, perPage, q.Limit, q.Offset)
+	}
+}
+
+func TestSiapkanFilter_Halaman(t *testing.T) {
+	q, page, perPage, err := siapkanFilter(FilterPenerimaan{Page: 3, PerPage: 10})
+	if err != nil {
+		t.Fatalf("seharusnya valid: %v", err)
+	}
+	if page != 3 || perPage != 10 || q.Limit != 10 || q.Offset != 20 {
+		t.Fatalf("paginasi salah: page=%d perPage=%d limit=%d offset=%d",
+			page, perPage, q.Limit, q.Offset)
+	}
+}
+
+func TestSiapkanFilter_PerPageDibatasi(t *testing.T) {
+	_, _, perPage, err := siapkanFilter(FilterPenerimaan{PerPage: 5000})
+	if err != nil {
+		t.Fatalf("seharusnya valid: %v", err)
+	}
+	if perPage != 100 {
+		t.Fatalf("per_page harus dibatasi 100, dapat %d", perPage)
+	}
+}
+
+func TestSiapkanFilter_Tolak(t *testing.T) {
+	kasus := []struct {
+		nama   string
+		filter FilterPenerimaan
+	}{
+		{"supplier negatif", FilterPenerimaan{SupplierID: -1}},
+		{"page negatif", FilterPenerimaan{Page: -1}},
+		{"per_page negatif", FilterPenerimaan{PerPage: -5}},
+		{"dari salah format", FilterPenerimaan{Dari: "07/11/2026"}},
+		{"sampai salah format", FilterPenerimaan{Sampai: "kemarin"}},
+		{"dari lebih besar dari sampai", FilterPenerimaan{Dari: "2026-11-10", Sampai: "2026-11-01"}},
+	}
+
+	for _, k := range kasus {
+		t.Run(k.nama, func(t *testing.T) {
+			_, _, _, err := siapkanFilter(k.filter)
+			if !errors.Is(err, ErrValidasi) {
+				t.Fatalf("seharusnya ErrValidasi, dapat: %v", err)
+			}
+		})
+	}
+}
