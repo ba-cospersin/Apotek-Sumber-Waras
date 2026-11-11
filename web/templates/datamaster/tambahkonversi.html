@@ -1,0 +1,351 @@
+{{ define "content" }}
+<main class="p-8 max-w-7xl w-full mx-auto space-y-6" data-purpose="page-body-container">
+  <!-- Page Header & Action -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h2 class="text-2xl font-bold tracking-tight text-slate-900">Konversi Satuan</h2>
+      <p class="text-xs text-slate-600 mt-1">Kelola hubungan, rasio pengali, dan perbandingan formularium antar satuan obat.</p>
+    </div>
+    <button id="btn-open-modal" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-lg shadow-sm hover:shadow transition-all duration-200 cursor-pointer" type="button">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+      <span>Tambah Konversi</span>
+    </button>
+  </div>
+
+  <!-- Metric Summary Cards -->
+  <section class="grid grid-cols-1 md:grid-cols-3 gap-5" data-purpose="metric-summary-cards">
+    <div class="bg-white rounded-xl border border-surfaceBorder p-5 shadow-xs flex items-center justify-between transition-all hover:border-brand-200">
+      <div class="space-y-1">
+        <p class="text-[11px] font-bold tracking-wider uppercase text-slate-500">Total Konversi</p>
+        <div class="flex items-baseline gap-2">
+          <span class="text-3xl font-extrabold text-slate-900 leading-none">8</span>
+          <span class="text-xs font-medium text-slate-500">Aturan Terdaftar</span>
+        </div>
+        <div class="flex items-center gap-1.5 pt-1 text-[11px] font-medium text-emerald-600">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <span>100% tervalidasi BPOM</span>
+        </div>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-brand-50 border border-brand-100 flex items-center justify-center text-brand-600 shadow-2xs">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-surfaceBorder p-5 shadow-xs flex items-center justify-between transition-all hover:border-brand-200">
+      <div class="space-y-1">
+        <p class="text-[11px] font-bold tracking-wider uppercase text-slate-500">Konversi Aktif</p>
+        <div class="flex items-baseline gap-2">
+          <span class="text-3xl font-extrabold text-slate-900 leading-none">8</span>
+          <span class="text-xs font-medium text-slate-500">Operasional</span>
+        </div>
+        <div class="flex items-center gap-1.5 pt-1 text-[11px] font-medium text-slate-500">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+          <span>Aktif di POS &amp; Gudang</span>
+        </div>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shadow-2xs">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-surfaceBorder p-5 shadow-xs flex items-center justify-between transition-all hover:border-brand-200">
+      <div class="space-y-1">
+        <p class="text-[11px] font-bold tracking-wider uppercase text-slate-500">Satuan Terhubung</p>
+        <div class="flex items-baseline gap-2">
+          <span class="text-3xl font-extrabold text-slate-900 leading-none">6</span>
+          <span class="text-xs font-medium text-slate-500">Klasifikasi Dasar</span>
+        </div>
+        <p class="text-[11px] text-slate-500 pt-1 truncate max-w-[190px]">Box, Strip, Botol, Dus, Tablet, mL</p>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-[#FAF5EE] border border-surfaceBorder flex items-center justify-center text-brand-700 shadow-2xs">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter Bar -->
+  <section class="bg-white border border-surfaceBorder rounded-xl p-4 shadow-xs" data-purpose="table-filter-bar">
+    <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+      <div class="relative flex-1 min-w-[240px]">
+        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+        </span>
+        <input class="w-full pl-9 pr-4 py-2 bg-warmBg border border-surfaceBorder text-xs rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition-all" placeholder="Cari kode atau nama satuan..." type="text"/>
+      </div>
+      <div class="flex flex-wrap items-center gap-2.5">
+        <select class="py-2 pl-3 pr-8 bg-warmBg border border-surfaceBorder rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white cursor-pointer">
+          <option value="">Semua Satuan Asal</option>
+          <option value="box">Box</option>
+          <option value="strip">Strip</option>
+          <option value="botol">Botol</option>
+          <option value="dus">Dus</option>
+        </select>
+        <select class="py-2 pl-3 pr-8 bg-warmBg border border-surfaceBorder rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white cursor-pointer">
+          <option value="">Semua Satuan Tujuan</option>
+          <option value="strip">Strip</option>
+          <option value="tablet">Tablet</option>
+          <option value="ml">mL</option>
+        </select>
+        <select class="py-2 pl-3 pr-8 bg-warmBg border border-surfaceBorder rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white cursor-pointer">
+          <option value="">Semua Status</option>
+          <option value="aktif">Aktif</option>
+          <option value="nonaktif">Non-Aktif</option>
+        </select>
+        <button class="inline-flex items-center gap-1.5 px-3 py-2 border border-surfaceBorder bg-warmBg hover:bg-[#F2ECE4] text-slate-700 rounded-lg text-xs font-medium transition-colors cursor-pointer" type="button">
+          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <span>Reset Filter</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Table Section -->
+  <section class="bg-white border border-surfaceBorder rounded-xl shadow-xs overflow-hidden" data-purpose="conversion-data-table">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-surfaceHeader border-b border-surfaceBorder text-[11px] font-bold uppercase tracking-wider text-slate-700">
+            <th class="py-3.5 px-4 text-center w-12" scope="col">No.</th>
+            <th class="py-3.5 px-4" scope="col">Kode Konversi</th>
+            <th class="py-3.5 px-4" scope="col">Satuan Asal</th>
+            <th class="py-3.5 px-4 text-center" scope="col">Jumlah Asal</th>
+            <th class="py-3.5 px-4" scope="col">Satuan Tujuan</th>
+            <th class="py-3.5 px-4 text-center" scope="col">Jumlah Tujuan</th>
+            <th class="py-3.5 px-6" scope="col">Formula Visual</th>
+            <th class="py-3.5 px-4 text-center" scope="col">Status</th>
+            <th class="py-3.5 px-4 text-center" scope="col">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-surfaceBorder/80 text-xs">
+          <tr class="hover:bg-[#FAF8F5] transition-colors">
+            <td class="py-3.5 px-4 text-center font-medium text-slate-500">1</td>
+            <td class="py-3.5 px-4"><span class="font-mono font-semibold px-2 py-1 bg-brand-50 text-brand-700 border border-brand-200/60 rounded">KON-001</span></td>
+            <td class="py-3.5 px-4 font-semibold text-slate-900">Box</td>
+            <td class="py-3.5 px-4 text-center font-medium text-slate-700">1</td>
+            <td class="py-3.5 px-4 text-slate-700">Strip</td>
+            <td class="py-3.5 px-4 text-center font-bold text-brand-600 text-sm">10</td>
+            <td class="py-3.5 px-6">
+              <div class="inline-flex items-center gap-2 px-3 py-1 bg-warmBg border border-surfaceBorder rounded-full text-xs font-semibold text-slate-800 shadow-2xs">
+                <span>1 Box</span>
+                <svg class="w-3.5 h-3.5 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span class="text-brand-600">10 Strip</span>
+              </div>
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Aktif
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              <div class="inline-flex items-center gap-1.5">
+                <button class="p-1.5 text-slate-500 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors cursor-pointer" title="Edit Aturan" type="button">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+                <button class="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer" title="Hapus Aturan" type="button">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="px-5 py-4 bg-white border-t border-surfaceBorder flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p class="text-xs text-slate-500">
+        Menampilkan <span class="font-semibold text-slate-700">1 – 5</span> dari <span class="font-semibold text-slate-700">8</span> data konversi
+      </p>
+      <div class="inline-flex items-center gap-1.5">
+        <button class="px-3 py-1.5 text-xs font-medium text-slate-400 bg-warmBg/50 border border-surfaceBorder rounded-lg cursor-not-allowed transition-colors" disabled="" type="button">Sebelumnya</button>
+        <button class="w-8 h-8 flex items-center justify-center text-xs font-semibold text-white bg-brand-600 rounded-lg shadow-2xs" type="button">1</button>
+        <button class="w-8 h-8 flex items-center justify-center text-xs font-medium text-slate-600 bg-white border border-surfaceBorder hover:bg-warmBg rounded-lg transition-colors" type="button">2</button>
+        <button class="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-surfaceBorder hover:bg-warmBg rounded-lg transition-colors" type="button">Selanjutnya</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Modal Container (Awalnya tersembunyi dengan class 'hidden') -->
+<div id="modal-konversi" aria-labelledby="modal-title" aria-modal="true" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 overflow-y-auto" role="dialog">
+  <div class="bg-white rounded-2xl shadow-2xl border border-stone-200 w-full max-w-[560px] overflow-hidden my-8 animate-in fade-in zoom-in duration-200">
+    <div class="px-6 py-5 border-b border-stone-100 flex items-start justify-between">
+      <div>
+        <h3 class="font-bold text-xl text-stone-900 tracking-tight" id="modal-title">Tambah Konversi Satuan Baru</h3>
+        <p class="text-xs text-stone-500 mt-1">Tentukan hubungan rasio antara satuan besar dan satuan eceran obat.</p>
+      </div>
+      <button id="btn-close-x" aria-label="Tutup Modal" class="p-2 rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-600 transition -mr-1 -mt-1 cursor-pointer" type="button">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+    </div>
+    <form id="form-konversi-satuan" class="p-6 space-y-4">
+      <div class="space-y-1.5">
+        <label class="block text-xs font-semibold text-slate-700">Pilih Obat / Sediaan <span class="text-red-500">*</span></label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <input id="input-nama-obat" class="w-full pl-10 pr-9 py-2.5 bg-[#FAF8F5] border border-surfaceBorder rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition-all" placeholder="Ketik nama atau kode obat..." type="text" value="Paracetamol 500mg"/>
+          <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+        </div>
+        <p class="text-[11px] text-slate-400">Obat sediaan tablet dari formularium aktif BPOM.</p>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-slate-700">Satuan Asal / Pembelian <span class="text-red-500">*</span></label>
+          <div class="relative">
+            <select id="select-satuan-asal" class="w-full py-2.5 pl-3 pr-8 bg-[#FAF8F5] border border-surfaceBorder rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white cursor-pointer transition-all appearance-none">
+              <option selected="" value="Box">Box</option>
+              <option value="Dus">Dus</option>
+              <option value="Botol">Botol</option>
+              <option value="Vial">Vial</option>
+            </select>
+            <div class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-slate-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-slate-700">Jumlah / Isi (Rasio) <span class="text-red-500">*</span></label>
+          <div class="relative">
+            <input id="input-rasio" class="w-full py-2.5 px-3.5 bg-[#FAF8F5] border border-surfaceBorder rounded-xl text-xs font-bold text-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition-all" min="1" placeholder="Contoh: 10" type="number" value="10"/>
+          </div>
+        </div>
+      </div>
+      <div class="space-y-1.5">
+        <label class="block text-xs font-semibold text-slate-700">Satuan Tujuan / Eceran <span class="text-red-500">*</span></label>
+        <div class="relative">
+          <select id="select-satuan-tujuan" class="w-full py-2.5 pl-3 pr-8 bg-[#FAF8F5] border border-surfaceBorder rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white cursor-pointer transition-all appearance-none">
+            <option selected="" value="Strip">Strip</option>
+            <option value="Tablet">Tablet</option>
+            <option value="Kapsul">Kapsul</option>
+            <option value="mL">mL</option>
+            <option value="Ampul">Ampul</option>
+          </select>
+          <div class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-slate-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Live Formula Summary Box -->
+      <div class="bg-[#FFF5F2] border border-[#FCDAD1] rounded-xl p-3.5">
+        <div class="flex items-start gap-2.5">
+          <span class="text-base leading-none select-none">💡</span>
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-brand-700 block mb-0.5">Ringkasan Formula:</span>
+            <div class="flex items-center flex-wrap gap-2 text-xs text-slate-800 mt-1">
+              <span id="formula-asal" class="font-bold">1 Box Paracetamol 500mg</span>
+              <span class="text-brand-600 font-bold text-sm">=</span>
+              <span id="formula-tujuan" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-[#ECCDC5]/60 text-brand-800 border border-brand-200">10 Strip</span>
+            </div>
+            <p id="formula-desc" class="text-[10px] text-slate-500 mt-1.5">Setiap input 1 Box saat penerimaan otomatis dikonversi menjadi 10 Strip di inventori POS kasir.</p>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="px-6 py-4 bg-stone-50/80 border-t border-stone-100 flex items-center justify-end gap-3">
+      <button id="btn-close-cancel" class="px-5 py-2.5 rounded-xl border border-stone-300 text-stone-700 text-xs font-medium hover:bg-stone-100 transition-colors cursor-pointer" type="button">Batal</button>
+      <button id="btn-submit-konversi" class="px-5 py-2.5 rounded-xl bg-[#8B3A2A] hover:bg-[#722F22] text-white text-xs font-semibold shadow-md flex items-center gap-2 transition-all cursor-pointer" type="button">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+        <span>Simpan Konversi</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('modal-konversi');
+    const btnOpen = document.getElementById('btn-open-modal');
+    const btnCloseX = document.getElementById('btn-close-x');
+    const btnCancel = document.getElementById('btn-close-cancel');
+    const btnSubmit = document.getElementById('btn-submit-konversi');
+
+    // Element Form Kalkulasi Live
+    const inputNama = document.getElementById('input-nama-obat');
+    const selectSatuanAsal = document.getElementById('select-satuan-asal');
+    const inputRasio = document.getElementById('input-rasio');
+    const selectSatuanTujuan = document.getElementById('select-satuan-tujuan');
+
+    const formulaAsal = document.getElementById('formula-asal');
+    const formulaTujuan = document.getElementById('formula-tujuan');
+    const formulaDesc = document.getElementById('formula-desc');
+
+    // Buka Modal
+    if (btnOpen && modal) {
+      btnOpen.addEventListener('click', function () {
+        modal.classList.remove('hidden');
+      });
+    }
+
+    // Tutup Modal
+    function closeModal() {
+      if (modal) modal.classList.add('hidden');
+    }
+
+    if (btnCloseX) btnCloseX.addEventListener('click', closeModal);
+    if (btnCancel) btnCancel.addEventListener('click', closeModal);
+
+    // Live Calculation Update Box Formula
+    function updateFormula() {
+      const nama = inputNama.value.trim() || 'Obat';
+      const asal = selectSatuanAsal.value;
+      const rasio = inputRasio.value || '1';
+      const tujuan = selectSatuanTujuan.value;
+
+      formulaAsal.textContent = `1 ${asal} ${nama}`;
+      formulaTujuan.textContent = `${rasio} ${tujuan}`;
+      formulaDesc.textContent = `Setiap input 1 ${asal} saat penerimaan otomatis dikonversi menjadi ${rasio} ${tujuan} di inventori POS kasir.`;
+    }
+
+    if (inputNama) inputNama.addEventListener('input', updateFormula);
+    if (selectSatuanAsal) selectSatuanAsal.addEventListener('change', updateFormula);
+    if (inputRasio) inputRasio.addEventListener('input', updateFormula);
+    if (selectSatuanTujuan) selectSatuanTujuan.addEventListener('change', updateFormula);
+
+    // Simpan Konversi
+    if (btnSubmit) {
+      btnSubmit.addEventListener('click', function () {
+        alert('Aturan konversi berhasil disimpan!');
+        closeModal();
+      });
+    }
+  });
+</script>
+{{ end }}

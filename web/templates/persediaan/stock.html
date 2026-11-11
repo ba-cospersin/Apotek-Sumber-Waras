@@ -1,0 +1,531 @@
+{{ define "content" }}
+<main class="p-8 space-y-6 flex-1 bg-[#F8F6F2] min-h-screen">
+  <!-- Header Page Title & Policy Badge -->
+  <section class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <nav class="flex items-center space-x-2 text-xs text-slate-500 mb-1.5">
+        <a class="hover:text-slate-700 transition" href="/dashboard">Beranda</a>
+        <span>›</span>
+        <span>Persediaan</span>
+        <span>›</span>
+        <span class="font-bold text-[#964334]">Stok per Batch</span>
+      </nav>
+      <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Katalog &amp; Stok per Batch Aktif</h2>
+      <p class="text-xs text-slate-500 mt-1">Daftar penelusuran stok fisik obat per nomor batch terdaftar dan kontrol masa simpan FEFO (First Expired, First Out).</p>
+    </div>
+    <div class="flex items-center space-x-2 bg-white px-3.5 py-1.5 rounded-full border border-[#E2D9CE] shadow-2xs">
+      <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+      <span class="text-xs font-semibold text-slate-700">Metode Prioritas Alur: <strong class="text-[#964334]">FEFO Otomatis</strong></span>
+      <span class="text-slate-300 font-light">|</span>
+      <span class="text-xs text-slate-500">Gudang Utama Apotek</span>
+    </div>
+  </section>
+
+  <!-- 3 Summary Metrics Cards Grid -->
+  <section class="grid grid-cols-1 md:grid-cols-3 gap-5" data-purpose="metric-summary-cards">
+    <!-- Card 1: Total Obat Aktif -->
+    <div class="bg-white rounded-2xl border border-[#EBE3DB] p-5 shadow-xs flex items-start space-x-4">
+      <div class="w-12 h-12 rounded-xl bg-[#F8EFEA] text-[#964334] flex items-center justify-center shrink-0">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M9 12h6m-3-3v6m-7 5h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">TOTAL OBAT AKTIF</p>
+        <div class="flex items-baseline space-x-2 mt-1">
+          <span class="text-2xl font-extrabold text-slate-900 tracking-tight">450</span>
+          <span class="text-xs font-semibold text-slate-500">Item</span>
+        </div>
+        <p class="text-xs text-emerald-600 font-medium flex items-center mt-1.5">
+          <svg class="w-3.5 h-3.5 mr-1 text-emerald-500 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+          </svg>
+          328 Memiliki Master SKU
+        </p>
+      </div>
+    </div>
+
+    <!-- Card 2: Total Batch Tersedia -->
+    <div class="bg-white rounded-2xl border border-[#EBE3DB] p-5 shadow-xs flex items-start space-x-4">
+      <div class="w-12 h-12 rounded-xl bg-[#FFF6EE] text-amber-700 flex items-center justify-center shrink-0">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">TOTAL BATCH TERSEDIA</p>
+        <div class="flex items-baseline space-x-2 mt-1">
+          <span class="text-2xl font-extrabold text-slate-900 tracking-tight">1.205</span>
+          <span class="text-xs font-semibold text-slate-500">Batch</span>
+        </div>
+        <p class="text-xs text-slate-500 font-medium flex items-center mt-1.5">
+          <svg class="w-3.5 h-3.5 mr-1 text-slate-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+          Tersebar di 8 Rak &amp; Kulkas
+        </p>
+      </div>
+    </div>
+
+    <!-- Card 3: Peringatan Stok Menipis -->
+    <div class="bg-white rounded-2xl border border-red-200 p-5 shadow-xs relative overflow-hidden flex items-start justify-between border-l-4 border-l-red-600">
+      <div class="flex items-start space-x-4">
+        <div class="w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+          <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+        </div>
+        <div>
+          <p class="text-[11px] font-bold text-red-600 uppercase tracking-wider">PERINGATAN STOK MENIPIS</p>
+          <div class="flex items-baseline space-x-2 mt-1">
+            <span class="text-2xl font-extrabold text-red-600 tracking-tight">12</span>
+            <span class="text-xs font-semibold text-slate-500">Batch</span>
+          </div>
+          <p class="text-xs text-red-600 font-medium flex items-center mt-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>
+            Perlu tindakan restock segera
+          </p>
+        </div>
+      </div>
+      <button class="text-xs font-bold text-red-600 hover:text-white bg-red-50 hover:bg-red-600 border border-red-200 hover:border-red-600 px-3.5 py-2 rounded-xl transition duration-150 uppercase tracking-wider shrink-0 ml-2" onclick="openRestockModal('Antasida Doen Suspensi', 'ATD240322', '8 Botol')">
+        RESTOCK SEGERA
+      </button>
+    </div>
+  </section>
+
+  <!-- Filter & Action Toolbar -->
+  <section class="bg-white p-4 rounded-2xl border border-[#EBE3DB] shadow-xs flex flex-wrap items-center justify-between gap-4" data-purpose="table-filter-controls">
+    <div class="flex flex-wrap items-center gap-3 flex-1 min-w-[320px]">
+      <div class="relative flex-1 min-w-[240px]">
+        <input class="w-full bg-[#FAF7F2] text-xs text-slate-700 pl-9 pr-10 py-2.5 rounded-xl border border-[#E2D9CE] focus:outline-none focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] placeholder-slate-400" id="search-input" placeholder="Cari nama obat, kode, atau batch..." type="text"/>
+        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+      </div>
+
+      <div class="relative">
+        <select class="appearance-none bg-[#FAF7F2] text-xs font-semibold text-slate-700 pl-8 pr-8 py-2.5 rounded-xl border border-[#E2D9CE] focus:outline-none focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] cursor-pointer" id="category-filter">
+          <option value="">Semua Kategori</option>
+          <option value="Kapsul">Kapsul</option>
+          <option value="Sirup">Sirup</option>
+          <option value="Tablet">Tablet</option>
+        </select>
+        <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+      </div>
+
+      <div class="relative">
+        <select class="appearance-none bg-[#FAF7F2] text-xs font-semibold text-slate-700 pl-8 pr-8 py-2.5 rounded-xl border border-[#E2D9CE] focus:outline-none focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] cursor-pointer" id="sort-filter">
+          <option value="fefo">Tgl Kedaluwarsa (FEFO)</option>
+          <option value="nama">Nama Obat (A-Z)</option>
+          <option value="stok-min">Stok Terendah</option>
+          <option value="stok-max">Stok Tertinggi</option>
+        </select>
+        <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+      </div>
+    </div>
+
+    <button class="inline-flex items-center space-x-2 bg-white text-xs font-semibold text-slate-700 hover:text-[#964334] hover:border-[#964334] px-4 py-2.5 rounded-xl border border-[#E2D9CE] transition shadow-2xs" onclick="alert('Mengekspor seluruh data stok aktif per batch ke format Microsoft Excel/CSV...')">
+      <svg class="w-4 h-4 text-[#964334]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+      </svg>
+      <span>Ekspor Data CSV / Excel</span>
+    </button>
+  </section>
+
+  <!-- Data Table Card -->
+  <section class="bg-white rounded-2xl border border-[#EBE3DB] shadow-xs overflow-hidden" data-purpose="inventory-batch-table">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse" id="batch-table">
+        <thead>
+          <tr class="bg-[#FAF7F2] border-b border-[#EBE3DB] text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            <th class="py-3.5 px-4 w-12 text-center">NO</th>
+            <th class="py-3.5 px-4">KODE OBAT</th>
+            <th class="py-3.5 px-4">NAMA OBAT &amp; SEDIAAN</th>
+            <th class="py-3.5 px-4">NO. BATCH</th>
+            <th class="py-3.5 px-4">TGL KEDALUWARSA</th>
+            <th class="py-3.5 px-4">LOKASI RAK</th>
+            <th class="py-3.5 px-4">STOK TERSEDIA</th>
+            <th class="py-3.5 px-4 text-center">STATUS</th>
+            <th class="py-3.5 px-4 text-center">AKSI</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#F0EAE1] text-xs">
+          <!-- ROW 1 -->
+          <tr class="hover:bg-[#FCFAF8] transition-colors group table-row-item">
+            <td class="py-4 px-4 text-center font-medium text-slate-400">1</td>
+            <td class="py-4 px-4">
+              <span class="inline-block bg-[#F2ECE4] text-slate-700 font-mono text-[11px] font-bold px-2.5 py-1 rounded-lg">MED-AMX-12</span>
+            </td>
+            <td class="py-4 px-4">
+              <div class="font-bold text-slate-900 group-hover:text-[#964334] transition-colors text-sm">Amoxicillin Trihydrate 500 mg</div>
+              <div class="flex items-center space-x-2 mt-1">
+                <span class="bg-[#F8EAE7] text-[#964334] text-[10px] font-semibold px-2 py-0.5 rounded-md">Kapsul</span>
+                <span class="text-[11px] text-slate-400">Kimia Farma TBK</span>
+              </div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="inline-flex items-center space-x-1 bg-red-50 text-[#964334] border border-red-100 font-mono font-bold text-xs px-2.5 py-1 rounded-lg">
+                <span>AMX240801</span>
+              </div>
+              <div class="text-[10px] text-slate-400 mt-1">PBF: Anugrah Argon M.</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-center space-x-1.5 text-slate-800 font-semibold">
+                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+                <span>18 Jun 2027</span>
+              </div>
+              <div class="text-[10px] font-medium text-emerald-600 mt-0.5">3 Tahun 1 Bulan lagi</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="font-semibold text-slate-800">Rak A2, Susun 3</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">Suhu Ruang (15–25°C)</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-baseline space-x-1">
+                <span class="text-base font-extrabold text-slate-900">145</span>
+                <span class="text-xs font-semibold text-slate-600">Box</span>
+              </div>
+              <div class="text-[10px] text-slate-400 mt-0.5">= 1.450 Kapsul</div>
+            </td>
+            <td class="py-4 px-4 text-center">
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Stok Aman
+              </span>
+            </td>
+            <td class="py-4 px-4 text-center">
+              <div class="flex items-center justify-center space-x-2">
+                <button class="inline-flex items-center space-x-1 bg-[#964334] hover:bg-[#7E3629] text-white font-semibold text-xs px-3 py-1.5 rounded-xl shadow-xs transition cursor-pointer" onclick="openDetailModal('Amoxicillin Trihydrate 500 mg', 'AMX240801', '145 Box', '18 Jun 2027', 'Rak A2, Susun 3', 'Kimia Farma TBK', 'PBF: Anugrah Argon M.')">
+                  <span>Lihat Detail</span>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ROW 2 -->
+          <tr class="hover:bg-[#FCFAF8] transition-colors group table-row-item">
+            <td class="py-4 px-4 text-center font-medium text-slate-400">2</td>
+            <td class="py-4 px-4">
+              <span class="inline-block bg-[#F2ECE4] text-slate-700 font-mono text-[11px] font-bold px-2.5 py-1 rounded-lg">MED-PCM-01</span>
+            </td>
+            <td class="py-4 px-4">
+              <div class="font-bold text-slate-900 group-hover:text-[#964334] transition-colors text-sm">Paracetamol Drop 15ml</div>
+              <div class="flex items-center space-x-2 mt-1">
+                <span class="bg-[#F8EAE7] text-[#964334] text-[10px] font-semibold px-2 py-0.5 rounded-md">Sirup</span>
+                <span class="text-[11px] text-slate-400">Sanbe Farma</span>
+              </div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="inline-flex items-center space-x-1 bg-[#FAF7F2] text-slate-700 border border-slate-200 font-mono font-bold text-xs px-2.5 py-1 rounded-lg">
+                <span>PCT241005</span>
+              </div>
+              <div class="text-[10px] text-slate-400 mt-1">PBF: Enseval Putera M.</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-center space-x-1.5 text-slate-800 font-semibold">
+                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+                <span>12 Jan 2028</span>
+              </div>
+              <div class="text-[10px] font-medium text-emerald-600 mt-0.5">3 Tahun 8 Bulan lagi</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="font-semibold text-slate-800">Rak B1, Susun 1</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">Suhu Ruang (15–25°C)</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-baseline space-x-1">
+                <span class="text-base font-extrabold text-slate-900">320</span>
+                <span class="text-xs font-semibold text-slate-600">Botol</span>
+              </div>
+              <div class="text-[10px] text-slate-400 mt-0.5">= 32 Karton Segel</div>
+            </td>
+            <td class="py-4 px-4 text-center">
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Stok Aman
+              </span>
+            </td>
+            <td class="py-4 px-4 text-center">
+              <div class="flex items-center justify-center space-x-2">
+                <button class="inline-flex items-center space-x-1 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs px-3 py-1.5 rounded-xl border border-slate-200 transition cursor-pointer" onclick="openDetailModal('Paracetamol Drop 15ml', 'PCT241005', '320 Botol', '12 Jan 2028', 'Rak B1, Susun 1', 'Sanbe Farma', 'PBF: Enseval Putera M.')">
+                  <span>Lihat Detail</span>
+                  <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ROW 3 -->
+          <tr class="hover:bg-[#FCFAF8] transition-colors group table-row-item">
+            <td class="py-4 px-4 text-center font-medium text-slate-400">3</td>
+            <td class="py-4 px-4">
+              <span class="inline-block bg-[#F2ECE4] text-slate-700 font-mono text-[11px] font-bold px-2.5 py-1 rounded-lg">MED-CTZ-08</span>
+            </td>
+            <td class="py-4 px-4">
+              <div class="font-bold text-slate-900 group-hover:text-[#964334] transition-colors text-sm">Cetirizine 10mg</div>
+              <div class="flex items-center space-x-2 mt-1">
+                <span class="bg-[#F8EAE7] text-[#964334] text-[10px] font-semibold px-2 py-0.5 rounded-md">Tablet</span>
+                <span class="text-[11px] text-slate-400">Kalbe Farma</span>
+              </div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="inline-flex items-center space-x-1 bg-[#FAF7F2] text-slate-700 border border-slate-200 font-mono font-bold text-xs px-2.5 py-1 rounded-lg">
+                <span>CT2240914</span>
+              </div>
+              <div class="text-[10px] text-slate-400 mt-1">PBF: Kebayoran Pharma</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-center space-x-1.5 text-slate-800 font-semibold">
+                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+                <span>04 Agu 2027</span>
+              </div>
+              <div class="text-[10px] font-medium text-emerald-600 mt-0.5">3 Tahun 2 Bulan lagi</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="font-semibold text-slate-800">Rak A1, Susun 2</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">Suhu Ruang (15–25°C)</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-baseline space-x-1">
+                <span class="text-base font-extrabold text-slate-900">85</span>
+                <span class="text-xs font-semibold text-slate-600">Strip</span>
+              </div>
+              <div class="text-[10px] text-slate-400 mt-0.5">= 850 Tablet Salut</div>
+            </td>
+            <td class="py-4 px-4 text-center">
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Stok Aman
+              </span>
+            </td>
+            <td class="py-4 px-4 text-center">
+              <div class="flex items-center justify-center space-x-2">
+                <button class="inline-flex items-center space-x-1 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs px-3 py-1.5 rounded-xl border border-slate-200 transition cursor-pointer" onclick="openDetailModal('Cetirizine 10mg', 'CT2240914', '85 Strip', '04 Agu 2027', 'Rak A1, Susun 2', 'Kalbe Farma', 'PBF: Kebayoran Pharma')">
+                  <span>Lihat Detail</span>
+                  <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ROW 4 (FEFO / Low Stock Highlight) -->
+          <tr class="bg-red-50/30 hover:bg-red-50/60 transition-colors border-l-4 border-l-red-500 group table-row-item">
+            <td class="py-4 px-4 text-center font-bold text-red-600">4</td>
+            <td class="py-4 px-4">
+              <span class="inline-block bg-red-100/70 text-red-700 font-mono text-[11px] font-bold px-2.5 py-1 rounded-lg">MED-ANT-04</span>
+            </td>
+            <td class="py-4 px-4">
+              <div class="font-bold text-slate-900 group-hover:text-red-700 transition-colors text-sm">Antasida Doen Suspensi</div>
+              <div class="flex items-center space-x-2 mt-1">
+                <span class="bg-[#F8EAE7] text-[#964334] text-[10px] font-semibold px-2 py-0.5 rounded-md">Sirup</span>
+                <span class="text-[11px] text-slate-400">Dexa Medica</span>
+              </div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="inline-flex items-center space-x-1 bg-red-100 text-red-700 border border-red-200 font-mono font-bold text-xs px-2.5 py-1 rounded-lg">
+                <span>ATD240322</span>
+              </div>
+              <div class="text-[10px] text-slate-400 mt-1">PBF: Parit Padang Global</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-center space-x-1.5 text-red-600 font-bold">
+                <svg class="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+                <span>25 Nov 2026</span>
+              </div>
+              <div class="text-[10px] font-bold text-red-600 mt-0.5 uppercase tracking-wide">Mendekati FEFO Prioritas</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="font-semibold text-slate-800">Rak B2, Susun 4</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">Suhu Ruang (15–25°C)</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-baseline space-x-1">
+                <span class="text-base font-extrabold text-red-600">8</span>
+                <span class="text-xs font-bold text-red-600">Botol</span>
+              </div>
+              <div class="text-[10px] text-red-500 font-medium mt-0.5">Di bawah Buffer (15)</div>
+            </td>
+            <td class="py-4 px-4 text-center">
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span> Stok Menipis
+              </span>
+            </td>
+            <td class="py-4 px-4 text-center">
+              <div class="flex items-center justify-center space-x-2">
+                <button class="inline-flex items-center space-x-1 bg-red-600 hover:bg-red-700 text-white font-semibold text-xs px-3 py-1.5 rounded-xl shadow-xs transition cursor-pointer" onclick="openRestockModal('Antasida Doen Suspensi', 'ATD240322', '8 Botol')">
+                  <span>Restock</span>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Table Pagination -->
+    <div class="p-4 bg-white border-t border-[#EBE3DB] flex flex-col sm:flex-row items-center justify-between gap-4" data-purpose="table-pagination">
+      <div class="text-xs text-slate-500 flex items-center space-x-1.5">
+        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+        <span>Menampilkan <strong class="text-slate-800">1 - 4</strong> dari total <strong class="text-slate-800">1.205</strong> batch obat terdaftar</span>
+      </div>
+      <div class="flex items-center space-x-1.5 text-xs font-semibold">
+        <button class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600 hover:bg-[#FAF7F2] transition disabled:opacity-50" disabled="">‹ Sebelumnya</button>
+        <button class="w-8 h-8 rounded-lg bg-[#964334] text-white flex items-center justify-center shadow-xs">1</button>
+        <button class="w-8 h-8 rounded-lg border border-slate-200 text-slate-600 hover:bg-[#FAF7F2] flex items-center justify-center transition">2</button>
+        <button class="w-8 h-8 rounded-lg border border-slate-200 text-slate-600 hover:bg-[#FAF7F2] flex items-center justify-center transition">3</button>
+        <span class="px-1 text-slate-400">...</span>
+        <button class="w-8 h-8 rounded-lg border border-slate-200 text-slate-600 hover:bg-[#FAF7F2] flex items-center justify-center transition">121</button>
+        <button class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-[#FAF7F2] transition">Selanjutnya ›</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- MODAL 1: Detail Batch Obat -->
+<div class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4" id="detailModal">
+  <div class="bg-white rounded-2xl max-w-lg w-full border border-[#EBE3DB] shadow-2xl p-6 relative animate-in fade-in zoom-in duration-200" data-purpose="batch-detail-modal-card">
+    <button class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full p-1.5 transition" onclick="closeModal('detailModal')">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+    </button>
+    <div class="flex items-center space-x-3 mb-4">
+      <div class="w-10 h-10 rounded-xl bg-[#964334]/10 text-[#964334] flex items-center justify-center font-bold">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-3-3v6m-7 5h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-slate-900 leading-tight" id="modalDrugName">Nama Obat</h3>
+        <p class="text-xs text-slate-500">Informasi Detail Batch Fisik &amp; Karantina</p>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-3 text-xs bg-[#FAF7F2] p-4 rounded-xl border border-[#EBE3DB] mb-5">
+      <div>
+        <span class="text-slate-400 block text-[10px] uppercase font-bold">Nomor Batch:</span>
+        <span class="font-mono font-bold text-[#964334] text-sm" id="modalBatchNo">AMX240801</span>
+      </div>
+      <div>
+        <span class="text-slate-400 block text-[10px] uppercase font-bold">Sisa Stok Fisik:</span>
+        <span class="font-bold text-slate-900 text-sm" id="modalStock">145 Box</span>
+      </div>
+      <div>
+        <span class="text-slate-400 block text-[10px] uppercase font-bold">Kedaluwarsa (ED):</span>
+        <span class="font-semibold text-slate-800" id="modalExpiry">18 Jun 2027</span>
+      </div>
+      <div>
+        <span class="text-slate-400 block text-[10px] uppercase font-bold">Penyimpanan / Rak:</span>
+        <span class="font-semibold text-slate-800" id="modalRack">Rak A2, Susun 3</span>
+      </div>
+      <div>
+        <span class="text-slate-400 block text-[10px] uppercase font-bold">Produsen:</span>
+        <span class="text-slate-700" id="modalManufacturer">Kimia Farma TBK</span>
+      </div>
+      <div>
+        <span class="text-slate-400 block text-[10px] uppercase font-bold">Distributor (PBF):</span>
+        <span class="text-slate-700" id="modalPBF">PBF: Anugrah Argon M.</span>
+      </div>
+    </div>
+    <div class="flex items-center justify-end space-x-2.5">
+      <button class="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer" onclick="closeModal('detailModal')">Tutup</button>
+      <button class="px-4 py-2 text-xs font-semibold text-white bg-[#964334] hover:bg-[#7E3629] rounded-xl transition shadow-xs cursor-pointer" onclick="alert('Kartu batch dicetak ke printer thermal apotek.'); closeModal('detailModal')">Cetak Label Barcode</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 2: Form Restock Cepat -->
+<div class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4" id="restockModal">
+  <div class="bg-white rounded-2xl max-w-md w-full border border-red-200 shadow-2xl p-6 relative" data-purpose="restock-form-modal">
+    <button class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full p-1.5 transition" onclick="closeModal('restockModal')">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+    </button>
+    <div class="flex items-center space-x-3 mb-4">
+      <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center font-bold">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-slate-900 leading-tight">Buat Pesanan Restock Cepat</h3>
+        <p class="text-xs text-red-600 font-semibold mt-0.5" id="restockDrugInfo">Antasida Doen Suspensi (8 Botol)</p>
+      </div>
+    </div>
+    <div class="space-y-3 text-xs mb-5">
+      <div>
+        <label class="block text-slate-600 font-medium mb-1">PBF / Distributor Terkait:</label>
+        <input class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-600 cursor-not-allowed" readonly="" type="text" value="PBF: Parit Padang Global"/>
+      </div>
+      <div>
+        <label class="block text-slate-700 font-medium mb-1">Jumlah Order Restock (Unit):</label>
+        <input class="w-full border border-[#E2D9CE] rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500" min="1" type="number" value="30"/>
+      </div>
+      <div>
+        <label class="block text-slate-700 font-medium mb-1">Prioritas Pengiriman:</label>
+        <select class="w-full border border-[#E2D9CE] rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-red-500">
+          <option>Urgent / Segera (1x24 Jam)</option>
+          <option>Reguler (2-3 Hari)</option>
+        </select>
+      </div>
+    </div>
+    <div class="flex items-center justify-end space-x-2.5">
+      <button class="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer" onclick="closeModal('restockModal')">Batalkan</button>
+      <button class="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-xs cursor-pointer" onclick="alert('Pesanan Pembelian (PO Restock) berhasil diterbitkan ke PBF Parit Padang Global!'); closeModal('restockModal')">Kirim PO ke PBF</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openDetailModal(drug, batch, stock, exp, rack, mfg, pbf) {
+    document.getElementById('modalDrugName').innerText = drug;
+    document.getElementById('modalBatchNo').innerText = batch;
+    document.getElementById('modalStock').innerText = stock;
+    document.getElementById('modalExpiry').innerText = exp;
+    document.getElementById('modalRack').innerText = rack;
+    document.getElementById('modalManufacturer').innerText = mfg;
+    document.getElementById('modalPBF').innerText = pbf;
+    document.getElementById('detailModal').classList.remove('hidden');
+  }
+
+  function openRestockModal(drug, batch, stock) {
+    document.getElementById('restockDrugInfo').innerText = drug + ' (Sisa ' + stock + ' - Batch ' + batch + ')';
+    document.getElementById('restockModal').classList.remove('hidden');
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.add('hidden');
+  }
+
+  window.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeModal('detailModal');
+      closeModal('restockModal');
+    }
+  });
+
+  // Client-side search and filter logic
+  const searchInput = document.getElementById('search-input');
+  const categoryFilter = document.getElementById('category-filter');
+
+  function filterTable() {
+    const q = searchInput.value.toLowerCase().trim();
+    const cat = categoryFilter.value.toLowerCase().trim();
+    const rows = document.querySelectorAll('#batch-table tbody tr');
+
+    rows.forEach(row => {
+      const text = row.innerText.toLowerCase();
+      const matchSearch = !q || text.includes(q);
+      const matchCat = !cat || text.includes(cat);
+      row.style.display = (matchSearch && matchCat) ? '' : 'none';
+    });
+  }
+
+  if (searchInput) searchInput.addEventListener('input', filterTable);
+  if (categoryFilter) categoryFilter.addEventListener('change', filterTable);
+</script>
+{{ end }}

@@ -1,0 +1,488 @@
+{{ define "content" }}
+<main class="p-8 max-w-7xl w-full mx-auto space-y-6">
+  <!-- Breadcrumbs & Header Actions -->
+  <section class="flex flex-col md:flex-row md:items-center justify-between gap-4" data-purpose="header-section">
+    <div>
+      <nav class="flex items-center gap-2 text-xs font-medium text-slate-400 mb-1.5">
+        <a class="hover:text-slate-600" href="/dashboard">Beranda</a>
+        <span>›</span>
+        <span class="text-[#964334] font-semibold">Pengembalian ke PBF</span>
+      </nav>
+      <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Riwayat Pengembalian Barang (Retur)</h2>
+      <p class="text-xs text-slate-500 mt-1">Kelola dan monitor berkas pengembalian sediaan farmasi rusak, mendekati ED, atau tidak sesuai pesanan ke distributor (PBF).</p>
+    </div>
+    <button class="inline-flex items-center gap-2 bg-[#FA5F48] hover:bg-[#E24A35] active:bg-[#C93B26] text-white font-semibold text-sm px-5 py-2.5 rounded-xl shadow-sm transition-all flex-shrink-0 cursor-pointer" id="btn-open-create-modal">
+      <svg class="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M12 4.5v15m7.5-7.5h-15" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+      <span>Tambah Pengembalian</span>
+    </button>
+  </section>
+
+  <!-- Stat Cards Grid -->
+  <section class="grid grid-cols-1 md:grid-cols-3 gap-5" data-purpose="stats-summary">
+    <!-- Card 1: Menunggu Kurir -->
+    <div class="bg-white rounded-2xl p-5 border border-[#EBE3DB] shadow-sm flex items-start gap-4">
+      <div class="w-12 h-12 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-[#964334] flex-shrink-0">
+        <svg class="w-6 h-6 text-[#964334]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+          <path d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between gap-1">
+          <span class="text-xs font-semibold text-slate-500">Menunggu Kurir</span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-300 text-amber-700 bg-amber-50">Perlu Tindakan</span>
+        </div>
+        <div class="text-2xl font-black text-slate-900 mt-1 tracking-tight">3 Berkas</div>
+        <p class="text-[11px] text-slate-400 mt-1 truncate">Paket retur siap dijemput ekspedisi PBF</p>
+      </div>
+    </div>
+
+    <!-- Card 2: Selesai -->
+    <div class="bg-white rounded-2xl p-5 border border-[#EBE3DB] shadow-sm flex items-start gap-4">
+      <div class="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
+        <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between gap-1">
+          <span class="text-xs font-semibold text-slate-500">Selesai</span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-200 text-emerald-700 bg-emerald-50">Bulan Mei 2026</span>
+        </div>
+        <div class="text-2xl font-black text-slate-900 mt-1 tracking-tight">18 Transaksi</div>
+        <p class="text-[11px] text-slate-400 mt-1 truncate">CN (Credit Note) &amp; tukar guling telah diterima</p>
+      </div>
+    </div>
+
+    <!-- Card 3: Total Nilai Retur -->
+    <div class="bg-white rounded-2xl p-5 border border-[#EBE3DB] shadow-sm flex items-start gap-4">
+      <div class="w-12 h-12 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-[#964334] flex-shrink-0">
+        <svg class="w-6 h-6 text-[#964334]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between gap-1">
+          <span class="text-xs font-semibold text-slate-500">Total Nilai Retur Bulan Ini</span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-rose-200 text-rose-700 bg-rose-50">Akumulasi Valuasi</span>
+        </div>
+        <div class="text-2xl font-black text-slate-900 mt-1 tracking-tight">Rp 14.850.000</div>
+        <p class="text-[11px] text-slate-400 mt-1 truncate">Estimasi klaim pengembalian dana / penggantian stok</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter Bar -->
+  <section class="bg-white p-3 rounded-2xl border border-[#EBE3DB] shadow-sm flex flex-wrap items-center gap-3" data-purpose="table-filter-bar">
+    <div class="relative flex-1 min-w-[260px]">
+      <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+      </span>
+      <input class="w-full text-xs pl-9 pr-3 py-2 bg-[#F9F7F3] border border-[#E2D9CF] rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#964334]" id="filter-search" placeholder="Cari No. Retur (misal: RTR/2026/001)..." type="text"/>
+    </div>
+
+    <div class="w-56 relative">
+      <select class="w-full text-xs py-2 pl-3 pr-8 bg-[#F9F7F3] border border-[#E2D9CF] rounded-xl text-slate-700 font-medium appearance-none focus:outline-none focus:ring-1 focus:ring-[#964334]" id="filter-pbf">
+        <option value="">Semua PBF Tujuan</option>
+        <option value="Kimia Farma">PT Kimia Farma Trading</option>
+        <option value="Enseval">PT Enseval Putera Megatrading</option>
+        <option value="Mensa">PT Mensa Bina Sukses</option>
+        <option value="Argon">PT Anugrah Argon Medica</option>
+      </select>
+      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-400">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+      </div>
+    </div>
+
+    <div class="w-64 relative">
+      <select class="w-full text-xs py-2 pl-3 pr-8 bg-[#F9F7F3] border border-[#E2D9CF] rounded-xl text-slate-700 font-medium appearance-none focus:outline-none focus:ring-1 focus:ring-[#964334]" id="filter-status">
+        <option value="">Semua Status (Draft / Menunggu / Selesai)</option>
+        <option value="Menunggu Kurir">Menunggu Kurir</option>
+        <option value="Selesai">Selesai</option>
+        <option value="Draft">Draft</option>
+      </select>
+      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-400">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 px-3 py-2 bg-[#F9F7F3] border border-[#E2D9CF] rounded-xl text-slate-700 text-xs font-medium cursor-pointer hover:border-slate-400 transition-colors">
+      <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+      </svg>
+      <span>01 Mei 2026 - 31 Mei 2026</span>
+    </div>
+
+    <button class="flex items-center gap-1.5 px-3 py-2 bg-white border border-[#E2D9CF] rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-[#F9F7F3] transition-colors" id="btn-reset-filter" type="button">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+      </svg>
+      <span>Reset</span>
+    </button>
+  </section>
+
+  <!-- Data Table Section -->
+  <section class="bg-white rounded-2xl border border-[#EBE3DB] shadow-sm overflow-hidden" data-purpose="returns-table-wrapper">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse" id="returns-table">
+        <thead>
+          <tr class="border-b border-[#EBE3DB] bg-[#FAF8F5]/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <th class="py-3.5 px-5">NO</th>
+            <th class="py-3.5 px-5">TANGGAL</th>
+            <th class="py-3.5 px-5">NO. RETUR</th>
+            <th class="py-3.5 px-6">PBF TUJUAN</th>
+            <th class="py-3.5 px-5">JUMLAH ITEM</th>
+            <th class="py-3.5 px-5">STATUS</th>
+            <th class="py-3.5 px-5 text-right">AKSI</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#F2ECE4] text-xs">
+          <!-- ROW 1 -->
+          <tr class="hover:bg-[#FCFAF7] transition-colors table-row-item" data-doc="RTR/2026/004" data-pbf="Kimia Farma" data-status="Menunggu Kurir">
+            <td class="py-4 px-5 font-semibold text-slate-400">01</td>
+            <td class="py-4 px-5">
+              <div class="font-bold text-slate-800">10 Mei 2026</div>
+              <div class="text-[11px] text-slate-400">09:45 WIB</div>
+            </td>
+            <td class="py-4 px-5">
+              <div class="font-bold text-[#964334] font-mono tracking-tight text-[13px]">RTR/2026/004</div>
+              <div class="text-[11px] text-slate-400">Ref: INV/KF/2026/1102</div>
+            </td>
+            <td class="py-4 px-6">
+              <div class="font-bold text-slate-900">PT Kimia Farma Trading &amp; Distribution</div>
+              <div class="text-[11px] text-slate-400">Cabang Semarang Barat • PIC: Budi Santoso</div>
+            </td>
+            <td class="py-4 px-5">
+              <div class="font-bold text-slate-900">4 Item Obat</div>
+              <div class="text-[11px] text-slate-400">40 Box (Batch ED Lewat)</div>
+            </td>
+            <td class="py-4 px-5">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Menunggu Kurir
+              </span>
+            </td>
+            <td class="py-4 px-5 text-right">
+              <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#D9D0C5] text-slate-700 hover:text-slate-900 hover:bg-[#F8F4EE] hover:border-slate-400 font-semibold text-xs transition-all shadow-sm" onclick="openDetailModal('RTR/2026/004', 'PT Kimia Farma Trading &amp; Distribution', 'INV/KF/2026/1102', 'Menunggu Kurir', 'Amoxicillin 500mg, Paracetamol Syr, Cefixime 100mg, Omeprazole Cap')">
+                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                  <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+                <span>Detail</span>
+              </button>
+            </td>
+          </tr>
+          <!-- ROW 2 -->
+          <tr class="hover:bg-[#FCFAF7] transition-colors table-row-item" data-doc="RTR/2026/003" data-pbf="Enseval" data-status="Selesai">
+            <td class="py-4 px-5 font-semibold text-slate-400">02</td>
+            <td class="py-4 px-5">
+              <div class="font-bold text-slate-800">08 Mei 2026</div>
+              <div class="text-[11px] text-slate-400">14:15 WIB</div>
+            </td>
+            <td class="py-4 px-5">
+              <div class="font-bold text-[#964334] font-mono tracking-tight text-[13px]">RTR/2026/003</div>
+              <div class="text-[11px] text-slate-400">Ref: INV/ENS/2026/0890</div>
+            </td>
+            <td class="py-4 px-6">
+              <div class="font-bold text-slate-900">PT Enseval Putera Megatrading Tbk</div>
+              <div class="text-[11px] text-slate-400">DC Kudus • CN: CN-ENS-9921</div>
+            </td>
+            <td class="py-4 px-5">
+              <div class="font-bold text-slate-900">2 Item Obat</div>
+              <div class="text-[11px] text-slate-400">15 Botol Sirup (Kemasan Rusak)</div>
+            </td>
+            <td class="py-4 px-5">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Selesai
+              </span>
+            </td>
+            <td class="py-4 px-5 text-right">
+              <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#D9D0C5] text-slate-700 hover:text-slate-900 hover:bg-[#F8F4EE] hover:border-slate-400 font-semibold text-xs transition-all shadow-sm" onclick="openDetailModal('RTR/2026/003', 'PT Enseval Putera Megatrading Tbk', 'INV/ENS/2026/0890', 'Selesai', 'Sanmol Sirup 60ml, OBH Combi Batuk Berdahak')">
+                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                  <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+                <span>Detail</span>
+              </button>
+            </td>
+          </tr>
+          <!-- ROW 3 -->
+          <tr class="hover:bg-[#FCFAF7] transition-colors table-row-item" data-doc="RTR/2026/002" data-pbf="Mensa" data-status="Draft">
+            <td class="py-4 px-5 font-semibold text-slate-400">03</td>
+            <td class="py-4 px-5">
+              <div class="font-bold text-slate-800">06 Mei 2026</div>
+              <div class="text-[11px] text-slate-400">11:30 WIB</div>
+            </td>
+            <td class="py-4 px-5">
+              <div class="font-bold text-[#964334] font-mono tracking-tight text-[13px]">RTR/2026/002</div>
+              <div class="text-[11px] text-slate-400">Ref: INV/MP/2026/0441</div>
+            </td>
+            <td class="py-4 px-6">
+              <div class="font-bold text-slate-900">PT Mensa Bina Sukses (MBS)</div>
+              <div class="text-[11px] text-slate-400">Cabang Surakarta • Belum Dikirim</div>
+            </td>
+            <td class="py-4 px-5">
+              <div class="font-bold text-slate-900">1 Item Obat</div>
+              <div class="text-[11px] text-slate-400">50 Strip (Mendekati ED 3 Bln)</div>
+            </td>
+            <td class="py-4 px-5">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Draft
+              </span>
+            </td>
+            <td class="py-4 px-5 text-right">
+              <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#D9D0C5] text-slate-700 hover:text-slate-900 hover:bg-[#F8F4EE] hover:border-slate-400 font-semibold text-xs transition-all shadow-sm" onclick="openDetailModal('RTR/2026/002', 'PT Mensa Bina Sukses (MBS)', 'INV/MP/2026/0441', 'Draft', 'Cetirizine 10mg Strip (50 Strip)')">
+                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                  <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+                <span>Detail</span>
+              </button>
+            </td>
+          </tr>
+          <!-- ROW 4 -->
+          <tr class="hover:bg-[#FCFAF7] transition-colors table-row-item" data-doc="RTR/2026/001" data-pbf="Argon" data-status="Selesai">
+            <td class="py-4 px-5 font-semibold text-slate-400">04</td>
+            <td class="py-4 px-5">
+              <div class="font-bold text-slate-800">02 Mei 2026</div>
+              <div class="text-[11px] text-slate-400">16:00 WIB</div>
+            </td>
+            <td class="py-4 px-5">
+              <div class="font-bold text-[#964334] font-mono tracking-tight text-[13px]">RTR/2026/001</div>
+              <div class="text-[11px] text-slate-400">Ref: INV/AP/2026/0312</div>
+            </td>
+            <td class="py-4 px-6">
+              <div class="font-bold text-slate-900">PT Anugrah Argon Medica (AAM)</div>
+              <div class="text-[11px] text-slate-400">Cabang Semarang • Tukar Barang Baru</div>
+            </td>
+            <td class="py-4 px-5">
+              <div class="font-bold text-slate-900">6 Item Obat</div>
+              <div class="text-[11px] text-slate-400">120 Ampul / Vial</div>
+            </td>
+            <td class="py-4 px-5">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Selesai
+              </span>
+            </td>
+            <td class="py-4 px-5 text-right">
+              <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#D9D0C5] text-slate-700 hover:text-slate-900 hover:bg-[#F8F4EE] hover:border-slate-400 font-semibold text-xs transition-all shadow-sm" onclick="openDetailModal('RTR/2026/001', 'PT Anugrah Argon Medica (AAM)', 'INV/AP/2026/0312', 'Selesai', 'Ondansetron Inj 4mg, Ranitidine Inj, Ketorolac Inj 30mg, Ceftriaxone 1g Vial')">
+                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                  <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+                <span>Detail</span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    <div class="p-4 bg-white border-t border-[#EBE3DB] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+      <p class="text-slate-500">
+        Menampilkan <span class="font-bold text-slate-800">1 – 4</span> dari <span class="font-bold text-slate-800">21</span> dokumen retur barang PBF
+      </p>
+      <div class="inline-flex items-center gap-1">
+        <button class="px-3 py-1.5 rounded-xl border border-[#E2D9CF] text-slate-500 hover:text-slate-800 hover:bg-[#FAF8F5] disabled:opacity-50 transition-colors">‹ Sebelumnya</button>
+        <button class="w-8 h-8 rounded-xl bg-[#964334] text-white font-bold flex items-center justify-center shadow-sm">1</button>
+        <button class="w-8 h-8 rounded-xl border border-[#E2D9CF] text-slate-700 hover:bg-[#FAF8F5] flex items-center justify-center transition-colors">2</button>
+        <button class="w-8 h-8 rounded-xl border border-[#E2D9CF] text-slate-700 hover:bg-[#FAF8F5] flex items-center justify-center transition-colors">3</button>
+        <button class="px-3 py-1.5 rounded-xl border border-[#E2D9CF] text-slate-700 hover:text-slate-900 hover:bg-[#FAF8F5] transition-colors">Selanjutnya ›</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Compliance Regulatory Note -->
+  <footer class="pt-1 pb-4">
+    <p class="text-[11px] text-slate-400 leading-relaxed italic">
+      * Retur sediaan farmasi wajib disertai Salinan Faktur Asli, Surat Jalan Retur (SJR), dan Berita Acara Retur sesuai regulasi CDOB BPOM RI.
+    </p>
+  </footer>
+</main>
+
+<!-- MODAL 1: Detail Retur Modal -->
+<div class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4" id="modal-detail">
+  <div class="bg-white rounded-2xl max-w-lg w-full border border-[#E2D9CF] shadow-2xl overflow-hidden animate-in fade-in duration-200">
+    <div class="p-5 border-b border-[#EBE3DB] flex items-center justify-between bg-[#FCFAF7]">
+      <div>
+        <span class="text-[10px] font-bold tracking-wider text-[#964334] uppercase">Detail Dokumen Retur</span>
+        <h3 class="text-lg font-bold text-slate-900" id="modal-retur-id">RTR/2026/004</h3>
+      </div>
+      <button class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/50 flex items-center justify-center" onclick="closeModal('modal-detail')">✕</button>
+    </div>
+    <div class="p-6 space-y-4 text-xs">
+      <div class="grid grid-cols-2 gap-4 pb-4 border-b border-slate-100">
+        <div>
+          <span class="text-slate-400 block font-medium">Distributor / PBF:</span>
+          <span class="font-bold text-slate-800 text-sm" id="modal-pbf-name">PT Kimia Farma Trading</span>
+        </div>
+        <div>
+          <span class="text-slate-400 block font-medium">Nomor Faktur Asli:</span>
+          <span class="font-mono font-semibold text-slate-700" id="modal-faktur-ref">INV/KF/2026/1102</span>
+        </div>
+        <div>
+          <span class="text-slate-400 block font-medium">Status Pengembalian:</span>
+          <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full font-bold bg-amber-50 text-amber-700 border border-amber-200" id="modal-status-badge">Menunggu Kurir</span>
+        </div>
+        <div>
+          <span class="text-slate-400 block font-medium">Apoteker Penanggung Jawab:</span>
+          <span class="font-semibold text-slate-800">apt. Farhan W., S.Farm</span>
+        </div>
+      </div>
+      <div>
+        <span class="text-slate-500 font-bold block mb-1.5 uppercase text-[10px] tracking-wide">Daftar Sediaan Farmasi:</span>
+        <div class="bg-[#F9F7F3] p-3.5 rounded-xl border border-[#E9E1D6] font-mono text-[11px] text-slate-700 leading-relaxed" id="modal-items-list">-</div>
+      </div>
+      <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-[11px] flex gap-2 items-center">
+        <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+        <span>Dokumen Berita Acara &amp; Surat Jalan Retur (SJR) digital telah tertandatangani secara elektronik.</span>
+      </div>
+    </div>
+    <div class="p-4 bg-[#FAF8F5] border-t border-[#EBE3DB] flex justify-end gap-2.5">
+      <button class="px-4 py-2 rounded-xl border border-[#D9D0C5] text-slate-700 font-semibold hover:bg-white text-xs" onclick="closeModal('modal-detail')">Tutup</button>
+      <button class="px-4 py-2 rounded-xl bg-[#964334] text-white font-semibold hover:bg-[#7F3629] text-xs shadow-sm" onclick="alert('Mencetak Surat Jalan Retur (SJR)...')">Cetak SJR &amp; Faktur</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 2: Tambah Pengembalian Modal -->
+<div class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4" id="modal-create">
+  <div class="bg-white rounded-2xl max-w-xl w-full border border-[#E2D9CF] shadow-2xl overflow-hidden animate-in fade-in duration-200">
+    <div class="p-5 border-b border-[#EBE3DB] flex items-center justify-between bg-[#FCFAF7]">
+      <div>
+        <span class="text-[10px] font-bold tracking-wider text-[#964334] uppercase">Formulir Retur Barang</span>
+        <h3 class="text-lg font-bold text-slate-900">Buat Pengajuan Retur Baru ke PBF</h3>
+      </div>
+      <button class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/50 flex items-center justify-center" onclick="closeModal('modal-create')">✕</button>
+    </div>
+    <form class="p-6 space-y-4 text-xs" id="form-tambah-retur" onsubmit="handleFormSubmit(event)">
+      <div class="grid grid-cols-2 gap-3.5">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Pilih PBF Tujuan *</label>
+          <select class="w-full text-xs py-2 px-3 bg-[#F9F7F3] border border-[#E2D9CF] rounded-xl text-slate-700 focus:ring-[#964334] focus:border-[#964334]" required="">
+            <option value="">Pilih Distributor PBF...</option>
+            <option value="PT Kimia Farma Trading &amp; Distribution">PT Kimia Farma Trading &amp; Distribution</option>
+            <option value="PT Enseval Putera Megatrading Tbk">PT Enseval Putera Megatrading Tbk</option>
+            <option value="PT Mensa Bina Sukses (MBS)">PT Mensa Bina Sukses (MBS)</option>
+            <option value="PT Anugrah Argon Medica (AAM)">PT Anugrah Argon Medica (AAM)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Nomor Referensi Faktur Pembelian *</label>
+          <input class="w-full text-xs py-2 px-3 bg-[#F9F7F3] border border-[#E2D9CF] rounded-xl text-slate-700 focus:ring-[#964334]" placeholder="misal: INV/KF/2026/1105" required="" type="text"/>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3.5">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Alasan Pengembalian *</label>
+          <select class="w-full text-xs py-2 px-3 bg-[#F9F7F3] border border-[#E2D9CF] rounded-xl text-slate-700 focus:ring-[#964334]" required="">
+            <option value="ED Lewat / Mendekati Expired">ED Lewat / Mendekati Expired</option>
+            <option value="Kemasan Rusak / Pecah / Cacat Fisik">Kemasan Rusak / Pecah / Cacat Fisik</option>
+            <option value="Recall Pabrikan / BPOM">Recall Pabrikan / BPOM</option>
+            <option value="Salah Kirim / Tidak Sesuai PO">Salah Kirim / Tidak Sesuai PO</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Opsi Kompensasi *</label>
+          <select class="w-full text-xs py-2 px-3 bg-[#F9F7F3] border border-[#E2D9CF] rounded-xl text-slate-700 focus:ring-[#964334]" required="">
+            <option value="Credit Note (Potong Tagihan)">Credit Note (Potong Tagihan)</option>
+            <option value="Tukar Barang Sejenis (Batch Baru)">Tukar Barang Sejenis (Batch Baru)</option>
+            <option value="Pengembalian Tunai / Transfer">Pengembalian Tunai / Transfer</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">Item Obat &amp; Nomor Batch *</label>
+        <textarea class="w-full text-xs p-3 bg-[#F9F7F3] border border-[#E2D9CF] rounded-xl text-slate-700 focus:ring-[#964334]" placeholder="Contoh: Paracetamol Drops 15ml (Batch: B9023, ED: 05/26) - 10 Btl&#10;Amoxicillin 500mg (Batch: AX-110, ED: 04/26) - 20 Box" required="" rows="3"></textarea>
+      </div>
+      <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-[11px]">
+        Pastikan fisik obat telah dipisahkan ke lemari karantina / lemari retur khusus sebelum diserahterimakan ke kurir distributor.
+      </div>
+      <div class="pt-2 flex justify-end gap-2.5">
+        <button class="px-4 py-2 rounded-xl border border-[#D9D0C5] text-slate-700 font-semibold hover:bg-slate-100 text-xs" onclick="closeModal('modal-create')" type="button">Batal</button>
+        <button class="px-5 py-2 rounded-xl bg-[#964334] hover:bg-[#7F3629] text-white font-semibold text-xs shadow-sm" type="submit">Simpan Dokumen Retur</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openDetailModal(id, pbf, ref, status, items) {
+    document.getElementById('modal-retur-id').innerText = id;
+    document.getElementById('modal-pbf-name').innerText = pbf;
+    document.getElementById('modal-faktur-ref').innerText = ref;
+    document.getElementById('modal-status-badge').innerText = status;
+    document.getElementById('modal-items-list').innerText = items;
+    document.getElementById('modal-detail').classList.remove('hidden');
+  }
+
+  function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+  }
+
+  const btnOpenCreate = document.getElementById('btn-open-create-modal');
+  if (btnOpenCreate) {
+    btnOpenCreate.addEventListener('click', () => {
+      document.getElementById('modal-create').classList.remove('hidden');
+    });
+  }
+
+  function handleFormSubmit(e) {
+    e.preventDefault();
+    alert('Pengajuan Berkas Retur Baru berhasil disimpan ke dalam SIM Farmasi Sumber Waras dengan status [Draft / Siap Kirim]!');
+    closeModal('modal-create');
+    e.target.reset();
+  }
+
+  const searchInput = document.getElementById('filter-search');
+  const pbfSelect = document.getElementById('filter-pbf');
+  const statusSelect = document.getElementById('filter-status');
+  const resetBtn = document.getElementById('btn-reset-filter');
+  const rows = document.querySelectorAll('.table-row-item');
+
+  function filterTable() {
+    const query = searchInput.value.toLowerCase().trim();
+    const pbfFilter = pbfSelect.value;
+    const statusFilter = statusSelect.value;
+
+    rows.forEach(row => {
+      const textContent = row.textContent.toLowerCase();
+      const rowStatus = row.getAttribute('data-status');
+      const rowPbf = row.getAttribute('data-pbf');
+
+      const matchesQuery = !query || textContent.includes(query);
+      const matchesPbf = !pbfFilter || (rowPbf && rowPbf.includes(pbfFilter));
+      const matchesStatus = !statusFilter || (rowStatus && rowStatus.includes(statusFilter));
+
+      if (matchesQuery && matchesPbf && matchesStatus) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+
+  if (searchInput) searchInput.addEventListener('input', filterTable);
+  if (pbfSelect) pbfSelect.addEventListener('change', filterTable);
+  if (statusSelect) statusSelect.addEventListener('change', filterTable);
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      pbfSelect.value = '';
+      statusSelect.value = '';
+      filterTable();
+    });
+  }
+</script>
+{{ end }}

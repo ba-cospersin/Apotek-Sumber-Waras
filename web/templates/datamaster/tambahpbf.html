@@ -1,0 +1,299 @@
+{{ define "content" }}
+<!-- Page Body Container -->
+<main class="p-8 max-w-[1600px] w-full mx-auto space-y-6 flex-1" data-purpose="page-main-content">
+  <div class="flex flex-col w-full">
+    <!-- Content Header & Action Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6">
+      <div class="flex flex-col">
+        <div class="inline-flex items-center gap-2 mb-1.5">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#FDF6F3] text-[#964334] tracking-wide uppercase border border-[#E8D2CB]">
+            Registrasi Distributor Baru
+          </span>
+          <span class="text-slate-400 text-xs">•</span>
+          <span class="text-slate-500 text-[11px] font-semibold tracking-wide">
+            CDOB Compliance Verifikasi
+          </span>
+        </div>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">
+          Tambah Pedagang Besar Farmasi (PBF)
+        </h1>
+        <p class="text-xs text-slate-500 mt-0.5">
+          Registrasi distributor obat resmi &amp; verifikasi izin CDOB untuk kelayakan pengadaan barang.
+        </p>
+      </div>
+      <!-- Back Navigation Action -->
+      <a class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-[#ECE0D4] text-slate-700 text-xs font-semibold shadow-xs hover:bg-[#F8F6F2] transition-colors self-start md:self-auto cursor-pointer" href="/datamaster/datapbf">
+        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+        <span>Kembali ke Data PBF</span>
+      </a>
+    </div>
+
+    <!-- Main Multi-section Form Card -->
+    <div class="bg-white border border-[#ECE0D4] rounded-2xl p-8 shadow-xs flex flex-col gap-10">
+      <form class="flex flex-col gap-10" id="formPbf" action="/datamaster/pbf/store" method="POST">
+        
+        <!-- SECTION A: Identitas Resmi PBF & CDOB -->
+        <section class="flex flex-col gap-5">
+          <div class="flex items-center justify-between pb-3 bg-[#FAF6F2] p-4 rounded-xl border border-[#ECE0D4]">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded-lg bg-[#964334] text-white text-xs font-bold flex items-center justify-center shadow-xs">
+                A
+              </span>
+              <div class="flex flex-col">
+                <h2 class="text-sm font-bold text-slate-900">
+                  Identitas Resmi PBF &amp; CDOB
+                </h2>
+                <span class="text-xs text-slate-500 font-normal">
+                  Informasi badan hukum, legalitas Kemenkes, dan kategori distribusi
+                </span>
+              </div>
+            </div>
+            <span class="text-[11px] text-[#964334] uppercase font-bold tracking-wider px-2.5 py-1 bg-white rounded-lg border border-[#E8D2CB]">
+              Wajib Dilengkapi
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-5 px-1">
+            <!-- Nama Legal PBF -->
+            <div class="md:col-span-5 flex flex-col gap-1.5">
+              <label class="text-xs font-semibold text-slate-700 flex items-center gap-1" for="nama_pbf">
+                Nama Legal PBF <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <input class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#ECE0D4] text-slate-800 text-xs placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] focus:outline-none transition-all" id="nama_pbf" name="nama_pbf" placeholder="Contoh: PT Kimia Farma Trading &amp; Distribution" required type="text"/>
+              </div>
+              <span class="text-[11px] text-slate-500">Sesuai akta perusahaan dan lampiran SP dari Kemenkes.</span>
+            </div>
+
+            <!-- Nomor Izin PBF / CDOB -->
+            <div class="md:col-span-4 flex flex-col gap-1.5">
+              <label class="text-xs font-semibold text-slate-700 flex items-center gap-1" for="izin_pbf">
+                Nomor Izin PBF / CDOB Kemenkes <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <input class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#ECE0D4] text-slate-800 text-xs placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] focus:outline-none transition-all uppercase tracking-wide font-mono" id="izin_pbf" name="izin_pbf" placeholder="HK.02.02/VI/XXXX/2024" required type="text"/>
+              </div>
+              <span class="text-[11px] text-slate-500">Pastikan masa berlaku izin aktif &gt; 6 bulan ke depan.</span>
+            </div>
+
+            <!-- Kategori Distributor -->
+            <div class="md:col-span-3 flex flex-col gap-1.5">
+              <label class="text-xs font-semibold text-slate-700 flex items-center gap-1" for="kategori_pbf">
+                Kategori Distributor <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <select class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#ECE0D4] text-slate-800 text-xs focus:bg-white focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] focus:outline-none transition-all cursor-pointer" id="kategori_pbf" name="kategori_pbf">
+                  <option selected value="cabang">PBF Cabang Regional</option>
+                  <option value="pusat">PBF Center / Utama</option>
+                  <option value="lokal">Distributor Lokal Resmi</option>
+                </select>
+              </div>
+              <span class="text-[11px] text-slate-500">Tingkatan hierarki rantai pasok farmasi.</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION B: Penanggung Jawab Teknis (APJ) -->
+        <section class="flex flex-col gap-5">
+          <div class="flex items-center justify-between pb-3 bg-[#FAF6F2] p-4 rounded-xl border border-[#ECE0D4]">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded-lg bg-[#964334] text-white text-xs font-bold flex items-center justify-center shadow-xs">
+                B
+              </span>
+              <div class="flex flex-col">
+                <h2 class="text-sm font-bold text-slate-900">
+                  Penanggung Jawab Teknis (APJ)
+                </h2>
+                <span class="text-xs text-slate-500 font-normal">
+                  Verifikasi kompetensi apoteker penanggung jawab pemegang izin distribusi
+                </span>
+              </div>
+            </div>
+            <span class="text-xs text-slate-600 flex items-center gap-1 font-medium">
+              SIPA Terkoneksi Kemenkes
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 px-1">
+            <!-- Nama APJ -->
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-semibold text-slate-700 flex items-center gap-1" for="nama_apj">
+                Nama Apoteker Penanggung Jawab (APJ) <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <input class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#ECE0D4] text-slate-800 text-xs placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] focus:outline-none transition-all" id="nama_apj" name="nama_apj" placeholder="Contoh: apt. Muhammad Arifin, S.Farm" required type="text" value="apt. Nuzul Farhan, S.Farm"/>
+              </div>
+              <span class="text-[11px] text-slate-500">Cantumkan gelar profesi kefarmasian resmi (apt.).</span>
+            </div>
+
+            <!-- Nomor SIPA / STRA APJ -->
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-semibold text-slate-700 flex items-center gap-1" for="sipa_apj">
+                Nomor SIPA / STRA APJ <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <input class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#ECE0D4] text-slate-800 text-xs placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] focus:outline-none transition-all font-mono" id="sipa_apj" name="sipa_apj" placeholder="1995xxxx/SIPA-33.74/2025/2001" required type="text" value="1995xxxx/SIPA-33.74/2025/2001"/>
+              </div>
+              <span class="text-[11px] text-slate-500">Digunakan pada verifikasi Surat Pesanan (SP) Narkotika &amp; Psikotropika.</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION C: Kontak & Alamat Logistik -->
+        <section class="flex flex-col gap-5">
+          <div class="flex items-center justify-between pb-3 bg-[#FAF6F2] p-4 rounded-xl border border-[#ECE0D4]">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded-lg bg-[#964334] text-white text-xs font-bold flex items-center justify-center shadow-xs">
+                C
+              </span>
+              <div class="flex flex-col">
+                <h2 class="text-sm font-bold text-slate-900">
+                  Kontak &amp; Alamat Logistik
+                </h2>
+                <span class="text-xs text-slate-500 font-normal">
+                  Saluran komunikasi divisi purchasing dan titik pengambilan / pengiriman faktur
+                </span>
+              </div>
+            </div>
+            <span class="text-xs text-slate-600 font-medium">
+              Pengiriman Rantai Dingin &amp; Reguler
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 px-1">
+            <!-- Nomor Telepon / Sales -->
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-semibold text-slate-700 flex items-center gap-1" for="telp_pbf">
+                Nomor Telepon / Sales <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <input class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#ECE0D4] text-slate-800 text-xs placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] focus:outline-none transition-all" id="telp_pbf" name="telp_pbf" placeholder="081234567890" required type="tel" value="081234567890"/>
+              </div>
+              <span class="text-[11px] text-slate-500">Dapat dihubungi untuk konfirmasi faktur &amp; klaim retur batch.</span>
+            </div>
+
+            <!-- Email Resmi Pengadaan -->
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-semibold text-slate-700 flex items-center gap-1" for="email_pbf">
+                Email Resmi Pengadaan <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <input class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#ECE0D4] text-slate-800 text-xs placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] focus:outline-none transition-all" id="email_pbf" name="email_pbf" placeholder="pengadaan@distributor.co.id" required type="email" value="pengadaan@distributor.co.id"/>
+              </div>
+              <span class="text-[11px] text-slate-500">Tujuan penerbitan PO otomatis dari modul Pembelian.</span>
+            </div>
+
+            <!-- Alamat Lengkap Kantor / Gudang -->
+            <div class="md:col-span-2 flex flex-col gap-1.5">
+              <label class="text-xs font-semibold text-slate-700 flex items-center gap-1" for="alamat_pbf">
+                Alamat Lengkap Kantor / Gudang <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <textarea class="w-full p-3.5 rounded-xl bg-[#FAF9F7] border border-[#ECE0D4] text-slate-800 text-xs placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] focus:outline-none transition-all resize-none" id="alamat_pbf" name="alamat_pbf" placeholder="Jl. Industri Raya No. 12, Kawasan Industri Candi, Kota Semarang, Jawa Tengah 50181" required rows="3">Jl. Industri Raya No. 12, Kawasan Industri Candi, Kota Semarang, Jawa Tengah 50181</textarea>
+              </div>
+              <span class="text-[11px] text-slate-500">Alamat fisik gudang penyimpanan berstandar GSP/CDOB.</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION D: Ketentuan Transaksi & Status Operasional -->
+        <section class="flex flex-col gap-5">
+          <div class="flex items-center justify-between pb-3 bg-[#FAF6F2] p-4 rounded-xl border border-[#ECE0D4]">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded-lg bg-[#964334] text-white text-xs font-bold flex items-center justify-center shadow-xs">
+                D
+              </span>
+              <div class="flex flex-col">
+                <h2 class="text-sm font-bold text-slate-900">
+                  Ketentuan Transaksi &amp; Status Operasional
+                </h2>
+                <span class="text-xs text-slate-500 font-normal">
+                  Aturan kredit tempo, jatuh tempo faktur, dan kesiapan approval transaksi
+                </span>
+              </div>
+            </div>
+            <span class="text-xs font-semibold text-slate-700">
+              Tenor Finansial
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 px-1">
+            <!-- Term of Payment -->
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-semibold text-slate-700 flex items-center gap-1" for="top_pbf">
+                Term of Payment (Tempo Pembayaran - Hari) <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <input class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#ECE0D4] text-slate-800 text-xs font-semibold placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] focus:outline-none transition-all" id="top_pbf" name="top_pbf" placeholder="30 Hari" required type="text" value="30 Hari"/>
+              </div>
+              <span class="text-[11px] text-slate-500">Standar tenor faktur pengadaan obat apotek (misal: 14 Hari, 30 Hari, 45 Hari, COD).</span>
+            </div>
+
+            <!-- Status Kepatuhan CDOB -->
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-semibold text-slate-700 flex items-center gap-1" for="status_cdob">
+                Status Kepatuhan CDOB <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <select class="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F7] border border-[#ECE0D4] text-slate-800 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] focus:outline-none transition-all cursor-pointer" id="status_cdob" name="status_cdob">
+                  <option selected value="aktif">🟢 Aktif (Siap Melayani PO)</option>
+                  <option value="review">🟡 Menunggu Review Dokumen</option>
+                  <option value="nonaktif">🔴 Nonaktif / Ditangguhkan</option>
+                </select>
+              </div>
+              <span class="text-[11px] text-slate-500">Distributor dengan status Aktif dapat langsung menerima SP elektronik.</span>
+            </div>
+          </div>
+
+          <!-- Mini Insight / Verifikasi Info Card -->
+          <div class="mt-2 p-4 rounded-xl bg-[#FDF6F3] border border-[#E8D2CB] flex items-start gap-3.5 shadow-xs">
+            <svg class="w-6 h-6 text-[#964334] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            <div class="flex flex-col gap-0.5">
+              <span class="text-xs font-bold text-[#964334]">
+                Verifikasi Izin Otomatis Terhubung ke Modul Pengadaan
+              </span>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Status <span class="font-semibold text-[#964334]">"Aktif"</span> memungkinkan distributor ini langsung dipilih pada Formulir Penerimaan Barang dan Surat Pesanan (SP) Obat Keras / Prekursor. Sistem akan memvalidasi nomor izin Kemenkes secara periodik.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Action Footer -->
+        <div class="pt-6 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 bg-white border-t border-[#ECE0D4]">
+          <a class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-white border border-[#ECE0D4] text-slate-700 text-xs font-semibold hover:bg-[#F8F6F2] transition-colors text-center cursor-pointer" href="/datamaster/datapbf">
+            Batal
+          </a>
+          <button class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-2.5 rounded-xl bg-[#964334] hover:bg-[#7D372B] text-white text-xs font-bold shadow-md transition-all cursor-pointer" type="submit">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            <span>Simpan Data PBF</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Bottom SOP Advisory Alert -->
+    <div class="rounded-xl p-4 bg-[#FDF6F3] border border-[#E8D2CB] flex items-start gap-3.5 shadow-xs">
+      <div class="w-9 h-9 rounded-lg bg-white border border-[#E8D2CB] text-[#964334] flex items-center justify-center flex-shrink-0 shadow-xs">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <div class="flex flex-col">
+        <h3 class="text-xs font-bold text-slate-900">
+          Ketentuan Pengadaan Barang Apotek Sumber Waras (CDOB Compliance)
+        </h3>
+        <p class="text-xs text-slate-600 leading-relaxed mt-0.5">
+          PBF terdaftar wajib memiliki nomor izin PBF resmi dari Kemenkes RI yang masih berlaku. Seluruh pengadaan sediaan farmasi (Obat Keras &amp; Prekursor) hanya dapat dialokasikan ke distributor dengan status <span class="font-bold text-slate-900">Aktif</span> sesuai standar operasional prosedur Apotek Sumber Waras.
+        </p>
+      </div>
+    </div>
+  </div>
+</main>
+{{ end }}

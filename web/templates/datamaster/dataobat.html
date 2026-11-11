@@ -1,0 +1,397 @@
+{{ define "content" }}
+<main class="flex-1 p-8 overflow-y-auto max-w-[1600px] mx-auto w-full">
+<!-- BEGIN: Page Header Title & Primary Action Buttons -->
+<section class="flex items-center justify-between mb-7" data-purpose="page-title-actions">
+<div>
+<h1 class="text-2xl font-bold text-slate-900 tracking-tight">Data Obat</h1>
+<p class="text-xs text-slate-500 mt-1">Kelola master formularium katalog obat, satuan, harga beli, dan kepatuhan regulasi apotek.</p>
+</div>
+<div class="flex items-center gap-3">
+<!-- Secondary Action: Export -->
+<button class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-cream-300 rounded-xl text-xs font-semibold text-slate-700 hover:bg-cream-50 hover:border-slate-300 shadow-subtle transition-all" type="button">
+<svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Export Data</span>
+</button>
+<!-- Primary Action: Add Medicine -->
+<a href="/datamaster/tambahobat" class="inline-flex items-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold shadow-sm hover:shadow transition-all cursor-pointer">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+<span>Tambah Obat Baru</span>
+</a>
+</div>
+</section>
+<!-- END: Page Header Title & Primary Action Buttons -->
+
+<!-- BEGIN: Summary Metrics Cards -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-7" data-purpose="metrics-summary">
+<!-- Metric Card 1: Total SKU -->
+<div class="bg-white border border-cream-300 rounded-2xl p-5 shadow-card flex items-center justify-between">
+<div>
+<span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Formularium Obat</span>
+<div class="flex items-baseline gap-2 mt-1.5">
+<span class="text-3xl font-bold text-slate-900 tracking-tight">328 SKU</span>
+</div>
+<p class="text-xs text-slate-500 mt-1 flex items-center gap-1 font-medium">
+<span class="text-emerald-600 font-semibold">+12 SKU</span> bulan ini
+</p>
+</div>
+<div class="w-13 h-13 p-3.5 rounded-2xl bg-[#FAF0EC] text-terracotta-600 flex items-center justify-center shrink-0">
+<svg class="w-7 h-7" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+</svg>
+</div>
+</div>
+<!-- Metric Card 2: Active SKU -->
+<div class="bg-white border border-cream-300 rounded-2xl p-5 shadow-card flex items-center justify-between">
+<div>
+<span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Obat Aktif / Siap Jual</span>
+<div class="flex items-baseline gap-2 mt-1.5">
+<span class="text-3xl font-bold text-slate-900 tracking-tight">315 SKU</span>
+</div>
+<p class="text-xs text-slate-500 mt-1 flex items-center gap-1 font-medium">
+<span class="text-emerald-600 font-semibold">96%</span> dari total katalog
+</p>
+</div>
+<div class="w-13 h-13 p-3.5 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+<svg class="w-7 h-7" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+<!-- Metric Card 3: Low Stock Warning -->
+<div class="bg-white border border-cream-300 rounded-2xl p-5 shadow-card flex items-center justify-between">
+<div>
+<span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Stok Menipis / Perlu Reorder</span>
+<div class="flex items-baseline gap-2 mt-1.5">
+<span class="text-3xl font-bold text-terracotta-600 tracking-tight">14 Obat</span>
+</div>
+<p class="text-xs text-amber-700 mt-1 flex items-center gap-1 font-medium">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-500"></span> Perlu dibuatkan PO segera
+</p>
+</div>
+<div class="w-13 h-13 p-3.5 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+<svg class="w-7 h-7" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+</section>
+<!-- END: Summary Metrics Cards -->
+
+<!-- BEGIN: Search & Filter Toolbar -->
+<section class="bg-white p-3.5 rounded-2xl border border-cream-300 shadow-subtle mb-6 flex flex-wrap items-center gap-3" data-purpose="table-filter-toolbar">
+<!-- Input Filter: Search -->
+<div class="relative flex-1 min-w-[260px]">
+<span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</span>
+<input class="w-full pl-9 pr-4 py-2 bg-cream-50 hover:bg-white focus:bg-white border border-cream-300 rounded-xl text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-terracotta-500 focus:border-transparent transition-all" placeholder="Cari kode atau nama obat..." type="text"/>
+</div>
+<!-- Filter: Kategori Obat -->
+<div class="w-48">
+<select class="w-full py-2 pl-3 pr-8 bg-cream-50 hover:bg-white border border-cream-300 rounded-xl text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-terracotta-500 transition-all cursor-pointer">
+<option value="">Semua Kategori</option>
+<option value="bebas">Obat Bebas</option>
+<option value="terbatas">Obat Bebas Terbatas</option>
+<option value="keras">Obat Keras</option>
+<option value="fitofarmaka">Fitofarmaka / Herbal</option>
+</select>
+</div>
+<!-- Filter: Jenis Obat -->
+<div class="w-44">
+<select class="w-full py-2 pl-3 pr-8 bg-cream-50 hover:bg-white border border-cream-300 rounded-xl text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-terracotta-500 transition-all cursor-pointer">
+<option value="">Semua Jenis Obat</option>
+<option value="generik">Generik</option>
+<option value="paten">Paten / Branded</option>
+</select>
+</div>
+<!-- Filter: Status -->
+<div class="w-40">
+<select class="w-full py-2 pl-3 pr-8 bg-cream-50 hover:bg-white border border-cream-300 rounded-xl text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-terracotta-500 transition-all cursor-pointer">
+<option value="">Semua Status</option>
+<option value="aktif">Aktif</option>
+<option value="nonaktif">Nonaktif</option>
+<option value="menipis">Stok Menipis</option>
+</select>
+</div>
+<!-- Reset Button -->
+<button class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-cream-100 hover:bg-cream-200 text-slate-700 rounded-xl text-xs font-medium transition-colors" type="button">
+<svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Reset Filter</span>
+</button>
+</section>
+<!-- END: Search & Filter Toolbar -->
+
+<!-- BEGIN: Table Container Card -->
+<section class="bg-white border border-cream-300 rounded-2xl shadow-card overflow-hidden" data-purpose="medicine-data-table">
+<!-- Table Section Header -->
+<div class="px-6 py-4 border-b border-cream-200 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<h2 class="font-bold text-slate-900 text-sm">Daftar Obat Terdaftar</h2>
+<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-terracotta-50 text-terracotta-700 border border-terracotta-200">
+              328 Total SKU
+            </span>
+</div>
+<span class="text-xs text-slate-500">Menampilkan halaman 1 dari 55</span>
+</div>
+<!-- Table Responsive Wrapper -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-cream-50 border-b border-cream-300 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+<th class="pl-6 pr-3 py-3.5 w-10" scope="col">
+<input class="w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+</th>
+<th class="px-3 py-3.5" scope="col">KODE OBAT</th>
+<th class="px-4 py-3.5" scope="col">NAMA OBAT</th>
+<th class="px-4 py-3.5" scope="col">KATEGORI</th>
+<th class="px-4 py-3.5" scope="col">JENIS OBAT</th>
+<th class="px-4 py-3.5" scope="col">SATUAN</th>
+<th class="px-4 py-3.5 text-right" scope="col">HARGA BELI</th>
+<th class="px-4 py-3.5 text-right" scope="col">HARGA JUAL</th>
+<th class="px-4 py-3.5 text-center" scope="col">STATUS</th>
+<th class="pr-6 pl-4 py-3.5 text-center" scope="col">AKSI</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-cream-200 text-xs">
+<!-- Row 1: Paracetamol -->
+<tr class="hover:bg-cream-50/70 transition-colors group">
+<td class="pl-6 pr-3 py-3.5">
+<input class="w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-3 py-3.5 font-mono font-medium text-slate-600 whitespace-nowrap">MED-PCM-01</td>
+<td class="px-4 py-3.5 font-semibold text-slate-800 whitespace-nowrap">Paracetamol 500mg</td>
+<td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Obat Bebas
+</span>
+</td>
+<td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">Generik</td>
+<td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">Strip</td>
+<td class="px-4 py-3.5 text-right font-mono text-slate-600 whitespace-nowrap">Rp8.000</td>
+<td class="px-4 py-3.5 text-right font-mono font-semibold text-slate-800 whitespace-nowrap">Rp12.000</td>
+<td class="px-4 py-3.5 text-center whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif
+</span>
+</td>
+<td class="pr-6 pl-4 py-3.5 text-center whitespace-nowrap">
+<div class="inline-flex items-center gap-1 opacity-90 group-hover:opacity-100">
+<button aria-label="Lihat detail" class="p-1.5 text-slate-400 hover:text-terracotta-600 hover:bg-cream-100 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<button aria-label="Edit obat" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-cream-100 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<button aria-label="Hapus obat" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-cream-100 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: Amoxicillin -->
+<tr class="hover:bg-cream-50/70 transition-colors group">
+<td class="pl-6 pr-3 py-3.5">
+<input class="w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-3 py-3.5 font-mono font-medium text-slate-600 whitespace-nowrap">MED-AMX-12</td>
+<td class="px-4 py-3.5 font-semibold text-slate-800 whitespace-nowrap">Amoxicillin 500mg</td>
+<td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-rose-500"></span> Antibiotik / Keras
+</span>
+</td>
+<td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">Generik</td>
+<td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">Strip</td>
+<td class="px-4 py-3.5 text-right font-mono text-slate-600 whitespace-nowrap">Rp15.000</td>
+<td class="px-4 py-3.5 text-right font-mono font-semibold text-slate-800 whitespace-nowrap">Rp20.000</td>
+<td class="px-4 py-3.5 text-center whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif
+</span>
+</td>
+<td class="pr-6 pl-4 py-3.5 text-center whitespace-nowrap">
+<div class="inline-flex items-center gap-1 opacity-90 group-hover:opacity-100">
+<button aria-label="Lihat detail" class="p-1.5 text-slate-400 hover:text-terracotta-600 hover:bg-cream-100 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<button aria-label="Edit obat" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-cream-100 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<button aria-label="Hapus obat" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-cream-100 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Cetirizine -->
+<tr class="hover:bg-cream-50/70 transition-colors group">
+<td class="pl-6 pr-3 py-3.5">
+<input class="w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-3 py-3.5 font-mono font-medium text-slate-600 whitespace-nowrap">MED-CTZ-08</td>
+<td class="px-4 py-3.5 font-semibold text-slate-800 whitespace-nowrap">Cetirizine 10mg</td>
+<td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-blue-500"></span> Obat Bebas Terbatas
+</span>
+</td>
+<td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">Generik</td>
+<td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">Strip</td>
+<td class="px-4 py-3.5 text-right font-mono text-slate-600 whitespace-nowrap">Rp7.000</td>
+<td class="px-4 py-3.5 text-right font-mono font-semibold text-slate-800 whitespace-nowrap">Rp10.000</td>
+<td class="px-4 py-3.5 text-center whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif
+</span>
+</td>
+<td class="pr-6 pl-4 py-3.5 text-center whitespace-nowrap">
+<div class="inline-flex items-center gap-1 opacity-90 group-hover:opacity-100">
+<button aria-label="Lihat detail" class="p-1.5 text-slate-400 hover:text-terracotta-600 hover:bg-cream-100 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<button aria-label="Edit obat" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-cream-100 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<button aria-label="Hapus obat" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-cream-100 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4: Antasida Doen -->
+<tr class="hover:bg-cream-50/70 transition-colors group">
+<td class="pl-6 pr-3 py-3.5">
+<input class="w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-3 py-3.5 font-mono font-medium text-slate-600 whitespace-nowrap">MED-ANT-04</td>
+<td class="px-4 py-3.5 font-semibold text-slate-800 whitespace-nowrap">Antasida Doen Suspensi</td>
+<td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Obat Bebas
+</span>
+</td>
+<td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">Generik</td>
+<td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">Botol</td>
+<td class="px-4 py-3.5 text-right font-mono text-slate-600 whitespace-nowrap">Rp12.000</td>
+<td class="px-4 py-3.5 text-right font-mono font-semibold text-slate-800 whitespace-nowrap">Rp17.000</td>
+<td class="px-4 py-3.5 text-center whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif
+</span>
+</td>
+<td class="pr-6 pl-4 py-3.5 text-center whitespace-nowrap">
+<div class="inline-flex items-center gap-1 opacity-90 group-hover:opacity-100">
+<button aria-label="Lihat detail" class="p-1.5 text-slate-400 hover:text-terracotta-600 hover:bg-cream-100 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<button aria-label="Edit obat" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-cream-100 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<button aria-label="Hapus obat" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-cream-100 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 5: Salep Hidrokortison -->
+<tr class="hover:bg-cream-50/70 transition-colors group">
+<td class="pl-6 pr-3 py-3.5">
+<input class="w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-3 py-3.5 font-mono font-medium text-slate-600 whitespace-nowrap">MED-OBT-15</td>
+<td class="px-4 py-3.5 font-semibold text-slate-800 whitespace-nowrap">Salep Hidrokortison 1%</td>
+<td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-rose-500"></span> Obat Keras
+</span>
+</td>
+<td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">Generik</td>
+<td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">Tube</td>
+<td class="px-4 py-3.5 text-right font-mono text-slate-600 whitespace-nowrap">Rp10.000</td>
+<td class="px-4 py-3.5 text-right font-mono font-semibold text-slate-800 whitespace-nowrap">Rp15.000</td>
+<td class="px-4 py-3.5 text-center whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Nonaktif
+</span>
+</td>
+<td class="pr-6 pl-4 py-3.5 text-center whitespace-nowrap">
+<div class="inline-flex items-center gap-1 opacity-90 group-hover:opacity-100">
+<button aria-label="Lihat detail" class="p-1.5 text-slate-400 hover:text-terracotta-600 hover:bg-cream-100 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<button aria-label="Edit obat" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-cream-100 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<button aria-label="Hapus obat" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-cream-100 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 6: Cefixime -->
+<tr class="hover:bg-cream-50/70 transition-colors group">
+<td class="pl-6 pr-3 py-3.5">
+<input class="w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-3 py-3.5 font-mono font-medium text-slate-600 whitespace-nowrap">MED-CFX-22</td>
+<td class="px-4 py-3.5 font-semibold text-slate-800 whitespace-nowrap">Cefixime 100mg</td>
+<td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-rose-500"></span> Obat Keras
+</span>
+</td>
+<td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">Generik</td>
+<td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">Kapsul</td>
+<td class="px-4 py-3.5 text-right font-mono text-slate-600 whitespace-nowrap">Rp28.000</td>
+<td class="px-4 py-3.5 text-right font-mono font-semibold text-slate-800 whitespace-nowrap">Rp38.000</td>
+<td class="px-4 py-3.5 text-center whitespace-nowrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif
+</span>
+</td>
+<td class="pr-6 pl-4 py-3.5 text-center whitespace-nowrap">
+<div class="inline-flex items-center gap-1 opacity-90 group-hover:opacity-100">
+<button aria-label="Lihat detail" class="p-1.5 text-slate-400 hover:text-terracotta-600 hover:bg-cream-100 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<button aria-label="Edit obat" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-cream-100 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<button aria-label="Hapus obat" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-cream-100 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<!-- BEGIN: Pagination Footer -->
+<div class="px-6 py-4 bg-cream-50/50 border-t border-cream-200 flex flex-col sm:flex-row items-center justify-between gap-4" data-purpose="table-pagination">
+<span class="text-xs text-slate-500 font-medium">
+Menampilkan <span class="font-semibold text-slate-800">1</span> sampai <span class="font-semibold text-slate-800">6</span> dari <span class="font-semibold text-slate-800">328</span> data obat
+</span>
+<div class="inline-flex items-center gap-1.5 select-none">
+<button class="px-3 py-1.5 rounded-lg border border-cream-300 text-xs font-medium text-slate-400 bg-white cursor-not-allowed opacity-60" disabled="" type="button">Sebelumnya</button>
+<button class="w-8 h-8 rounded-lg bg-terracotta-600 text-white font-semibold text-xs flex items-center justify-center shadow-xs" type="button">1</button>
+<button class="w-8 h-8 rounded-lg border border-cream-300 bg-white text-slate-700 hover:bg-cream-50 font-medium text-xs flex items-center justify-center transition-colors" type="button">2</button>
+<button class="w-8 h-8 rounded-lg border border-cream-300 bg-white text-slate-700 hover:bg-cream-50 font-medium text-xs flex items-center justify-center transition-colors" type="button">3</button>
+<span class="px-1 text-slate-400 text-xs font-semibold">...</span>
+<button class="w-8 h-8 rounded-lg border border-cream-300 bg-white text-slate-700 hover:bg-cream-50 font-medium text-xs flex items-center justify-center transition-colors" type="button">55</button>
+<button class="px-3 py-1.5 rounded-lg border border-cream-300 text-xs font-medium text-slate-700 bg-white hover:bg-cream-50 transition-colors" type="button">Selanjutnya</button>
+</div>
+</div>
+<!-- END: Pagination Footer -->
+</section>
+<!-- END: Table Container Card -->
+</main>
+{{ end }}

@@ -1,0 +1,357 @@
+{{ define "content" }}
+<main class="p-8 max-w-7xl w-full mx-auto space-y-6" data-purpose="page-body-container">
+  <!-- BEGIN: PageHeader & Action -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h2 class="text-2xl font-bold tracking-tight text-slate-900">Konversi Satuan</h2>
+      <p class="text-xs text-slate-600 mt-1">Kelola hubungan, rasio pengali, dan perbandingan formularium antar satuan obat.</p>
+    </div>
+    <!-- Tombol Tambah Konversi (Tautan Perpindahan Halaman) -->
+    <a href="/datamaster/tambahkonversi" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#964334] hover:bg-[#80382B] text-white text-xs font-semibold rounded-lg shadow-sm hover:shadow transition-all duration-200 cursor-pointer">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+      <span>Tambah Konversi</span>
+    </a>
+  </div>
+  <!-- END: PageHeader & Action -->
+
+  <!-- BEGIN: MetricCardsSection -->
+  <section class="grid grid-cols-1 md:grid-cols-3 gap-5" data-purpose="metric-summary-cards">
+    <!-- Card 1: Total Konversi -->
+    <div class="bg-white rounded-xl border border-[#ECE0D4] p-5 shadow-xs flex items-center justify-between transition-all hover:border-[#ECCDC5]">
+      <div class="space-y-1">
+        <p class="text-[11px] font-bold tracking-wider uppercase text-slate-500">Total Konversi</p>
+        <div class="flex items-baseline gap-2">
+          <span class="text-3xl font-extrabold text-slate-900 leading-none">8</span>
+          <span class="text-xs font-medium text-slate-500">Aturan Terdaftar</span>
+        </div>
+        <div class="flex items-center gap-1.5 pt-1 text-[11px] font-medium text-emerald-600">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <span>100% tervalidasi BPOM</span>
+        </div>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-[#FBF6F4] border border-[#F5ECE8] flex items-center justify-center text-[#964334] shadow-2xs">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+    </div>
+    <!-- Card 2: Konversi Aktif -->
+    <div class="bg-white rounded-xl border border-[#ECE0D4] p-5 shadow-xs flex items-center justify-between transition-all hover:border-[#ECCDC5]">
+      <div class="space-y-1">
+        <p class="text-[11px] font-bold tracking-wider uppercase text-slate-500">Konversi Aktif</p>
+        <div class="flex items-baseline gap-2">
+          <span class="text-3xl font-extrabold text-slate-900 leading-none">8</span>
+          <span class="text-xs font-medium text-slate-500">Operasional</span>
+        </div>
+        <div class="flex items-center gap-1.5 pt-1 text-[11px] font-medium text-slate-500">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+          <span>Aktif di POS &amp; Gudang</span>
+        </div>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shadow-2xs">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+    </div>
+    <!-- Card 3: Satuan Terhubung -->
+    <div class="bg-white rounded-xl border border-[#ECE0D4] p-5 shadow-xs flex items-center justify-between transition-all hover:border-[#ECCDC5]">
+      <div class="space-y-1">
+        <p class="text-[11px] font-bold tracking-wider uppercase text-slate-500">Satuan Terhubung</p>
+        <div class="flex items-baseline gap-2">
+          <span class="text-3xl font-extrabold text-slate-900 leading-none">6</span>
+          <span class="text-xs font-medium text-slate-500">Klasifikasi Dasar</span>
+        </div>
+        <p class="text-[11px] text-slate-500 pt-1 truncate max-w-[190px]">Box, Strip, Botol, Dus, Tablet, mL</p>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-[#FAF5EE] border border-[#ECE0D4] flex items-center justify-center text-[#80382B] shadow-2xs">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+    </div>
+  </section>
+  <!-- END: MetricCardsSection -->
+
+  <!-- BEGIN: FilterBarSection -->
+  <section class="bg-white border border-[#ECE0D4] rounded-xl p-4 shadow-xs" data-purpose="table-filter-bar">
+    <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+      <div class="relative flex-1 min-w-[240px]">
+        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+        </span>
+        <input class="w-full pl-9 pr-4 py-2 bg-[#F8F6F2] border border-[#ECE0D4] text-xs rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#964334] focus:bg-white transition-all" placeholder="Cari kode atau nama satuan..." type="text"/>
+      </div>
+      <div class="flex flex-wrap items-center gap-2.5">
+        <select class="py-2 pl-3 pr-8 bg-[#F8F6F2] border border-[#ECE0D4] rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#964334] focus:bg-white cursor-pointer">
+          <option value="">Semua Satuan Asal</option>
+          <option value="box">Box</option>
+          <option value="strip">Strip</option>
+          <option value="botol">Botol</option>
+          <option value="dus">Dus</option>
+        </select>
+        <select class="py-2 pl-3 pr-8 bg-[#F8F6F2] border border-[#ECE0D4] rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#964334] focus:bg-white cursor-pointer">
+          <option value="">Semua Satuan Tujuan</option>
+          <option value="strip">Strip</option>
+          <option value="tablet">Tablet</option>
+          <option value="ml">mL</option>
+        </select>
+        <select class="py-2 pl-3 pr-8 bg-[#F8F6F2] border border-[#ECE0D4] rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#964334] focus:bg-white cursor-pointer">
+          <option value="">Semua Status</option>
+          <option value="aktif">Aktif</option>
+          <option value="nonaktif">Non-Aktif</option>
+        </select>
+        <button class="inline-flex items-center gap-1.5 px-3 py-2 border border-[#ECE0D4] bg-[#F8F6F2] hover:bg-[#F2ECE4] text-slate-700 rounded-lg text-xs font-medium transition-colors" type="button">
+          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          Reset Filter
+        </button>
+      </div>
+    </div>
+  </section>
+  <!-- END: FilterBarSection -->
+
+  <!-- BEGIN: TableCardSection -->
+  <section class="bg-white border border-[#ECE0D4] rounded-xl shadow-xs overflow-hidden" data-purpose="conversion-data-table">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-[#F7F3ED] border-b border-[#ECE0D4] text-[11px] font-bold uppercase tracking-wider text-slate-700">
+            <th class="py-3.5 px-4 text-center w-12" scope="col">No.</th>
+            <th class="py-3.5 px-4" scope="col">Kode Konversi</th>
+            <th class="py-3.5 px-4" scope="col">Satuan Asal</th>
+            <th class="py-3.5 px-4 text-center" scope="col">Jumlah Asal</th>
+            <th class="py-3.5 px-4" scope="col">Satuan Tujuan</th>
+            <th class="py-3.5 px-4 text-center" scope="col">Jumlah Tujuan</th>
+            <th class="py-3.5 px-6" scope="col">Formula Visual</th>
+            <th class="py-3.5 px-4 text-center" scope="col">Status</th>
+            <th class="py-3.5 px-4 text-center" scope="col">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#ECE0D4]/80 text-xs">
+          <!-- Row 1 -->
+          <tr class="hover:bg-[#FAF8F5] transition-colors">
+            <td class="py-3.5 px-4 text-center font-medium text-slate-500">1</td>
+            <td class="py-3.5 px-4">
+              <span class="font-mono font-semibold px-2 py-1 bg-[#FBF6F4] text-[#80382B] border border-[#ECCDC5]/60 rounded">KON-001</span>
+            </td>
+            <td class="py-3.5 px-4 font-semibold text-slate-900">Box</td>
+            <td class="py-3.5 px-4 text-center font-medium text-slate-700">1</td>
+            <td class="py-3.5 px-4 text-slate-700">Strip</td>
+            <td class="py-3.5 px-4 text-center font-bold text-[#964334] text-sm">10</td>
+            <td class="py-3.5 px-6">
+              <div class="inline-flex items-center gap-2 px-3 py-1 bg-[#F8F6F2] border border-[#ECE0D4] rounded-full text-xs font-semibold text-slate-800 shadow-2xs">
+                <span>1 Box</span>
+                <svg class="w-3.5 h-3.5 text-[#964334]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span class="text-[#964334]">10 Strip</span>
+              </div>
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Aktif
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              <div class="inline-flex items-center gap-1.5">
+                <button class="p-1.5 text-slate-500 hover:text-[#964334] hover:bg-[#FBF6F4] rounded-lg transition-colors" title="Edit Aturan" type="button">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+                <button class="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Hapus Aturan" type="button">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 2 -->
+          <tr class="hover:bg-[#FAF8F5] transition-colors">
+            <td class="py-3.5 px-4 text-center font-medium text-slate-500">2</td>
+            <td class="py-3.5 px-4">
+              <span class="font-mono font-semibold px-2 py-1 bg-[#FBF6F4] text-[#80382B] border border-[#ECCDC5]/60 rounded">KON-002</span>
+            </td>
+            <td class="py-3.5 px-4 font-semibold text-slate-900">Strip</td>
+            <td class="py-3.5 px-4 text-center font-medium text-slate-700">1</td>
+            <td class="py-3.5 px-4 text-slate-700">Tablet</td>
+            <td class="py-3.5 px-4 text-center font-bold text-[#964334] text-sm">10</td>
+            <td class="py-3.5 px-6">
+              <div class="inline-flex items-center gap-2 px-3 py-1 bg-[#F8F6F2] border border-[#ECE0D4] rounded-full text-xs font-semibold text-slate-800 shadow-2xs">
+                <span>1 Strip</span>
+                <svg class="w-3.5 h-3.5 text-[#964334]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span class="text-[#964334]">10 Tablet</span>
+              </div>
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Aktif
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              <div class="inline-flex items-center gap-1.5">
+                <button class="p-1.5 text-slate-500 hover:text-[#964334] hover:bg-[#FBF6F4] rounded-lg transition-colors" title="Edit Aturan" type="button">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+                <button class="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Hapus Aturan" type="button">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 3 -->
+          <tr class="hover:bg-[#FAF8F5] transition-colors">
+            <td class="py-3.5 px-4 text-center font-medium text-slate-500">3</td>
+            <td class="py-3.5 px-4">
+              <span class="font-mono font-semibold px-2 py-1 bg-[#FBF6F4] text-[#80382B] border border-[#ECCDC5]/60 rounded">KON-003</span>
+            </td>
+            <td class="py-3.5 px-4 font-semibold text-slate-900">Box</td>
+            <td class="py-3.5 px-4 text-center font-medium text-slate-700">1</td>
+            <td class="py-3.5 px-4 text-slate-700">Tablet</td>
+            <td class="py-3.5 px-4 text-center font-bold text-[#964334] text-sm">100</td>
+            <td class="py-3.5 px-6">
+              <div class="inline-flex items-center gap-2 px-3 py-1 bg-[#F8F6F2] border border-[#ECE0D4] rounded-full text-xs font-semibold text-slate-800 shadow-2xs">
+                <span>1 Box</span>
+                <svg class="w-3.5 h-3.5 text-[#964334]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span class="text-[#964334]">100 Tablet</span>
+              </div>
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Aktif
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              <div class="inline-flex items-center gap-1.5">
+                <button class="p-1.5 text-slate-500 hover:text-[#964334] hover:bg-[#FBF6F4] rounded-lg transition-colors" title="Edit Aturan" type="button">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+                <button class="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Hapus Aturan" type="button">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 4 -->
+          <tr class="hover:bg-[#FAF8F5] transition-colors">
+            <td class="py-3.5 px-4 text-center font-medium text-slate-500">4</td>
+            <td class="py-3.5 px-4">
+              <span class="font-mono font-semibold px-2 py-1 bg-[#FBF6F4] text-[#80382B] border border-[#ECCDC5]/60 rounded">KON-004</span>
+            </td>
+            <td class="py-3.5 px-4 font-semibold text-slate-900">Botol</td>
+            <td class="py-3.5 px-4 text-center font-medium text-slate-700">1</td>
+            <td class="py-3.5 px-4 text-slate-700">mL</td>
+            <td class="py-3.5 px-4 text-center font-bold text-[#964334] text-sm">60</td>
+            <td class="py-3.5 px-6">
+              <div class="inline-flex items-center gap-2 px-3 py-1 bg-[#F8F6F2] border border-[#ECE0D4] rounded-full text-xs font-semibold text-slate-800 shadow-2xs">
+                <span>1 Botol</span>
+                <svg class="w-3.5 h-3.5 text-[#964334]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span class="text-[#964334]">60 mL</span>
+              </div>
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Aktif
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              <div class="inline-flex items-center gap-1.5">
+                <button class="p-1.5 text-slate-500 hover:text-[#964334] hover:bg-[#FBF6F4] rounded-lg transition-colors" title="Edit Aturan" type="button">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+                <button class="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Hapus Aturan" type="button">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 5 -->
+          <tr class="hover:bg-[#FAF8F5] transition-colors">
+            <td class="py-3.5 px-4 text-center font-medium text-slate-500">5</td>
+            <td class="py-3.5 px-4">
+              <span class="font-mono font-semibold px-2 py-1 bg-[#FBF6F4] text-[#80382B] border border-[#ECCDC5]/60 rounded">KON-005</span>
+            </td>
+            <td class="py-3.5 px-4 font-semibold text-slate-900">Dus</td>
+            <td class="py-3.5 px-4 text-center font-medium text-slate-700">1</td>
+            <td class="py-3.5 px-4 text-slate-700">Strip</td>
+            <td class="py-3.5 px-4 text-center font-bold text-[#964334] text-sm">10</td>
+            <td class="py-3.5 px-6">
+              <div class="inline-flex items-center gap-2 px-3 py-1 bg-[#F8F6F2] border border-[#ECE0D4] rounded-full text-xs font-semibold text-slate-800 shadow-2xs">
+                <span>1 Dus</span>
+                <svg class="w-3.5 h-3.5 text-[#964334]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span class="text-[#964334]">10 Strip</span>
+              </div>
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Aktif
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              <div class="inline-flex items-center gap-1.5">
+                <button class="p-1.5 text-slate-500 hover:text-[#964334] hover:bg-[#FBF6F4] rounded-lg transition-colors" title="Edit Aturan" type="button">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+                <button class="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Hapus Aturan" type="button">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- Table Pagination Footer -->
+    <div class="px-5 py-4 bg-white border-t border-[#ECE0D4] flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p class="text-xs text-slate-500">
+        Menampilkan <span class="font-semibold text-slate-700">1 – 5</span> dari <span class="font-semibold text-slate-700">8</span> data konversi
+      </p>
+      <div class="inline-flex items-center gap-1.5">
+        <button class="px-3 py-1.5 text-xs font-medium text-slate-400 bg-[#F8F6F2]/50 border border-[#ECE0D4] rounded-lg cursor-not-allowed transition-colors" disabled="" type="button">Sebelumnya</button>
+        <button class="w-8 h-8 flex items-center justify-center text-xs font-semibold text-white bg-[#964334] rounded-lg shadow-2xs" type="button">1</button>
+        <button class="w-8 h-8 flex items-center justify-center text-xs font-medium text-slate-600 bg-white border border-[#ECE0D4] hover:bg-[#F8F6F2] rounded-lg transition-colors" type="button">2</button>
+        <button class="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-[#ECE0D4] hover:bg-[#F8F6F2] rounded-lg transition-colors" type="button">Selanjutnya</button>
+      </div>
+    </div>
+  </section>
+  <!-- END: TableCardSection -->
+</main>
+{{ end }}

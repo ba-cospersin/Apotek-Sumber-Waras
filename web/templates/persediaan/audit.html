@@ -1,0 +1,345 @@
+{{ define "content" }}
+<main class="flex-1 px-8 py-7 space-y-6 bg-[#F9F7F4] min-h-screen flex flex-col justify-between">
+  <div class="space-y-6">
+    <!-- Header Title Section -->
+    <section class="flex flex-col md:flex-row md:items-center justify-between gap-4" data-purpose="page-header">
+      <div>
+        <div class="flex items-center gap-1.5 text-xs text-slate-400 font-medium mb-1.5">
+          <a class="hover:text-slate-600 transition" href="/dashboard">Persediaan</a>
+          <span>&gt;</span>
+          <span class="text-slate-600 font-semibold">Stock Opname</span>
+        </div>
+        <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Audit Fisik &amp; Stock Opname</h1>
+        <p class="text-xs text-slate-500 mt-1 font-medium">
+          Pencatatan, pencocokan stok fisik rak apotek, dan audit kepatuhan regulasi BPOM &amp; CDOB.
+        </p>
+      </div>
+      <div>
+        <button class="inline-flex items-center gap-2 bg-[#FA5F48] hover:bg-[#E0533C] text-white px-5 py-2.5 rounded-xl font-semibold text-xs shadow-sm shadow-orange-500/20 active:scale-[0.98] transition-all cursor-pointer" onclick="alert('Membuka form audit stock opname baru...')" type="button">
+          <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <span>Mulai Stock Opname Baru</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Metric Cards Grid -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-5" data-purpose="metric-cards">
+      <!-- Card 1 -->
+      <div class="bg-white border border-[#E8E1D9] rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-500">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <rect height="18" rx="2" ry="2" width="18" x="3" y="4"></rect>
+                <line x1="16" x2="16" y1="2" y2="6"></line>
+                <line x1="8" x2="8" y1="2" y2="6"></line>
+                <line x1="3" x2="21" y1="10" y2="10"></line>
+              </svg>
+            </div>
+            <div>
+              <span class="text-xs font-semibold text-slate-500 block">Jadwal Audit Bulan Ini</span>
+              <span class="text-2xl font-bold text-slate-900 tracking-tight block mt-0.5">2 Sesi</span>
+            </div>
+          </div>
+          <span class="text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200/80 px-2.5 py-1 rounded-full">
+            Periode Okt 2026
+          </span>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-100">
+          <span class="text-[11px] text-slate-400 font-medium">1 Sesi selesai, 1 Sesi aktif berjalan</span>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="bg-white border border-[#E8E1D9] rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-red-500">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </div>
+            <div>
+              <span class="text-xs font-semibold text-slate-500 block">Total Item Ditemukan Selisih</span>
+              <span class="text-2xl font-bold text-slate-900 tracking-tight block mt-0.5">15 Item</span>
+            </div>
+          </div>
+          <span class="text-[11px] font-semibold text-red-700 bg-red-50 border border-red-200/80 px-2.5 py-1 rounded-full">
+            Perlu Verifikasi
+          </span>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-100">
+          <span class="text-[11px] text-slate-400 font-medium">Telah dilakukan penyesuaian kartu stok fisik</span>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="bg-white border border-[#E8E1D9] rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-500">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </div>
+            <div>
+              <span class="text-xs font-semibold text-slate-500 block">Akurasi Stok</span>
+              <span class="text-2xl font-bold text-slate-900 tracking-tight block mt-0.5">98.5%</span>
+            </div>
+          </div>
+          <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-full">
+            Sangat Baik
+          </span>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-100">
+          <span class="text-[11px] text-slate-400 font-medium">Tingkat kecocokan fisik terhadap sistem buku</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Data Table Section -->
+    <section class="bg-white border border-[#E8E1D9] rounded-2xl shadow-xs overflow-hidden" data-purpose="audit-table-container">
+      <!-- Toolbar -->
+      <div class="px-6 py-4.5 border-b border-[#E8E1D9] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex flex-col gap-1">
+          <h2 class="text-base font-bold text-slate-900 tracking-tight">Riwayat Pelaksanaan Audit</h2>
+          <p class="text-xs text-slate-400 font-medium leading-none">Total 12 dokumen stock opname tersimpan</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="relative w-64">
+            <input class="w-full pl-3 pr-8 py-2 text-xs bg-[#F9F7F4]/50 border border-[#E8E1D9] rounded-xl text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#EE806A] focus:border-[#FA5F48] transition-colors" id="so-search" placeholder="Cari no. dokumen SO..." type="text"/>
+            <div class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-slate-400">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M21 21l-4.35-4.35m0 0A7 7 0 105 5a7 7 0 0011.65 11.65z" stroke-linecap="round" stroke-width="2"></path>
+              </svg>
+            </div>
+          </div>
+          <button class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-600 bg-white border border-[#E8E1D9] rounded-xl hover:bg-slate-50 transition-colors cursor-pointer">
+            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            <span>Filter Status</span>
+          </button>
+          <button class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-600 bg-white border border-[#E8E1D9] rounded-xl hover:bg-slate-50 transition-colors cursor-pointer" onclick="alert('Mengunduh laporan stock opname dalam format PDF...')">
+            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            <span>Ekspor PDF</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse" id="so-table">
+          <thead>
+            <tr class="bg-slate-50/60 border-b border-[#E8E1D9] text-[11px] font-bold text-slate-500 tracking-wider">
+              <th class="py-3.5 px-6">NO. DOKUMEN</th>
+              <th class="py-3.5 px-6">TANGGAL PELAKSANAAN</th>
+              <th class="py-3.5 px-6">PETUGAS AUDIT</th>
+              <th class="py-3.5 px-6">AREA / RAK DIPERIKSA</th>
+              <th class="py-3.5 px-6">STATUS</th>
+              <th class="py-3.5 px-6 text-right">AKSI</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#E8E1D9] text-xs font-medium text-slate-700">
+            <!-- Row 1 -->
+            <tr class="hover:bg-slate-50/70 transition-colors">
+              <td class="py-4 px-6 whitespace-nowrap">
+                <div class="flex flex-col">
+                  <span class="font-bold text-slate-900 text-sm">SO/2026/10/003</span>
+                  <span class="text-[11px] text-slate-400 mt-0.5">Audit Berkala Bulanan</span>
+                </div>
+              </td>
+              <td class="py-4 px-6 whitespace-nowrap">
+                <div class="flex flex-col">
+                  <span class="font-semibold text-slate-800">28 Okt 2026</span>
+                  <span class="text-[11px] text-slate-400 mt-0.5">09:00 - 12:30 WIB</span>
+                </div>
+              </td>
+              <td class="py-4 px-6 whitespace-nowrap">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-xs flex items-center justify-center shrink-0">SR</div>
+                  <div class="flex flex-col">
+                    <span class="font-semibold text-slate-900">apt. Siti Rahmawati</span>
+                    <span class="text-[11px] text-slate-400 mt-0.5">Penanggung Jawab Teknis</span>
+                  </div>
+                </div>
+              </td>
+              <td class="py-4 px-6">
+                <div class="flex flex-col">
+                  <span class="font-semibold text-slate-900">Rak A (Antibiotik &amp; Sirup)</span>
+                  <span class="text-[11px] text-slate-400 mt-0.5">Rak A1 - Rak A4 • 120 SKU Terverifikasi</span>
+                </div>
+              </td>
+              <td class="py-4 px-6 whitespace-nowrap">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Selesai &amp; Disesuaikan
+                </span>
+              </td>
+              <td class="py-4 px-6 text-right whitespace-nowrap">
+                <button class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-[#964334] bg-white border border-[#F5B0A1] hover:bg-[#FDF6F4] transition-colors cursor-pointer" onclick="alert('Membuka rincian hasil audit SO/2026/10/003...')">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                  <span>Lihat Hasil</span>
+                </button>
+              </td>
+            </tr>
+
+            <!-- Row 2 -->
+            <tr class="hover:bg-slate-50/70 transition-colors">
+              <td class="py-4 px-6 whitespace-nowrap">
+                <div class="flex flex-col">
+                  <span class="font-bold text-slate-900 text-sm">SO/2026/10/002</span>
+                  <span class="text-[11px] text-slate-400 mt-0.5">Audit Khusus Psikotropika</span>
+                </div>
+              </td>
+              <td class="py-4 px-6 whitespace-nowrap">
+                <div class="flex flex-col">
+                  <span class="font-semibold text-slate-800">15 Okt 2026</span>
+                  <span class="text-[11px] text-slate-400 mt-0.5">13:30 - 15:00 WIB</span>
+                </div>
+              </td>
+              <td class="py-4 px-6 whitespace-nowrap">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-pink-100 text-pink-600 font-bold text-xs flex items-center justify-center shrink-0">BA</div>
+                  <div class="flex flex-col">
+                    <span class="font-semibold text-slate-900">apt. Budi Andika, S.Farm</span>
+                    <span class="text-[11px] text-slate-400 mt-0.5">Apoteker Pendamping</span>
+                  </div>
+                </div>
+              </td>
+              <td class="py-4 px-6">
+                <div class="flex flex-col">
+                  <span class="font-semibold text-slate-900">Lemari Khusus Prekursor &amp; OOT</span>
+                  <span class="text-[11px] text-slate-400 mt-0.5">Kunci Ganda • 28 SKU Sesuai Fisik 100%</span>
+                </div>
+              </td>
+              <td class="py-4 px-6 whitespace-nowrap">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Selesai &amp; Disesuaikan
+                </span>
+              </td>
+              <td class="py-4 px-6 text-right whitespace-nowrap">
+                <button class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-[#964334] bg-white border border-[#F5B0A1] hover:bg-[#FDF6F4] transition-colors cursor-pointer" onclick="alert('Membuka rincian hasil audit SO/2026/10/002...')">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                  <span>Lihat Hasil</span>
+                </button>
+              </td>
+            </tr>
+
+            <!-- Row 3 -->
+            <tr class="hover:bg-slate-50/70 transition-colors">
+              <td class="py-4 px-6 whitespace-nowrap">
+                <div class="flex flex-col">
+                  <span class="font-bold text-slate-900 text-sm">SO/2026/10/001</span>
+                  <span class="text-[11px] text-slate-400 mt-0.5">Audit Rutin Akhir Pekan</span>
+                </div>
+              </td>
+              <td class="py-4 px-6 whitespace-nowrap">
+                <div class="flex flex-col">
+                  <span class="font-semibold text-slate-800">31 Okt 2026 (Hari ini)</span>
+                  <span class="text-[11px] text-slate-400 mt-0.5">14:00 - Sedang Berjalan</span>
+                </div>
+              </td>
+              <td class="py-4 px-6 whitespace-nowrap">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 font-bold text-xs flex items-center justify-center shrink-0">DN</div>
+                  <div class="flex flex-col">
+                    <span class="font-semibold text-slate-900">Dina Novita, A.Md.Farm</span>
+                    <span class="text-[11px] text-slate-400 mt-0.5">Tenaga Teknis Kefarmasian</span>
+                  </div>
+                </div>
+              </td>
+              <td class="py-4 px-6">
+                <div class="flex flex-col">
+                  <span class="font-semibold text-slate-900">Rak B (Analgesik &amp; Vitamin Bebas)</span>
+                  <span class="text-[11px] text-slate-400 mt-0.5">Rak B1 - Rak B3 • 45/85 SKU Terhitung</span>
+                </div>
+              </td>
+              <td class="py-4 px-6 whitespace-nowrap">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-300">
+                  <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+                  Draft / Berlangsung
+                </span>
+              </td>
+              <td class="py-4 px-6 text-right whitespace-nowrap">
+                <button class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition-colors cursor-pointer" onclick="alert('Melanjutkan proses audit SO/2026/10/001...')">
+                  <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"></path>
+                  </svg>
+                  <span>Lanjutkan</span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <div class="px-6 py-4 border-t border-[#E8E1D9] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+        <span class="text-slate-500 font-medium">
+          Menampilkan <span class="font-semibold text-slate-700">1 – 3</span> dari <span class="font-semibold text-slate-700">12</span> dokumen pelaksanaan stock opname
+        </span>
+        <div class="flex items-center gap-1.5">
+          <button class="px-3 py-1.5 text-xs font-medium text-slate-500 bg-white border border-[#E8E1D9] rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50" disabled="">
+            Sebelumnya
+          </button>
+          <button class="w-8 h-8 flex items-center justify-center font-bold text-xs bg-[#FA5F48] text-white rounded-lg shadow-xs">
+            1
+          </button>
+          <button class="w-8 h-8 flex items-center justify-center font-semibold text-xs text-slate-600 bg-white border border-[#E8E1D9] rounded-lg hover:bg-slate-50 transition-colors">
+            2
+          </button>
+          <button class="w-8 h-8 flex items-center justify-center font-semibold text-xs text-slate-600 bg-white border border-[#E8E1D9] rounded-lg hover:bg-slate-50 transition-colors">
+            3
+          </button>
+          <button class="px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-[#E8E1D9] rounded-lg hover:bg-slate-50 transition-colors">
+            Selanjutnya
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Compliance Bottom Footer -->
+  <footer class="pt-6 pb-2 border-t border-[#E8E1D9] flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-400 font-medium">
+    <div class="flex items-center gap-2">
+      <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+      <span>SOP Stock Opname Terverifikasi Standar Pelayanan Kefarmasian &amp; CDOB Apotek Sumber Waras</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <span>Sinkronisasi Terakhir: Hari ini, 14:45 WIB</span>
+      <span>•</span>
+      <span class="inline-flex items-center gap-1.5 text-slate-500">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+        Server SIM Farmasi Aktif
+      </span>
+    </div>
+  </footer>
+</main>
+
+<script>
+  const searchSO = document.getElementById('so-search');
+  if (searchSO) {
+    searchSO.addEventListener('input', function() {
+      const query = this.value.toLowerCase().trim();
+      const rows = document.querySelectorAll('#so-table tbody tr');
+      rows.forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
+      });
+    });
+  }
+</script>
+{{ end }}

@@ -1,0 +1,295 @@
+{{ define "content" }}
+<main class="p-8 space-y-6 flex-1 bg-[#F8F6F2] min-h-screen flex flex-col justify-between">
+  <div class="space-y-6">
+    <!-- Header Page & Security Mode Badge -->
+    <section class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <nav class="flex items-center space-x-2 text-xs font-medium text-slate-400 mb-1.5">
+          <a class="hover:text-slate-600 transition" href="/dashboard">Persediaan</a>
+          <span>/</span>
+          <span class="text-[#964334] font-semibold">Riwayat Penyesuaian</span>
+        </nav>
+        <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Log Penyesuaian &amp; Mutasi Stok</h2>
+        <p class="text-xs text-slate-500 mt-1">Pencatatan riwayat audit fisik, retur, dan sinkronisasi kartu stok obat (Mode View-Only Terkunci).</p>
+      </div>
+
+      <div class="bg-white border border-[#EBE3DB] rounded-xl px-4 py-2.5 flex items-center gap-2.5 shadow-xs shrink-0">
+        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <rect height="11" rx="2" width="18" x="3" y="11"></rect>
+          <path d="M7 11V7a5 5 0 0110 0v4"></path>
+        </svg>
+        <span class="text-xs font-bold text-slate-800">Mode Baca Saja (Audit)</span>
+      </div>
+    </section>
+
+    <!-- Audit Summary Cards Grid (3 Columns) -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <!-- Card 1: Total Transaksi Penyesuaian -->
+      <div class="bg-white rounded-2xl p-5 border border-[#EBE3DB] shadow-xs flex items-start justify-between">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-600 shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+          </div>
+          <div>
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">TOTAL TRANSAKSI PENYESUAIAN</span>
+            <div class="text-2xl font-black text-slate-900 mt-1 tracking-tight">3 <span class="text-xs font-normal text-slate-500">Catatan</span></div>
+          </div>
+        </div>
+        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-200 uppercase">Periode Terkini</span>
+      </div>
+
+      <!-- Card 2: Akumulasi Selisih Fisik -->
+      <div class="bg-white rounded-2xl p-5 border border-[#EBE3DB] shadow-xs flex items-start justify-between">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600 shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+          </div>
+          <div>
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">AKUMULASI SELISIH FISIK</span>
+            <div class="text-2xl font-black text-slate-900 mt-1 tracking-tight">+1 <span class="text-xs font-normal text-slate-500">Unit Netto</span></div>
+          </div>
+        </div>
+        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 uppercase">Koreksi Kartu</span>
+      </div>
+
+      <!-- Card 3: Audit Integritas Mutasi -->
+      <div class="bg-white rounded-2xl p-5 border border-[#EBE3DB] shadow-xs flex items-start justify-between">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div>
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">AUDIT INTEGRITAS MUTASI</span>
+            <div class="text-2xl font-black text-emerald-600 mt-1 tracking-tight">100% <span class="text-xs font-semibold text-emerald-700">Tercatat</span></div>
+          </div>
+        </div>
+        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase">CDOB Terverifikasi</span>
+      </div>
+    </section>
+
+    <!-- Filter Toolbar Section -->
+    <section class="bg-white p-3.5 rounded-2xl border border-[#EBE3DB] shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-3 flex-1 min-w-[300px]">
+        <div class="relative flex-1 min-w-[220px]">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          </span>
+          <input class="w-full text-xs pl-9 pr-3 py-2 bg-[#F9F7F3] border border-[#E2D9CF] rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#964334]" id="filter-search" placeholder="Cari no. dokumen, batch, atau petugas..." type="text"/>
+        </div>
+
+        <select class="text-xs py-2 pl-3 pr-8 bg-[#F9F7F3] border border-[#E2D9CF] rounded-xl text-slate-700 font-semibold focus:outline-none focus:ring-1 focus:ring-[#964334]">
+          <option value="2026-11">November 2026</option>
+          <option value="2026-10">Oktober 2026</option>
+          <option value="2026-09">September 2026</option>
+        </select>
+
+        <select class="text-xs py-2 pl-3 pr-8 bg-[#F9F7F3] border border-[#E2D9CF] rounded-xl text-slate-700 font-semibold focus:outline-none focus:ring-1 focus:ring-[#964334]">
+          <option value="">Semua Tipe Penyesuaian</option>
+          <option value="SO">Stock Opname</option>
+          <option value="RET">Retur / Audit</option>
+        </select>
+      </div>
+
+      <button class="flex items-center gap-1.5 px-4 py-2 bg-white border border-[#E2D9CF] rounded-xl text-xs font-semibold text-slate-700 hover:bg-[#F9F7F3] transition shadow-2xs cursor-pointer" onclick="alert('Mengunduh Log Penyesuaian Stok dalam format dokumen PDF...')">
+        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+        <span>Ekspor PDF</span>
+      </button>
+    </section>
+
+    <!-- Data Table Card -->
+    <section class="bg-white rounded-2xl border border-[#EBE3DB] shadow-xs overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse" id="audit-table">
+          <thead>
+            <tr class="bg-[#FAF7F2] border-b border-[#EBE3DB] text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              <th class="py-3.5 px-4">WAKTU &amp; TANGGAL</th>
+              <th class="py-3.5 px-4">NO. DOKUMEN (TIPE)</th>
+              <th class="py-3.5 px-4">NAMA OBAT &amp; BATCH</th>
+              <th class="py-3.5 px-4">PERUBAHAN FISIK</th>
+              <th class="py-3.5 px-4">SELISIH</th>
+              <th class="py-3.5 px-4">KETERANGAN / ALASAN</th>
+              <th class="py-3.5 px-4">PETUGAS</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#F0EAE1] text-xs">
+            <!-- ROW 1 -->
+            <tr class="hover:bg-[#FCFAF8] transition-colors">
+              <td class="py-4 px-4">
+                <div class="font-bold text-slate-800">05 Nov 2026</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">10:15 WIB</div>
+              </td>
+              <td class="py-4 px-4">
+                <div class="font-bold text-slate-900 font-mono">SO-NOV2026</div>
+                <span class="inline-block bg-orange-50 text-orange-700 border border-orange-200 text-[10px] font-bold px-2 py-0.5 rounded-md mt-1">Stock Opname</span>
+              </td>
+              <td class="py-4 px-4">
+                <div class="font-bold text-slate-900 text-sm">Antasida Doen Suspensi</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">
+                  <span class="text-rose-700 font-mono font-bold">Batch: ATD250422</span> • Botol 60 ml
+                </div>
+              </td>
+              <td class="py-4 px-4">
+                <div class="inline-flex items-center gap-1.5 border border-rose-200 bg-rose-50/50 rounded-xl p-1 px-2.5">
+                  <span class="text-[11px] text-slate-500 font-medium">8 <span class="text-[9px]">Sistem</span></span>
+                  <span class="text-slate-300">|</span>
+                  <span class="text-xs font-extrabold text-rose-700">7 <span class="text-[9px] font-semibold">Aktual</span></span>
+                </div>
+              </td>
+              <td class="py-4 px-4">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                  -1 (Kurang)
+                </span>
+              </td>
+              <td class="py-4 px-4">
+                <div class="font-semibold text-slate-800">Botol pecah di rak</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Terverifikasi penyesuaian kartu stok</div>
+              </td>
+              <td class="py-4 px-4">
+                <div class="flex items-center space-x-2">
+                  <div class="w-7 h-7 rounded-full bg-orange-100 text-orange-800 font-bold text-[10px] flex items-center justify-center shrink-0">FW</div>
+                  <div>
+                    <div class="font-bold text-slate-800 text-xs">apt. Farhan W.</div>
+                    <div class="text-[9px] text-slate-400">Apoteker Pendamping</div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+            <!-- ROW 2 -->
+            <tr class="hover:bg-[#FCFAF8] transition-colors">
+              <td class="py-4 px-4">
+                <div class="font-bold text-slate-800">28 Okt 2026</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">11:30 WIB</div>
+              </td>
+              <td class="py-4 px-4">
+                <div class="font-bold text-slate-900 font-mono">RET-OCT2026</div>
+                <span class="inline-block bg-sky-50 text-sky-700 border border-sky-200 text-[10px] font-bold px-2 py-0.5 rounded-md mt-1">Retur / Audit</span>
+              </td>
+              <td class="py-4 px-4">
+                <div class="font-bold text-slate-900 text-sm">Amoxicillin Trihydrate 500 mg</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">
+                  <span class="text-rose-700 font-mono font-bold">Batch: AMX240801</span> • Box (100 Kapsul)
+                </div>
+              </td>
+              <td class="py-4 px-4">
+                <div class="inline-flex items-center gap-1.5 border border-emerald-200 bg-emerald-50/50 rounded-xl p-1 px-2.5">
+                  <span class="text-[11px] text-slate-500 font-medium">145 <span class="text-[9px]">Sistem</span></span>
+                  <span class="text-slate-300">|</span>
+                  <span class="text-xs font-extrabold text-emerald-700">145 <span class="text-[9px] font-semibold">Aktual</span></span>
+                </div>
+              </td>
+              <td class="py-4 px-4">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                  0 (Sesuai)
+                </span>
+              </td>
+              <td class="py-4 px-4">
+                <div class="font-semibold text-slate-800">Audit rutin bulanan</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Kesesuaian fisik dan mutasi cocok 100%</div>
+              </td>
+              <td class="py-4 px-4">
+                <div class="flex items-center space-x-2">
+                  <div class="w-7 h-7 rounded-full bg-orange-100 text-orange-800 font-bold text-[10px] flex items-center justify-center shrink-0">FW</div>
+                  <div>
+                    <div class="font-bold text-slate-800 text-xs">apt. Farhan W.</div>
+                    <div class="text-[9px] text-slate-400">Apoteker Pendamping</div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+            <!-- ROW 3 -->
+            <tr class="hover:bg-[#FCFAF8] transition-colors">
+              <td class="py-4 px-4">
+                <div class="font-bold text-slate-800">18 Sep 2026</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">15:40 WIB</div>
+              </td>
+              <td class="py-4 px-4">
+                <div class="font-bold text-slate-900 font-mono">SO-SEP2026</div>
+                <span class="inline-block bg-orange-50 text-orange-700 border border-orange-200 text-[10px] font-bold px-2 py-0.5 rounded-md mt-1">Stock Opname</span>
+              </td>
+              <td class="py-4 px-4">
+                <div class="font-bold text-slate-900 text-sm">Paracetamol 500 mg</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">
+                  <span class="text-slate-600 font-mono font-bold">Batch: PCT250114</span> • Strip (@10 Tablet)
+                </div>
+              </td>
+              <td class="py-4 px-4">
+                <div class="inline-flex items-center gap-1.5 border border-emerald-200 bg-emerald-50/50 rounded-xl p-1 px-2.5">
+                  <span class="text-[11px] text-slate-500 font-medium">20 <span class="text-[9px]">Sistem</span></span>
+                  <span class="text-slate-300">|</span>
+                  <span class="text-xs font-extrabold text-emerald-700">22 <span class="text-[9px] font-semibold">Aktual</span></span>
+                </div>
+              </td>
+              <td class="py-4 px-4">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  +2 (Lebih)
+                </span>
+              </td>
+              <td class="py-4 px-4">
+                <div class="font-semibold text-slate-800">Barang terselip di gudang</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Ditemukan saat pembersihan rak B2</div>
+              </td>
+              <td class="py-4 px-4">
+                <div class="flex items-center space-x-2">
+                  <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 font-bold text-[10px] flex items-center justify-center shrink-0">K1</div>
+                  <div>
+                    <div class="font-bold text-slate-800 text-xs">Kasir 1</div>
+                    <div class="text-[9px] text-slate-400">Staf Operasional</div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination & Immutable Info -->
+      <div class="p-4 bg-white border-t border-[#EBE3DB] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="text-xs text-slate-500 flex items-center space-x-1.5">
+          <span>Menampilkan <strong class="text-slate-800">3</strong> dari <strong class="text-slate-800">3</strong> log penyesuaian stok</span>
+          <span class="text-slate-300">•</span>
+          <span class="text-[11px] text-slate-400 font-medium">Log ini dilindungi integritas audit Farmasi &amp; CDOB (Immutable)</span>
+        </div>
+        <div class="flex items-center space-x-1.5 text-xs font-semibold">
+          <button class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-400 hover:bg-[#FAF7F2] transition disabled:opacity-50" disabled="">Sebelumnya</button>
+          <button class="w-8 h-8 rounded-lg bg-[#964334] text-white flex items-center justify-center shadow-xs">1</button>
+          <button class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-400 hover:bg-[#FAF7F2] transition disabled:opacity-50" disabled="">Selanjutnya</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Bottom Audit Footer Bar -->
+  <footer class="pt-6 pb-2 border-t border-[#EBE3DB] flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 gap-2">
+    <div class="flex items-center space-x-2">
+      <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      <span>Buku Catatan Mutasi Terverifikasi Standar Pelayanan Kefarmasian &amp; CDOB BPOM RI</span>
+    </div>
+    <div>
+      <span>Sinkronisasi Terakhir: Hari ini, 10:20 WIB • Server SIM Farmasi Aktif</span>
+    </div>
+  </footer>
+</main>
+
+<script>
+  const filterInput = document.getElementById('filter-search');
+  if (filterInput) {
+    filterInput.addEventListener('input', function() {
+      const q = this.value.toLowerCase().trim();
+      const rows = document.querySelectorAll('#audit-table tbody tr');
+      rows.forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+  }
+</script>
+{{ end }}

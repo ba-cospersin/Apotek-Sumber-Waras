@@ -1,0 +1,640 @@
+{{ define "content" }}
+<main class="flex-1 px-8 py-6 space-y-6 max-w-[1600px] w-full mx-auto">
+  <!-- Breadcrumb and Title Section -->
+  <section class="flex flex-col md:flex-row md:items-center md:justify-between gap-4" data-purpose="page-title-banner">
+    <div>
+      <nav class="flex items-center gap-1.5 text-xs text-slate-500 mb-1.5 font-medium">
+        <a class="flex items-center gap-1 hover:text-slate-800" href="/dashboard">
+          <i class="w-3.5 h-3.5" data-lucide="home"></i> Beranda
+        </a>
+        <i class="w-3 h-3 text-slate-400" data-lucide="chevron-right"></i>
+        <span class="text-[#964334] font-semibold">Pemusnahan Barang</span>
+      </nav>
+      <div class="flex items-center gap-2.5">
+        <h2 class="text-2xl font-bold tracking-tight text-slate-900">Pemusnahan Barang</h2>
+        <span class="px-2 py-0.5 bg-[#EAE2D8] border border-[#DDD3C7] text-slate-700 text-[11px] font-mono font-medium rounded-md">
+          SIM-APOTEK v2.4
+        </span>
+      </div>
+      <p class="text-xs text-slate-500 mt-1">
+        Kelola obat kedaluwarsa, rusak, dan tidak layak digunakan secara sistematis sesuai standar CDOB &amp; BPOM.
+      </p>
+    </div>
+    <!-- Compliance BPOM Verification Badge -->
+    <div class="bg-white border border-[#EAE4DC] shadow-sm rounded-xl px-4 py-2.5 flex items-center gap-3 shrink-0">
+      <div class="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center">
+        <i class="w-4 h-4" data-lucide="check-check"></i>
+      </div>
+      <div>
+        <div class="text-xs font-semibold text-slate-900">Standar BPOM &amp; Berita Acara</div>
+        <div class="text-[11px] text-slate-500 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          Terverifikasi CDOB RI
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 Summary Metric Cards -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-purpose="metric-summary-cards">
+    <div class="bg-white border border-[#EAE4DC] rounded-xl p-4 shadow-sm relative overflow-hidden flex flex-col justify-between">
+      <div class="flex items-start justify-between">
+        <div class="w-9 h-9 rounded-lg bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center">
+          <i class="w-4 h-4" data-lucide="calendar-off"></i>
+        </div>
+        <span class="text-[11px] font-medium bg-rose-100/70 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-full">
+          Perlu Tindakan Segera
+        </span>
+      </div>
+      <div class="mt-4">
+        <div class="flex items-baseline gap-1">
+          <span class="text-2xl font-bold tracking-tight text-slate-900">24</span>
+          <span class="text-xs font-medium text-slate-500">Item Obat</span>
+        </div>
+        <div class="text-xs font-semibold text-slate-800 mt-0.5">Total Obat Kedaluwarsa</div>
+      </div>
+    </div>
+
+    <div class="bg-white border border-[#EAE4DC] rounded-xl p-4 shadow-sm relative overflow-hidden flex flex-col justify-between">
+      <div class="flex items-start justify-between">
+        <div class="w-9 h-9 rounded-lg bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center">
+          <i class="w-4 h-4" data-lucide="alert-triangle"></i>
+        </div>
+        <span class="text-[11px] font-medium bg-amber-100/70 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full">
+          Karantina Fisik
+        </span>
+      </div>
+      <div class="mt-4">
+        <div class="flex items-baseline gap-1">
+          <span class="text-2xl font-bold tracking-tight text-slate-900">8</span>
+          <span class="text-xs font-medium text-slate-500">Item Obat</span>
+        </div>
+        <div class="text-xs font-semibold text-slate-800 mt-0.5">Obat Rusak</div>
+      </div>
+    </div>
+
+    <div class="bg-white border border-[#EAE4DC] rounded-xl p-4 shadow-sm relative overflow-hidden flex flex-col justify-between">
+      <div class="flex items-start justify-between">
+        <div class="w-9 h-9 rounded-lg bg-[#FAF0E6] border border-[#EBD6C3] text-[#964334] flex items-center justify-center">
+          <i class="w-4 h-4" data-lucide="file-signature"></i>
+        </div>
+        <span class="text-[11px] font-medium bg-[#F7E7D7] text-[#86382B] border border-[#E8CEB8] px-2 py-0.5 rounded-full">
+          Siap Berita Acara
+        </span>
+      </div>
+      <div class="mt-4">
+        <div class="flex items-baseline gap-1">
+          <span class="text-2xl font-bold tracking-tight text-slate-900">12</span>
+          <span class="text-xs font-medium text-slate-500">Item Obat</span>
+        </div>
+        <div class="text-xs font-semibold text-slate-800 mt-0.5">Menunggu Pemusnahan</div>
+      </div>
+    </div>
+
+    <div class="bg-white border border-[#EAE4DC] rounded-xl p-4 shadow-sm relative overflow-hidden flex flex-col justify-between">
+      <div class="flex items-start justify-between">
+        <div class="w-9 h-9 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 flex items-center justify-center">
+          <i class="w-4 h-4" data-lucide="archive"></i>
+        </div>
+        <span class="text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded-full">
+          Terdata di Karantina
+        </span>
+      </div>
+      <div class="mt-4">
+        <div class="flex items-baseline gap-1">
+          <span class="text-2xl font-bold tracking-tight text-slate-900">32</span>
+          <span class="text-xs font-medium text-slate-500">Batch</span>
+        </div>
+        <div class="text-xs font-semibold text-slate-800 mt-0.5">Total Batch Bermasalah</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter and Search Toolbar -->
+  <section class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3" data-purpose="table-filter-toolbar">
+    <div class="relative flex-1 max-w-sm">
+      <i class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" data-lucide="search"></i>
+      <input class="w-full pl-9 pr-3 py-2 bg-white border border-[#E2D8CC] rounded-lg text-xs placeholder-slate-400 text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#964334] focus:border-[#964334]" id="table-search" placeholder="Cari nama obat atau nomor batch..." type="text"/>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <div class="relative">
+        <select class="appearance-none bg-white border border-[#E2D8CC] text-slate-700 text-xs rounded-lg pl-3 pr-8 py-2 focus:outline-none focus:ring-1 focus:ring-[#964334] focus:border-[#964334] cursor-pointer" id="filter-kondisi">
+          <option value="all">Semua Kondisi</option>
+          <option value="Kedaluwarsa">Kedaluwarsa</option>
+          <option value="Kemasan Rusak">Kemasan Rusak</option>
+          <option value="Obat Rusak">Obat Rusak</option>
+        </select>
+        <i class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" data-lucide="chevron-down"></i>
+      </div>
+      <div class="relative">
+        <select class="appearance-none bg-white border border-[#E2D8CC] text-slate-700 text-xs rounded-lg pl-3 pr-8 py-2 focus:outline-none focus:ring-1 focus:ring-[#964334] focus:border-[#964334] cursor-pointer" id="filter-alasan">
+          <option value="all">Semua Alasan</option>
+          <option value="Melewati Batas Aman ED">Melewati Batas Aman ED</option>
+          <option value="Botol Pecah / Segel Terbuka">Botol Pecah / Segel Terbuka</option>
+          <option value="Pengendapan &amp; Perubahan Warna">Pengendapan &amp; Perubahan Warna</option>
+        </select>
+        <i class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" data-lucide="chevron-down"></i>
+      </div>
+      <div class="relative">
+        <select class="appearance-none bg-white border border-[#E2D8CC] text-slate-700 text-xs rounded-lg pl-3 pr-8 py-2 focus:outline-none focus:ring-1 focus:ring-[#964334] focus:border-[#964334] cursor-pointer" id="filter-periode">
+          <option value="all">Semua Periode</option>
+          <option value="month">Bulan Ini</option>
+          <option value="quarter">Kuartal Ini</option>
+          <option value="2026">Tahun 2026</option>
+        </select>
+        <i class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" data-lucide="chevron-down"></i>
+      </div>
+      <button class="px-3 py-2 bg-white border border-[#E2D8CC] rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center gap-1.5 transition-colors" id="btn-reset-filters" title="Reset Penyaringan">
+        <i class="w-3.5 h-3.5" data-lucide="rotate-ccw"></i>
+        Reset
+      </button>
+    </div>
+  </section>
+
+  <!-- Main Table Container -->
+  <section class="bg-white border border-[#EAE4DC] rounded-xl shadow-sm overflow-hidden flex flex-col" data-purpose="quarantine-inventory-table">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="bg-[#F8F6F2] border-b border-[#EAE4DC] text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
+            <th class="py-3 px-4 w-12 text-center">NO.</th>
+            <th class="py-3 px-4 min-w-[220px]">NAMA OBAT</th>
+            <th class="py-3 px-4 min-w-[120px]">KODE OBAT</th>
+            <th class="py-3 px-4 min-w-[130px]">NOMOR BATCH</th>
+            <th class="py-3 px-4 min-w-[120px]">TANGGAL ED</th>
+            <th class="py-3 px-4 min-w-[120px]">STOK TERSEDIA</th>
+            <th class="py-3 px-4 min-w-[130px]">KONDISI</th>
+            <th class="py-3 px-4 min-w-[200px]">ALASAN</th>
+            <th class="py-3 px-4 min-w-[110px] text-center">AKSI</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#F2ECE4]" id="disposal-table-body">
+          <tr class="hover:bg-[#FAF8F5] transition-colors">
+            <td class="py-3.5 px-4 text-center text-slate-500 font-medium">1</td>
+            <td class="py-3.5 px-4">
+              <div class="font-semibold text-slate-900 text-xs">Paracetamol 500 mg</div>
+              <div class="text-[11px] text-slate-500">Analgesik &amp; Antipiretik (Strip)</div>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-mono text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">MED-PCM-01</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-mono text-[11px] font-medium bg-[#FAF0E8] text-[#8C3A2D] px-2 py-0.5 rounded border border-[#ECD9CB]">Batch B001</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <div class="flex items-center gap-1.5 text-rose-600 font-medium text-xs">
+                <i class="w-3.5 h-3.5 shrink-0" data-lucide="calendar"></i>
+                <span>10/2026</span>
+              </div>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-bold text-slate-900">100</span>
+              <span class="text-slate-500 ml-0.5">Tablet</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-rose-50 text-rose-700 border border-rose-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Kedaluwarsa
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-slate-600">Melewati Batas Aman ED</td>
+            <td class="py-3.5 px-4 text-center">
+              <button class="px-3 py-1.5 bg-[#964334] hover:bg-[#7F3629] text-white rounded-lg text-xs font-medium inline-flex items-center gap-1.5 transition-colors shadow-xs" onclick="openDisposalModal('Paracetamol 500 mg', 'Batch B001', '100 Tablet', 'Kedaluwarsa', 'Melewati Batas Aman ED')">
+                <i class="w-3.5 h-3.5" data-lucide="flame"></i> Musnahkan
+              </button>
+            </td>
+          </tr>
+          <tr class="hover:bg-[#FAF8F5] transition-colors">
+            <td class="py-3.5 px-4 text-center text-slate-500 font-medium">2</td>
+            <td class="py-3.5 px-4">
+              <div class="font-semibold text-slate-900 text-xs">Amoxicillin 500 mg</div>
+              <div class="text-[11px] text-slate-500">Antibiotik Spektrum Luas</div>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-mono text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">MED-AMX-12</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-mono text-[11px] font-medium bg-[#FAF0E8] text-[#8C3A2D] px-2 py-0.5 rounded border border-[#ECD9CB]">Batch B002</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <div class="flex items-center gap-1.5 text-rose-600 font-medium text-xs">
+                <i class="w-3.5 h-3.5 shrink-0" data-lucide="calendar"></i>
+                <span>09/2026</span>
+              </div>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-bold text-slate-900">50</span>
+              <span class="text-slate-500 ml-0.5">Kapsul</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-rose-50 text-rose-700 border border-rose-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Kedaluwarsa
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-slate-600">Melewati Batas Aman ED</td>
+            <td class="py-3.5 px-4 text-center">
+              <button class="px-3 py-1.5 bg-[#964334] hover:bg-[#7F3629] text-white rounded-lg text-xs font-medium inline-flex items-center gap-1.5 transition-colors shadow-xs" onclick="openDisposalModal('Amoxicillin 500 mg', 'Batch B002', '50 Kapsul', 'Kedaluwarsa', 'Melewati Batas Aman ED')">
+                <i class="w-3.5 h-3.5" data-lucide="flame"></i> Musnahkan
+              </button>
+            </td>
+          </tr>
+          <tr class="hover:bg-[#FAF8F5] transition-colors">
+            <td class="py-3.5 px-4 text-center text-slate-500 font-medium">3</td>
+            <td class="py-3.5 px-4">
+              <div class="font-semibold text-slate-900 text-xs">Vitamin C 500 mg</div>
+              <div class="text-[11px] text-slate-500">Suplemen &amp; Antioksidan</div>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-mono text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">MED-VTC-05</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-mono text-[11px] font-medium bg-[#FAF0E8] text-[#8C3A2D] px-2 py-0.5 rounded border border-[#ECD9CB]">Batch B003</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <div class="flex items-center gap-1.5 text-rose-600 font-medium text-xs">
+                <i class="w-3.5 h-3.5 shrink-0" data-lucide="calendar"></i>
+                <span>08/2026</span>
+              </div>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-bold text-slate-900">75</span>
+              <span class="text-slate-500 ml-0.5">Tablet</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-rose-50 text-rose-700 border border-rose-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Kedaluwarsa
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-slate-600">Melewati Batas Aman ED</td>
+            <td class="py-3.5 px-4 text-center">
+              <button class="px-3 py-1.5 bg-[#964334] hover:bg-[#7F3629] text-white rounded-lg text-xs font-medium inline-flex items-center gap-1.5 transition-colors shadow-xs" onclick="openDisposalModal('Vitamin C 500 mg', 'Batch B003', '75 Tablet', 'Kedaluwarsa', 'Melewati Batas Aman ED')">
+                <i class="w-3.5 h-3.5" data-lucide="flame"></i> Musnahkan
+              </button>
+            </td>
+          </tr>
+          <tr class="hover:bg-[#FAF8F5] transition-colors">
+            <td class="py-3.5 px-4 text-center text-slate-500 font-medium">4</td>
+            <td class="py-3.5 px-4">
+              <div class="font-semibold text-slate-900 text-xs">Sirup Batuk Herbal</div>
+              <div class="text-[11px] text-slate-500">Obat Bebas Ekspektoran 100ml</div>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-mono text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">MED-SBH-08</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-mono text-[11px] font-medium bg-[#FAF0E8] text-[#8C3A2D] px-2 py-0.5 rounded border border-[#ECD9CB]">Batch B004</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <div class="flex items-center gap-1.5 text-slate-700 font-medium text-xs">
+                <i class="w-3.5 h-3.5 shrink-0 text-slate-400" data-lucide="calendar"></i>
+                <span>12/2026</span>
+              </div>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-bold text-slate-900">20</span>
+              <span class="text-slate-500 ml-0.5">Botol</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Kemasan Rusak
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-slate-600">Botol Pecah / Segel Terbuka</td>
+            <td class="py-3.5 px-4 text-center">
+              <button class="px-3 py-1.5 bg-[#964334] hover:bg-[#7F3629] text-white rounded-lg text-xs font-medium inline-flex items-center gap-1.5 transition-colors shadow-xs" onclick="openDisposalModal('Sirup Batuk Herbal', 'Batch B004', '20 Botol', 'Kemasan Rusak', 'Botol Pecah / Segel Terbuka')">
+                <i class="w-3.5 h-3.5" data-lucide="flame"></i> Musnahkan
+              </button>
+            </td>
+          </tr>
+          <tr class="hover:bg-[#FAF8F5] transition-colors">
+            <td class="py-3.5 px-4 text-center text-slate-500 font-medium">5</td>
+            <td class="py-3.5 px-4">
+              <div class="font-semibold text-slate-900 text-xs">Antasida Doen Suspensi</div>
+              <div class="text-[11px] text-slate-500">Suspensi Lambung 60ml</div>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-mono text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">MED-ATD-04</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-mono text-[11px] font-medium bg-[#FAF0E8] text-[#8C3A2D] px-2 py-0.5 rounded border border-[#ECD9CB]">Batch B005</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <div class="flex items-center gap-1.5 text-slate-700 font-medium text-xs">
+                <i class="w-3.5 h-3.5 shrink-0 text-slate-400" data-lucide="calendar"></i>
+                <span>11/2026</span>
+              </div>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-bold text-slate-900">15</span>
+              <span class="text-slate-500 ml-0.5">Botol</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Obat Rusak
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-slate-600">Pengendapan &amp; Perubahan Warna</td>
+            <td class="py-3.5 px-4 text-center">
+              <button class="px-3 py-1.5 bg-[#964334] hover:bg-[#7F3629] text-white rounded-lg text-xs font-medium inline-flex items-center gap-1.5 transition-colors shadow-xs" onclick="openDisposalModal('Antasida Doen Suspensi', 'Batch B005', '15 Botol', 'Obat Rusak', 'Pengendapan &amp; Perubahan Warna')">
+                <i class="w-3.5 h-3.5" data-lucide="flame"></i> Musnahkan
+              </button>
+            </td>
+          </tr>
+          <tr class="hover:bg-[#FAF8F5] transition-colors">
+            <td class="py-3.5 px-4 text-center text-slate-500 font-medium">6</td>
+            <td class="py-3.5 px-4">
+              <div class="font-semibold text-slate-900 text-xs">Cetirizine 10 mg</div>
+              <div class="text-[11px] text-slate-500">Antihistamin Alergi</div>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-mono text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">MED-CTZ-08</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-mono text-[11px] font-medium bg-[#FAF0E8] text-[#8C3A2D] px-2 py-0.5 rounded border border-[#ECD9CB]">Batch B006</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <div class="flex items-center gap-1.5 text-rose-600 font-medium text-xs">
+                <i class="w-3.5 h-3.5 shrink-0" data-lucide="calendar"></i>
+                <span>07/2026</span>
+              </div>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-bold text-slate-900">60</span>
+              <span class="text-slate-500 ml-0.5">Tablet</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-rose-50 text-rose-700 border border-rose-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Kedaluwarsa
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-slate-600">Melewati Batas Aman ED</td>
+            <td class="py-3.5 px-4 text-center">
+              <button class="px-3 py-1.5 bg-[#964334] hover:bg-[#7F3629] text-white rounded-lg text-xs font-medium inline-flex items-center gap-1.5 transition-colors shadow-xs" onclick="openDisposalModal('Cetirizine 10 mg', 'Batch B006', '60 Tablet', 'Kedaluwarsa', 'Melewati Batas Aman ED')">
+                <i class="w-3.5 h-3.5" data-lucide="flame"></i> Musnahkan
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- Table Footer / Pagination -->
+    <div class="p-3 bg-[#FAF8F5] border-t border-[#EAE4DC] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+      <div class="text-slate-500">
+        Menampilkan <span class="font-semibold text-slate-700">1 - 6</span> dari <span class="font-semibold text-slate-700">24</span> obat karantina • <span class="text-slate-600">Kapasitas Karantina Terpakai: 48%</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button class="px-2.5 py-1 rounded-lg border border-[#E0D7CC] text-slate-400 bg-white cursor-not-allowed text-xs font-medium flex items-center gap-1" disabled="">
+          <i class="w-3.5 h-3.5" data-lucide="chevron-left"></i> Sebelumnya
+        </button>
+        <button class="w-7 h-7 rounded-lg bg-[#964334] text-white font-medium text-xs flex items-center justify-center shadow-xs">1</button>
+        <button class="w-7 h-7 rounded-lg bg-white border border-[#E0D7CC] text-slate-700 hover:bg-[#F2ECE3] font-medium text-xs flex items-center justify-center transition-colors">2</button>
+        <button class="w-7 h-7 rounded-lg bg-white border border-[#E0D7CC] text-slate-700 hover:bg-[#F2ECE3] font-medium text-xs flex items-center justify-center transition-colors">3</button>
+        <button class="px-2.5 py-1 rounded-lg border border-[#E0D7CC] text-slate-700 bg-white hover:bg-[#F2ECE3] text-xs font-medium flex items-center gap-1 transition-colors">
+          Selanjutnya <i class="w-3.5 h-3.5" data-lucide="chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom Footer Cards -->
+  <section class="grid grid-cols-1 lg:grid-cols-3 gap-5 pt-2 pb-6" data-purpose="footer-guidelines-and-batch-actions">
+    <div class="lg:col-span-2 bg-[#F3EDE5]/70 border border-[#E5DCCD] rounded-xl p-5 flex gap-4">
+      <div class="w-10 h-10 rounded-xl bg-[#E8DDD0] text-slate-700 flex items-center justify-center shrink-0">
+        <i class="w-5 h-5 text-slate-700" data-lucide="file-text"></i>
+      </div>
+      <div class="space-y-2 text-xs flex-1">
+        <div class="flex items-center gap-2 flex-wrap">
+          <h3 class="font-bold text-slate-900 text-sm">Pedoman Pemusnahan Obat (CDOB Kemenkes RI)</h3>
+          <span class="px-2 py-0.5 bg-[#78392C] text-white font-mono text-[10px] rounded font-semibold">Permenkes No. 73</span>
+        </div>
+        <p class="text-slate-600 leading-relaxed text-[12px]">
+          Seluruh batch yang dimusnahkan wajib disertai pembuatan Berita Acara Pemusnahan (BAP) rangkap 4, disaksikan oleh Apoteker Penanggung Jawab (APJ) serta perwakilan Balai Besar POM setempat. Obat Narkotika dan Psikotropika memerlukan saksi dari Dinas Kesehatan Kabupaten/Kota.
+        </p>
+        <div class="flex items-center gap-3 pt-1 text-[11px] text-slate-500 font-medium">
+          <a class="inline-flex items-center gap-1 text-[#964334] font-semibold hover:underline" href="javascript:void(0)" onclick="downloadBAPTemplate()">
+            <i class="w-3.5 h-3.5" data-lucide="download"></i> Unduh Template BAP Resmi (.PDF)
+          </a>
+          <span>•</span>
+          <span>Revisi Terakhir: 15 Januari 2025</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white border border-[#EAE4DC] rounded-xl p-5 shadow-sm flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">SIAP BERITA ACARA</span>
+          <span class="text-slate-400 hover:text-slate-600 cursor-pointer">
+            <i class="w-4 h-4" data-lucide="sliders-horizontal"></i>
+          </span>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 mt-1">Pemusnahan Massal</h3>
+        <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">
+          Sudah memverifikasi semua item? Anda dapat mencetak form berita acara gabungan untuk semua batch siap musnah.
+        </p>
+      </div>
+      <div class="mt-4">
+        <button class="w-full py-2.5 px-4 bg-[#EDE8E1] hover:bg-[#E2DCD3] text-slate-800 font-semibold text-xs rounded-xl flex items-center justify-center gap-2 border border-[#DDD5C9] transition-all" onclick="openCollectiveModal()">
+          <i class="w-4 h-4 text-slate-700" data-lucide="printer"></i>
+          <span>Cetak BAP Kolektif (12 Item)</span>
+        </button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Modal - Single Item Disposal Confirmation -->
+<div class="fixed inset-0 bg-black/45 backdrop-blur-[2px] z-50 hidden flex items-center justify-center p-4" id="disposal-modal">
+  <div class="bg-white border border-[#E0D7CD] rounded-2xl max-w-md w-full p-6 shadow-popover space-y-4 animate-in fade-in zoom-in duration-150">
+    <div class="flex items-start justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center shrink-0">
+          <i class="w-5 h-5" data-lucide="flame"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Konfirmasi Pemusnahan Obat</h3>
+          <p class="text-xs text-slate-500">Tindakan ini memerlukan saksi APJ &amp; BAP resmi</p>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 p-1" onclick="closeDisposalModal()">
+        <i class="w-4 h-4" data-lucide="x"></i>
+      </button>
+    </div>
+    <div class="bg-[#FAF7F2] border border-[#EAE2D7] rounded-xl p-3.5 space-y-2 text-xs">
+      <div class="flex justify-between py-0.5 border-b border-[#EAE2D7]">
+        <span class="text-slate-500">Nama Obat:</span>
+        <span class="font-bold text-slate-800" id="modal-drug-name">Paracetamol 500 mg</span>
+      </div>
+      <div class="flex justify-between py-0.5 border-b border-[#EAE2D7]">
+        <span class="text-slate-500">Batch &amp; Jumlah:</span>
+        <span class="font-mono font-medium text-slate-800" id="modal-drug-batch">Batch B001 (100 Tablet)</span>
+      </div>
+      <div class="flex justify-between py-0.5 border-b border-[#EAE2D7]">
+        <span class="text-slate-500">Kondisi / Alasan:</span>
+        <span class="text-rose-700 font-semibold" id="modal-drug-reason">Kedaluwarsa (Melewati Batas ED)</span>
+      </div>
+      <div class="flex justify-between py-0.5">
+        <span class="text-slate-500">Saksi Diperlukan:</span>
+        <span class="text-slate-800 font-medium">APJ Apotek + BBPOM Setempat</span>
+      </div>
+    </div>
+    <div class="p-3 bg-amber-50/80 border border-amber-200/80 rounded-lg flex items-start gap-2.5 text-xs text-amber-900">
+      <i class="w-4 h-4 text-amber-700 shrink-0 mt-0.5" data-lucide="alert-circle"></i>
+      <span>Setelah dikonfirmasi, stok akan dipindahkan ke status <strong>"Telah Dimusnahkan"</strong> dan nomor BAP unik akan dicetak secara otomatis.</span>
+    </div>
+    <div class="flex items-center justify-end gap-2.5 pt-2">
+      <button class="px-4 py-2 border border-[#D8CEBE] rounded-xl text-xs font-semibold text-slate-700 hover:bg-[#F2ECE3] transition-colors" onclick="closeDisposalModal()" type="button">
+        Batal
+      </button>
+      <button class="px-4 py-2 bg-[#964334] hover:bg-[#7F3629] text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all" onclick="confirmDisposalAction()" type="button">
+        <i class="w-3.5 h-3.5" data-lucide="check"></i> Ya, Proses Pemusnahan
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal - Collective BAP Preview -->
+<div class="fixed inset-0 bg-black/45 backdrop-blur-[2px] z-50 hidden flex items-center justify-center p-4" id="collective-modal">
+  <div class="bg-white border border-[#E0D7CD] rounded-2xl max-w-lg w-full p-6 shadow-popover space-y-4 animate-in fade-in zoom-in duration-150">
+    <div class="flex items-start justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-[#FAF0E6] border border-[#ECD9CB] text-[#964334] flex items-center justify-center shrink-0">
+          <i class="w-5 h-5" data-lucide="printer"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Cetak Berita Acara Kolektif</h3>
+          <p class="text-xs text-slate-500">12 Item siap dimusnahkan secara serentak</p>
+        </div>
+      </div>
+      <button class="text-slate-400 hover:text-slate-600 p-1" onclick="closeCollectiveModal()">
+        <i class="w-4 h-4" data-lucide="x"></i>
+      </button>
+    </div>
+    <div class="border border-[#EAE2D7] rounded-xl p-4 bg-[#FAF8F5] space-y-3 text-xs">
+      <div class="flex items-center justify-between text-slate-600">
+        <span>Nomor Dokumen BAP:</span>
+        <span class="font-mono font-bold text-slate-900">BAP/SW/2026/XI-0042</span>
+      </div>
+      <div class="flex items-center justify-between text-slate-600">
+        <span>Tanggal Pemusnahan:</span>
+        <span class="font-medium text-slate-900" id="current-date-text">24 Februari 2026</span>
+      </div>
+      <div class="flex items-center justify-between text-slate-600">
+        <span>Jumlah Kategori:</span>
+        <span class="font-medium text-slate-900">6 Obat Bebas/Keras, 6 Sirup &amp; Salep</span>
+      </div>
+      <div class="flex items-center justify-between text-slate-600">
+        <span>Metode Pemusnahan:</span>
+        <span class="font-medium text-slate-900">Insenerator Medis Bersertifikat</span>
+      </div>
+    </div>
+    <p class="text-xs text-slate-500 leading-relaxed">
+      Dokumen ini akan dicetak dalam format rangkap 4 (Arsip Apotek, Dinas Kesehatan, BPOM, dan Penanggung Jawab Fasilitas). Pastikan saksi telah hadir sebelum penandatanganan.
+    </p>
+    <div class="flex items-center justify-end gap-2.5 pt-2">
+      <button class="px-4 py-2 border border-[#D8CEBE] rounded-xl text-xs font-semibold text-slate-700 hover:bg-[#F2ECE3] transition-colors" onclick="closeCollectiveModal()" type="button">
+        Tutup
+      </button>
+      <button class="px-4 py-2 bg-[#964334] hover:bg-[#7F3629] text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all" onclick="executeCollectivePrint()" type="button">
+        <i class="w-3.5 h-3.5" data-lucide="printer"></i> Cetak Form PDF Sekarang
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+
+  const disposalModal = document.getElementById('disposal-modal');
+  const collectiveModal = document.getElementById('collective-modal');
+
+  const drugNameEl = document.getElementById('modal-drug-name');
+  const drugBatchEl = document.getElementById('modal-drug-batch');
+  const drugReasonEl = document.getElementById('modal-drug-reason');
+
+  function openDisposalModal(name, batch, qty, condition, reason) {
+    drugNameEl.textContent = name;
+    drugBatchEl.textContent = `${batch} (${qty})`;
+    drugReasonEl.textContent = `${condition} - ${reason}`;
+    disposalModal.classList.remove('hidden');
+  }
+
+  function closeDisposalModal() {
+    disposalModal.classList.add('hidden');
+  }
+
+  function confirmDisposalAction() {
+    alert(`Pemusnahan untuk item telah tercatat dalam antrean berita acara BAP-SW-2026.`);
+    closeDisposalModal();
+  }
+
+  function openCollectiveModal() {
+    collectiveModal.classList.remove('hidden');
+  }
+
+  function closeCollectiveModal() {
+    collectiveModal.classList.add('hidden');
+  }
+
+  function executeCollectivePrint() {
+    alert("Membuat dan mengunduh formulir Berita Acara Pemusnahan (BAP) Kolektif...");
+    closeCollectiveModal();
+  }
+
+  function downloadBAPTemplate() {
+    alert("Template PDF Resmi Permenkes No. 73 berhasil diunduh.");
+  }
+
+  const searchInput = document.getElementById('table-search');
+  const filterKondisi = document.getElementById('filter-kondisi');
+  const filterAlasan = document.getElementById('filter-alasan');
+  const filterPeriode = document.getElementById('filter-periode');
+  const resetBtn = document.getElementById('btn-reset-filters');
+  const tableBody = document.getElementById('disposal-table-body');
+  const tableRows = tableBody.getElementsByTagName('tr');
+
+  function applyFilters() {
+    const searchVal = searchInput.value.toLowerCase().trim();
+    const kondisiVal = filterKondisi.value;
+    const alasanVal = filterAlasan.value;
+
+    for (let row of tableRows) {
+      const textContent = row.textContent.toLowerCase();
+      let matchesSearch = textContent.includes(searchVal);
+      let matchesKondisi = (kondisiVal === 'all') || textContent.includes(kondisiVal.toLowerCase());
+      let matchesAlasan = (alasanVal === 'all') || textContent.includes(alasanVal.toLowerCase());
+
+      if (matchesSearch && matchesKondisi && matchesAlasan) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    }
+  }
+
+  if (searchInput) searchInput.addEventListener('input', applyFilters);
+  if (filterKondisi) filterKondisi.addEventListener('change', applyFilters);
+  if (filterAlasan) filterAlasan.addEventListener('change', applyFilters);
+  if (filterPeriode) filterPeriode.addEventListener('change', applyFilters);
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      filterKondisi.value = 'all';
+      filterAlasan.value = 'all';
+      filterPeriode.value = 'all';
+      for (let row of tableRows) {
+        row.style.display = '';
+      }
+    });
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeDisposalModal();
+      closeCollectiveModal();
+    }
+  });
+</script>
+{{ end }}

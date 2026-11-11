@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login - Apotek Sumber Waras</title>
+<!-- BEGIN: External Styles and Fonts -->
+<link rel="stylesheet" href="/static/css/style.css" />
+<script src="/static/js/tailwind_config.js"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 with Forms & Container Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- END: External Styles and Fonts -->
+<!-- BEGIN: Custom Configuration -->
+<script data-purpose="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Poppins', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              peach: '#FFEAE3',
+              primary: '#FF8F77',
+              hover: '#f87b61',
+            }
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-background">
+    body {
+      background-color: #FAF6F0;
+      font-family: 'Poppins', sans-serif;
+    }
+  </style>
+<!-- END: Custom Configuration -->
+</head>
+<body class="min-h-screen w-full flex items-center justify-center relative overflow-hidden select-none px-4 py-8">
+<!-- BEGIN: Decorative Background Elements -->
+<!-- Capsule Top-Left -->
+<div class="pointer-events-none absolute -top-4 left-10 w-16 h-8 rounded-full border-2 border-[#F3DDD3]/80 rotate-[-45deg] opacity-60" data-purpose="decorative-capsule">
+</div>
+<div class="pointer-events-none absolute top-12 left-28 w-12 h-6 rounded-full border-2 border-[#F5E2DA] rotate-[-40deg] opacity-75" data-purpose="decorative-capsule">
+</div>
+<!-- Capsule Middle-Left -->
+<div class="pointer-events-none absolute top-1/2 left-12 -translate-y-4 w-12 h-6 rounded-full border-2 border-[#F3DDD3] rotate-[-25deg] opacity-70" data-purpose="decorative-capsule">
+</div>
+<!-- Capsule Top-Right -->
+<div class="pointer-events-none absolute top-80 right-24 w-12 h-6 rounded-full border-2 border-[#F3DDD3] rotate-[-45deg] opacity-75" data-purpose="decorative-capsule">
+</div>
+<!-- Capsule Bottom-Right -->
+<div class="pointer-events-none absolute bottom-28 right-44 w-16 h-8 rounded-full border-2 border-[#F1D7CB] rotate-[-12deg] opacity-75" data-purpose="decorative-capsule">
+</div>
+<!-- END: Decorative Background Elements -->
+<!-- BEGIN: Main Login Container -->
+<main class="w-full max-w-[430px] bg-white rounded-3xl border border-slate-100/90 shadow-[0_10px_35px_-5px_rgba(0,0,0,0.05),0_0_1px_1px_rgba(0,0,0,0.02)] px-9 py-10 relative z-10">
+<!-- BEGIN: Brand Header -->
+<header class="flex flex-col items-center text-center">
+<!-- Pharmacy Brand Icon -->
+<div class="w-12 h-12 rounded-2xl bg-[#FFEFEA] flex items-center justify-center mb-3.5 shadow-sm" data-purpose="brand-icon">
+<svg class="w-6 h-6 text-[#FF8F77]" fill="currentColor" viewbox="0 0 24 24">
+<!-- Mortar & Pestle with Cross Icon -->
+<path d="M19 7h-1.12l1.6-4.01a1 1 0 0 0-.57-1.32 1 1 0 0 0-1.31.57L15.93 6H8.07L6.4 1.24a1 1 0 0 0-1.31-.57 1 1 0 0 0-.57 1.32L6.12 7H5c-1.1 0-2 .9-2 2v2c0 2.5 1.5 4.66 3.65 5.56L6.2 19c-.1.35.03.73.32.93C7.57 20.67 9.7 21 12 21s4.43-.33 5.48-1.07c.29-.2.42-.58.32-.93l-.45-2.44C19.5 15.66 21 13.5 21 11V9c0-1.1-.9-2-2-2zm-6 7.5h-2v-2H9v-2h2v-2h2v2h2v2h-2v2z"></path>
+</svg>
+</div>
+<!-- Brand Titles -->
+<h1 class="text-base font-bold tracking-wide text-slate-800">
+        APOTEK SUMBER WARAS
+      </h1>
+<p class="text-xs text-slate-400 font-medium mt-0.5">
+        Sistem Stok Apotek
+      </p>
+</header>
+<!-- END: Brand Header -->
+<!-- BEGIN: Form Heading -->
+<div class="mt-7 text-left">
+<h2 class="text-2xl font-bold text-slate-800">
+        Masuk
+      </h2>
+<p class="text-[13px] text-slate-500 font-normal mt-1 leading-snug">
+        Silakan masuk dengan akun yang dibuat oleh Owner
+      </p>
+</div>
+<!-- END: Form Heading -->
+<!-- BEGIN: Error Alert -->
+<div class="mt-4 bg-[#FDE8E6] border border-[#F9C9C4] rounded-xl px-3.5 py-2.5 flex items-center gap-2.5" data-purpose="error-notification" role="alert">
+<!-- Exclamation Icon -->
+<span class="flex-shrink-0 flex items-center justify-center w-4 h-4 rounded-full bg-[#E5484D] text-white text-[10px] font-bold leading-none">
+        !
+      </span>
+<!-- Alert Message -->
+<span class="text-xs font-medium text-[#C93B32]">
+        Username atau password salah
+      </span>
+</div>
+<!-- END: Error Alert -->
+<!-- BEGIN: Login Form -->
+<form action="#" class="mt-4 space-y-3.5" method="POST">
+<!-- Username Field -->
+<div class="text-left">
+<label class="block text-xs font-semibold text-slate-700 mb-1.5" for="username">
+          Username
+        </label>
+<input class="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-xl placeholder-slate-400 text-slate-700 focus:outline-none focus:border-[#FF8F77] focus:ring-1 focus:ring-[#FF8F77] transition-colors" id="username" name="username" placeholder="Masukkan username" type="text"/>
+</div>
+<!-- Password Field -->
+<div class="text-left">
+<label class="block text-xs font-semibold text-slate-700 mb-1.5" for="password">
+          Password
+        </label>
+<div class="relative flex items-center">
+<input class="w-full px-3.5 py-2.5 pr-10 text-sm bg-white border border-slate-200 rounded-xl placeholder-slate-400 text-slate-700 focus:outline-none focus:border-[#FF8F77] focus:ring-1 focus:ring-[#FF8F77] transition-colors" id="password" name="password" placeholder="Masukkan password" type="password"/>
+<!-- Visibility Toggle Button -->
+<button aria-label="Toggle password visibility" class="absolute right-3 text-slate-400 hover:text-slate-600 focus:outline-none transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24">
+<path d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+</div>
+<!-- Submit Button -->
+<div class="pt-2">
+<button class="w-full py-3 px-4 bg-[#FF8F77] hover:bg-[#fa7b61] active:bg-[#e86f55] text-white text-xs font-semibold uppercase tracking-wider rounded-xl shadow-sm transition-all duration-150" type="submit">
+          MASUK
+        </button>
+</div>
+</form>
+<!-- END: Login Form -->
+<!-- BEGIN: Footer Links -->
+<footer class="mt-6 text-center">
+<a class="text-xs text-slate-500 font-normal hover:text-slate-700 transition-colors" href="#">
+        Lupa password? Hubungi Owner
+      </a>
+</footer>
+<!-- END: Footer Links -->
+</main>
+<!-- END: Main Login Container -->
+</body></html>

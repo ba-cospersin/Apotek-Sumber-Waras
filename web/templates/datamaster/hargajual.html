@@ -1,0 +1,550 @@
+{{ define "content" }}
+<main class="p-8 max-w-7xl w-full mx-auto space-y-6" data-purpose="page-body-container">
+  <div class="flex flex-col w-full">
+    <!-- Interactive Script to Synchronize Sidebar & Breadcrumb in Context Shell -->
+    <script>
+      (function syncAppShell() {
+        document.title = "Harga Jual - SUMBER WARAS SIM Farmasi & Batch";
+
+        const breadcrumbNav = document.querySelector('nav[aria-label="Breadcrumb"]');
+        if (breadcrumbNav) {
+          const lastCrumb = breadcrumbNav.querySelector('span.font-semibold');
+          if (lastCrumb) lastCrumb.textContent = "Harga Jual";
+        }
+
+        const sidebar = document.querySelector('aside[data-purpose="sidebar-navigation"]');
+        if (sidebar) {
+          const submenuLinks = sidebar.querySelectorAll('.pl-9 a');
+          submenuLinks.forEach(link => {
+            if (link.textContent.trim() === "Harga Jual") {
+              link.className = "flex items-center justify-between px-3 py-1.5 rounded-md text-xs font-semibold text-primary bg-primary-fixed shadow-2xs";
+            } else if (link.textContent.trim() === "Konversi Satuan") {
+              link.className = "block px-3 py-1.5 rounded-md text-xs font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors";
+            }
+          });
+        }
+      })();
+    </script>
+
+    <!-- Page Header -->
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6" data-purpose="page-header">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm uppercase tracking-wide">
+            Tarif Farmasi
+          </span>
+          <span class="inline-flex items-center gap-1.5 font-code-batch text-code-batch text-outline">
+            MOD-PRC-2025
+          </span>
+        </div>
+        <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Harga Jual</h1>
+        <p class="font-body-md text-body-md text-outline">
+          Kelola standardisasi tarif dan harga jual eceran obat berdasarkan multi-satuan Apotek Sumber Waras.
+        </p>
+      </div>
+      <!-- Header Actions -->
+      <div class="flex items-center gap-3 shrink-0">
+        <button class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-surface-container-lowest text-on-surface font-label-md text-label-md shadow-sm hover:bg-surface-container transition-all active:scale-95" onclick="alert('Mengekspor matriks harga jual (CSV/XLSX)...');" type="button">
+          <span class="material-symbols-outlined text-outline text-[18px]">download</span>
+          Export Data
+        </button>
+        <!-- BENAR: URL cocok dengan router.go -->
+<a href="/datamaster/tambahhargajual" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#964334] hover:bg-[#80382B] text-white text-xs font-semibold rounded-lg shadow-sm transition">
+  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+  </svg>
+  <span>Tambah Harga Jual</span>
+</a>
+      </div>
+    </header>
+
+    <!-- Metric Summary Cards -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6" data-purpose="metrics-summary">
+      <!-- Card 1: Total Aturan Harga -->
+      <div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm relative overflow-hidden transition-all hover:shadow-md">
+        <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-primary-fixed/20 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="flex items-start justify-between">
+          <div>
+            <span class="font-label-sm text-label-sm text-outline uppercase tracking-wider block">Total Aturan Harga</span>
+            <div class="flex items-baseline gap-2 mt-1">
+              <span class="font-headline-xl text-headline-xl text-on-surface leading-none">120</span>
+              <span class="font-label-sm text-label-sm text-outline font-medium">SKU Aktif &amp; Nonaktif</span>
+            </div>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-primary-fixed/40 flex items-center justify-center text-primary shadow-xs">
+            <span class="material-symbols-outlined text-[24px]">price_change</span>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-surface-variant flex items-center gap-1.5 font-body-sm text-body-sm text-outline">
+          <span class="material-symbols-outlined text-primary text-[15px]">store</span>
+          <span>Terdaftar di seluruh cabang</span>
+        </div>
+      </div>
+
+      <!-- Card 2: Harga Aktif -->
+      <div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm relative overflow-hidden transition-all hover:shadow-md">
+        <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="flex items-start justify-between">
+          <div>
+            <span class="font-label-sm text-label-sm text-outline uppercase tracking-wider block">Harga Aktif</span>
+            <div class="flex items-baseline gap-2.5 mt-1">
+              <span class="font-headline-xl text-headline-xl text-on-surface leading-none">115</span>
+              <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-label-sm text-label-sm font-semibold">
+                95.8% Ready
+              </span>
+            </div>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-700 shadow-xs">
+            <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">point_of_sale</span>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-surface-variant flex items-center gap-1.5 font-body-sm text-body-sm text-outline">
+          <span class="material-symbols-outlined text-emerald-600 text-[15px]">check_circle</span>
+          <span>Berlaku langsung di POS Kasir</span>
+        </div>
+      </div>
+
+      <!-- Card 3: Harga Nonaktif -->
+      <div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm relative overflow-hidden transition-all hover:shadow-md">
+        <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="flex items-start justify-between">
+          <div>
+            <span class="font-label-sm text-label-sm text-outline uppercase tracking-wider block">Harga Nonaktif</span>
+            <div class="flex items-baseline gap-2.5 mt-1">
+              <span class="font-headline-xl text-headline-xl text-on-surface leading-none">5</span>
+              <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-label-sm text-label-sm font-semibold">
+                Perlu Tinjauan
+              </span>
+            </div>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-700 shadow-xs">
+            <span class="material-symbols-outlined text-[24px]">pending_actions</span>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-surface-variant flex items-center gap-1.5 font-body-sm text-body-sm text-outline">
+          <span class="material-symbols-outlined text-amber-600 text-[15px]">warning</span>
+          <span>Perlu evaluasi / tinjauan formularium</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filter & Search Bar -->
+    <section class="bg-surface-container-lowest rounded-xl p-4 shadow-sm mb-6" data-purpose="filter-bar">
+      <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
+        <!-- Search Input -->
+        <div class="relative flex-1">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-outline">
+            <span class="material-symbols-outlined text-[18px]">search</span>
+          </span>
+          <input class="w-full pl-10 pr-9 py-2 bg-surface-container-low text-on-surface rounded-lg font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none transition-all placeholder:text-outline/70 border-0" id="search-input" placeholder="Cari kode atau nama obat (misal: Paracetamol, OBT-001)..." type="text"/>
+          <button class="absolute inset-y-0 right-0 pr-3 flex items-center text-outline hover:text-on-surface hidden" id="clear-search" type="button">
+            <span class="material-symbols-outlined text-[16px]">close</span>
+          </button>
+        </div>
+
+        <!-- Filters Wrapper -->
+        <div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
+          <div class="relative min-w-[140px]">
+            <select class="w-full appearance-none bg-surface-container-low text-on-surface py-2 pl-3 pr-8 rounded-lg font-label-md text-label-md focus:outline-none focus:bg-surface-container-lowest transition-colors border-0">
+              <option value="">Semua Kategori</option>
+              <option value="bebas">Obat Bebas</option>
+              <option value="keras">Antibiotik / Keras</option>
+              <option value="terbatas">Obat Bebas Terbatas</option>
+              <option value="antiseptik">Antiseptik Topikal</option>
+              <option value="suplemen">Suplemen &amp; Vitamin</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-outline text-[16px]">
+              expand_more
+            </span>
+          </div>
+
+          <div class="relative min-w-[130px]">
+            <select class="w-full appearance-none bg-surface-container-low text-on-surface py-2 pl-3 pr-8 rounded-lg font-label-md text-label-md focus:outline-none focus:bg-surface-container-lowest transition-colors border-0">
+              <option value="">Semua Satuan</option>
+              <option value="tablet">Tablet</option>
+              <option value="kapsul">Kapsul</option>
+              <option value="botol">Botol</option>
+              <option value="strip">Strip</option>
+              <option value="box">Box</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-outline text-[16px]">
+              expand_more
+            </span>
+          </div>
+
+          <div class="relative min-w-[130px]">
+            <select class="w-full appearance-none bg-surface-container-low text-on-surface py-2 pl-3 pr-8 rounded-lg font-label-md text-label-md focus:outline-none focus:bg-surface-container-lowest transition-colors border-0">
+              <option value="">Semua Status</option>
+              <option value="aktif">Aktif</option>
+              <option value="nonaktif">Nonaktif</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-outline text-[16px]">
+              expand_more
+            </span>
+          </div>
+
+          <button class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container-low text-outline hover:text-on-surface hover:bg-surface-container transition-colors font-label-md text-label-md" onclick="document.getElementById('search-input').value=''; document.querySelectorAll('select').forEach(s => s.selectedIndex=0);" type="button">
+            <span class="material-symbols-outlined text-[16px]">refresh</span>
+            Reset Filter
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Data Table Container -->
+    <section class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden mb-6" data-purpose="standardized-price-table">
+      <div class="px-6 py-4 bg-surface-container-lowest flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="font-headline-sm text-headline-sm text-on-surface">Daftar Standardisasi Harga Eceran Apotek</h2>
+          <p class="font-body-sm text-body-sm text-outline">Daftar harga satuan terkecil per sediaan farmasi yang tersinkronisasi ke seluruh kasir apotek.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-container font-label-sm text-label-sm text-on-surface-variant font-medium">
+            <span class="material-symbols-outlined text-[15px] text-tertiary">payments</span>
+            Mata Uang: IDR (Rp)
+          </span>
+          <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 font-label-sm text-label-sm font-semibold">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+            </span>
+            Auto-Sync POS Aktif
+          </div>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-surface-container-low text-outline font-label-md text-label-md uppercase tracking-wider">
+              <th class="py-3.5 px-4 w-12 text-center" scope="col">NO</th>
+              <th class="py-3.5 px-4 w-32" scope="col">KODE OBAT</th>
+              <th class="py-3.5 px-4" scope="col">NAMA OBAT</th>
+              <th class="py-3.5 px-4 w-32 text-center" scope="col">SATUAN</th>
+              <th class="py-3.5 px-6 w-52 text-right" scope="col">HARGA JUAL (KASIR)</th>
+              <th class="py-3.5 px-4 w-32 text-center" scope="col">STATUS</th>
+              <th class="py-3.5 px-4 w-28 text-center" scope="col">AKSI</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-variant/40">
+            <!-- Row 1: Paracetamol -->
+            <tr class="hover:bg-surface-container-low/60 transition-colors group">
+              <td class="py-4 px-4 text-center font-code-batch text-code-batch text-outline">1</td>
+              <td class="py-4 px-4">
+                <span class="px-2.5 py-1 rounded-md bg-surface-container font-code-batch text-code-batch text-primary font-semibold">OBT-001</span>
+              </td>
+              <td class="py-4 px-4">
+                <div class="flex flex-col">
+                  <span class="font-headline-sm text-headline-sm text-on-surface font-semibold group-hover:text-primary transition-colors">Paracetamol 500 mg</span>
+                  <span class="font-body-sm text-body-sm text-outline mt-0.5">Kategori: <strong class="font-medium text-on-surface-variant">Obat Bebas</strong></span>
+                </div>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <span class="inline-block px-3 py-1 rounded-full bg-secondary-fixed/50 text-on-secondary-fixed-variant font-label-sm text-label-sm font-semibold">Tablet</span>
+              </td>
+              <td class="py-4 px-6 text-right">
+                <div class="flex flex-col items-end">
+                  <span class="font-headline-sm text-headline-sm text-on-surface font-bold">Rp 1.000</span>
+                  <span class="font-label-sm text-label-sm text-outline">/ tablet</span>
+                </div>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-label-sm text-label-sm font-semibold">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Aktif
+                </span>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <div class="flex items-center justify-center gap-1">
+                  <button class="p-1.5 rounded-lg text-outline hover:text-primary hover:bg-primary-fixed/40 transition-colors" title="Ubah Aturan Harga" type="button">
+                    <span class="material-symbols-outlined text-[18px]">edit_note</span>
+                  </button>
+                  <button class="p-1.5 rounded-lg text-outline hover:text-error hover:bg-error-container/40 transition-colors" title="Hapus / Nonaktifkan" type="button">
+                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <!-- Row 2: Amoxicillin -->
+            <tr class="hover:bg-surface-container-low/60 transition-colors group">
+              <td class="py-4 px-4 text-center font-code-batch text-code-batch text-outline">2</td>
+              <td class="py-4 px-4">
+                <span class="px-2.5 py-1 rounded-md bg-surface-container font-code-batch text-code-batch text-primary font-semibold">OBT-002</span>
+              </td>
+              <td class="py-4 px-4">
+                <div class="flex flex-col">
+                  <span class="font-headline-sm text-headline-sm text-on-surface font-semibold group-hover:text-primary transition-colors">Amoxicillin 500 mg</span>
+                  <span class="font-body-sm text-body-sm text-outline mt-0.5">Kategori: <strong class="font-medium text-on-surface-variant">Antibiotik / Keras</strong></span>
+                </div>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <span class="inline-block px-3 py-1 rounded-full bg-tertiary-fixed/60 text-on-tertiary-fixed font-label-sm text-label-sm font-semibold">Kapsul</span>
+              </td>
+              <td class="py-4 px-6 text-right">
+                <div class="flex flex-col items-end">
+                  <span class="font-headline-sm text-headline-sm text-on-surface font-bold">Rp 2.500</span>
+                  <span class="font-label-sm text-label-sm text-outline">/ kapsul</span>
+                </div>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-label-sm text-label-sm font-semibold">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Aktif
+                </span>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <div class="flex items-center justify-center gap-1">
+                  <button class="p-1.5 rounded-lg text-outline hover:text-primary hover:bg-primary-fixed/40 transition-colors" title="Ubah Aturan Harga" type="button">
+                    <span class="material-symbols-outlined text-[18px]">edit_note</span>
+                  </button>
+                  <button class="p-1.5 rounded-lg text-outline hover:text-error hover:bg-error-container/40 transition-colors" title="Hapus / Nonaktifkan" type="button">
+                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <!-- Row 3: CTM -->
+            <tr class="hover:bg-surface-container-low/60 transition-colors group">
+              <td class="py-4 px-4 text-center font-code-batch text-code-batch text-outline">3</td>
+              <td class="py-4 px-4">
+                <span class="px-2.5 py-1 rounded-md bg-surface-container font-code-batch text-code-batch text-primary font-semibold">OBT-003</span>
+              </td>
+              <td class="py-4 px-4">
+                <div class="flex flex-col">
+                  <span class="font-headline-sm text-headline-sm text-on-surface font-semibold group-hover:text-primary transition-colors">CTM 4 mg</span>
+                  <span class="font-body-sm text-body-sm text-outline mt-0.5">Kategori: <strong class="font-medium text-on-surface-variant">Obat Bebas Terbatas</strong></span>
+                </div>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <span class="inline-block px-3 py-1 rounded-full bg-secondary-fixed/50 text-on-secondary-fixed-variant font-label-sm text-label-sm font-semibold">Tablet</span>
+              </td>
+              <td class="py-4 px-6 text-right">
+                <div class="flex flex-col items-end">
+                  <span class="font-headline-sm text-headline-sm text-on-surface font-bold">Rp 500</span>
+                  <span class="font-label-sm text-label-sm text-outline">/ tablet</span>
+                </div>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-label-sm text-label-sm font-semibold">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Aktif
+                </span>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <div class="flex items-center justify-center gap-1">
+                  <button class="p-1.5 rounded-lg text-outline hover:text-primary hover:bg-primary-fixed/40 transition-colors" title="Ubah Aturan Harga" type="button">
+                    <span class="material-symbols-outlined text-[18px]">edit_note</span>
+                  </button>
+                  <button class="p-1.5 rounded-lg text-outline hover:text-error hover:bg-error-container/40 transition-colors" title="Hapus / Nonaktifkan" type="button">
+                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <!-- Row 4: Betadine -->
+            <tr class="hover:bg-surface-container-low/60 transition-colors group">
+              <td class="py-4 px-4 text-center font-code-batch text-code-batch text-outline">4</td>
+              <td class="py-4 px-4">
+                <span class="px-2.5 py-1 rounded-md bg-surface-container font-code-batch text-code-batch text-primary font-semibold">OBT-004</span>
+              </td>
+              <td class="py-4 px-4">
+                <div class="flex flex-col">
+                  <span class="font-headline-sm text-headline-sm text-on-surface font-semibold group-hover:text-primary transition-colors">Betadine 15 mL</span>
+                  <span class="font-body-sm text-body-sm text-outline mt-0.5">Kategori: <strong class="font-medium text-on-surface-variant">Antiseptik Topikal</strong></span>
+                </div>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <span class="inline-block px-3 py-1 rounded-full bg-primary-fixed/50 text-on-primary-fixed-variant font-label-sm text-label-sm font-semibold">Botol</span>
+              </td>
+              <td class="py-4 px-6 text-right">
+                <div class="flex flex-col items-end">
+                  <span class="font-headline-sm text-headline-sm text-on-surface font-bold">Rp 18.000</span>
+                  <span class="font-label-sm text-label-sm text-outline">/ botol</span>
+                </div>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-label-sm text-label-sm font-semibold">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Aktif
+                </span>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <div class="flex items-center justify-center gap-1">
+                  <button class="p-1.5 rounded-lg text-outline hover:text-primary hover:bg-primary-fixed/40 transition-colors" title="Ubah Aturan Harga" type="button">
+                    <span class="material-symbols-outlined text-[18px]">edit_note</span>
+                  </button>
+                  <button class="p-1.5 rounded-lg text-outline hover:text-error hover:bg-error-container/40 transition-colors" title="Hapus / Nonaktifkan" type="button">
+                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <!-- Row 5: Vitamin C -->
+            <tr class="hover:bg-surface-container-low/60 transition-colors group bg-surface-container-low/20">
+              <td class="py-4 px-4 text-center font-code-batch text-code-batch text-outline">5</td>
+              <td class="py-4 px-4">
+                <span class="px-2.5 py-1 rounded-md bg-surface-container font-code-batch text-code-batch text-outline font-semibold">OBT-005</span>
+              </td>
+              <td class="py-4 px-4">
+                <div class="flex flex-col">
+                  <span class="font-headline-sm text-headline-sm text-outline font-semibold group-hover:text-on-surface transition-colors line-through decoration-outline-variant">Vitamin C 500 mg</span>
+                  <span class="font-body-sm text-body-sm text-outline mt-0.5">Kategori: <strong class="font-medium text-outline">Suplemen &amp; Vitamin / Evaluasi PBF</strong></span>
+                </div>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <span class="inline-block px-3 py-1 rounded-full bg-surface-container text-outline font-label-sm text-label-sm font-semibold">Tablet</span>
+              </td>
+              <td class="py-4 px-6 text-right">
+                <div class="flex flex-col items-end opacity-70">
+                  <span class="font-headline-sm text-headline-sm text-outline font-bold">Rp 1.500</span>
+                  <span class="font-label-sm text-label-sm text-outline">/ tablet</span>
+                </div>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-label-sm text-label-sm font-semibold">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span> Nonaktif
+                </span>
+              </td>
+              <td class="py-4 px-4 text-center">
+                <div class="flex items-center justify-center gap-1">
+                  <button class="p-1.5 rounded-lg text-outline hover:text-primary hover:bg-primary-fixed/40 transition-colors" title="Ubah Aturan Harga" type="button">
+                    <span class="material-symbols-outlined text-[18px]">edit_note</span>
+                  </button>
+                  <button class="p-1.5 rounded-lg text-outline hover:text-error hover:bg-error-container/40 transition-colors" title="Hapus / Nonaktifkan" type="button">
+                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Table Footer & Pagination -->
+      <div class="px-6 py-4 bg-surface-container-lowest border-t border-surface-variant/40 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <span class="font-body-sm text-body-sm text-outline">
+            Menampilkan <strong class="text-on-surface font-semibold">1 – 5</strong> dari <strong class="text-on-surface font-semibold">120</strong> data harga jual
+          </span>
+          <button class="hidden sm:inline-flex items-center gap-1 font-label-sm text-label-sm text-primary hover:underline" onclick="document.getElementById('modal-tambah-harga').classList.remove('hidden');" type="button">
+            <span class="material-symbols-outlined text-[14px]">add</span>
+            Tambah Aturan Lain
+          </button>
+        </div>
+        <nav aria-label="Pagination" class="flex items-center gap-1.5">
+          <button class="px-3 py-1.5 rounded-lg bg-surface-container text-outline/50 font-label-sm text-label-sm cursor-not-allowed" disabled="" type="button">Sebelumnya</button>
+          <button class="w-8 h-8 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm font-semibold shadow-xs" type="button">1</button>
+          <button class="w-8 h-8 rounded-lg hover:bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold transition-colors" type="button">2</button>
+          <button class="w-8 h-8 rounded-lg hover:bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold transition-colors" type="button">3</button>
+          <span class="px-1 text-outline font-label-sm text-label-sm">...</span>
+          <button class="w-8 h-8 rounded-lg hover:bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-semibold transition-colors" type="button">24</button>
+          <button class="px-3 py-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-sm text-label-sm transition-colors" type="button">Selanjutnya</button>
+        </nav>
+      </div>
+    </section>
+
+    <!-- SOP & Pharmacy Compliance Banner -->
+    <section class="bg-primary-fixed/20 rounded-xl p-4 shadow-2xs flex items-start gap-3.5" data-purpose="sop-compliance-alert">
+      <div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center shrink-0 text-primary">
+        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+      </div>
+      <div class="space-y-1">
+        <h3 class="font-headline-sm text-headline-sm text-on-surface">Prosedur Penetapan Harga (SOP Sumber Waras)</h3>
+        <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+          Perubahan harga jual pada modul ini akan langsung tercermin secara instan di sistem kasir/POS pada seluruh unit pelayanan farmasi. Pastikan pengecekan <span class="font-semibold text-primary">HET (Harga Eceran Tertinggi)</span> Kementerian Kesehatan telah dipatuhi sebelum mengaktifkan harga baru.
+        </p>
+      </div>
+    </section>
+
+    <!-- Modal Dialog Tambah Harga -->
+    <div aria-modal="true" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface/40 backdrop-blur-xs hidden" id="modal-tambah-harga" role="dialog">
+      <div class="bg-surface-container-lowest rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div class="px-6 py-4 bg-surface-container-low flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-lg bg-primary text-on-primary flex items-center justify-center">
+              <span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+            </span>
+            <div>
+              <h3 class="font-headline-sm text-headline-sm text-on-surface">Tambah Aturan Harga Baru</h3>
+              <p class="font-body-sm text-body-sm text-outline">Standarisasi tarif eceran master obat</p>
+            </div>
+          </div>
+          <button class="w-8 h-8 rounded-full hover:bg-surface-container flex items-center justify-center text-outline hover:text-on-surface" onclick="document.getElementById('modal-tambah-harga').classList.add('hidden')" type="button">
+            <span class="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </div>
+        <form class="p-6 space-y-4" onsubmit="event.preventDefault(); alert('Aturan harga baru berhasil disimpan!'); document.getElementById('modal-tambah-harga').classList.add('hidden');">
+          <div>
+            <label class="block font-label-md text-label-md text-on-surface mb-1.5">Pilih Obat Dari Master *</label>
+            <select class="w-full bg-surface-container-low rounded-lg p-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:bg-surface-container-lowest border-0" required="">
+              <option value="">-- Pilih Obat Farmasi --</option>
+              <option value="OBT-001">OBT-001 - Paracetamol 500 mg</option>
+              <option value="OBT-002">OBT-002 - Amoxicillin 500 mg</option>
+              <option value="OBT-003">OBT-003 - CTM 4 mg</option>
+              <option value="OBT-004">OBT-004 - Betadine 15 mL</option>
+              <option value="OBT-006">OBT-006 - Ibuprofen 400 mg</option>
+            </select>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block font-label-md text-label-md text-on-surface mb-1.5">Satuan Jual *</label>
+              <select class="w-full bg-surface-container-low rounded-lg p-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:bg-surface-container-lowest border-0" required="">
+                <option value="Tablet">Tablet</option>
+                <option value="Kapsul">Kapsul</option>
+                <option value="Botol">Botol</option>
+                <option value="Strip">Strip</option>
+                <option value="Puyer">Puyer</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-label-md text-label-md text-on-surface mb-1.5">Status Berlaku *</label>
+              <select class="w-full bg-surface-container-low rounded-lg p-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:bg-surface-container-lowest border-0" required="">
+                <option value="1">Aktif (Kirim ke Kasir)</option>
+                <option value="0">Draft / Nonaktif</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block font-label-md text-label-md text-on-surface mb-1.5">Nominal Tarif Jual (IDR) *</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center font-code-batch text-code-batch font-bold text-outline">Rp</span>
+              <input class="w-full pl-12 pr-4 py-2.5 bg-surface-container-low text-on-surface rounded-lg font-headline-sm text-headline-sm focus:outline-none focus:bg-surface-container-lowest border-0" min="1" placeholder="Contoh: 1500" required="" type="number"/>
+            </div>
+            <p class="font-body-sm text-body-sm text-outline mt-1">Tarif final sebelum pembulatan diskon atau resep dokter.</p>
+          </div>
+          <div class="pt-4 flex items-center justify-end gap-3">
+            <button class="px-4 py-2.5 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md hover:bg-surface-container-high transition-colors" onclick="document.getElementById('modal-tambah-harga').classList.add('hidden')" type="button">Batalkan</button>
+            <button class="px-5 py-2.5 rounded-lg bg-primary text-on-primary font-label-md text-label-md shadow-md hover:bg-on-primary-fixed-variant transition-colors" type="submit">Simpan Harga Jual</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('search-input');
+    const clearBtn = document.getElementById('clear-search');
+    const tableRows = document.querySelectorAll('tbody tr');
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const val = e.target.value.toLowerCase().trim();
+        if (val.length > 0) {
+          clearBtn.classList.remove('hidden');
+        } else {
+          clearBtn.classList.add('hidden');
+        }
+
+        tableRows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          row.style.display = text.includes(val) ? '' : 'none';
+        });
+      });
+
+      clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        clearBtn.classList.add('hidden');
+        tableRows.forEach(row => row.style.display = '');
+      });
+    }
+  });
+</script>
+{{ end }}

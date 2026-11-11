@@ -1,0 +1,473 @@
+{{ define "content" }}
+<main class="p-8 max-w-[1600px] w-full mx-auto space-y-6 flex-1" data-purpose="page-main-content">
+  <!-- Interactive Script untuk Sinkronisasi Sidebar & Breadcrumb Shell -->
+  <script>
+    (function syncAppShell() {
+      document.title = "Data PBF - SUMBER WARAS SIM Farmasi & Batch";
+
+      const breadcrumbNav = document.querySelector('nav[aria-label="Breadcrumb"], nav');
+      if (breadcrumbNav) {
+        const lastCrumb = breadcrumbNav.querySelector('span.font-bold, span.font-semibold');
+        if (lastCrumb) lastCrumb.textContent = "Data PBF";
+      }
+
+      const sidebar = document.querySelector('aside[data-purpose="main-sidebar"], aside');
+      if (sidebar) {
+        const submenuLinks = sidebar.querySelectorAll('.ml-4 a, .pl-9 a');
+        submenuLinks.forEach(link => {
+          if (link.textContent.trim().includes("Data PBF")) {
+            link.className = "flex items-center justify-between px-3 py-2 text-xs font-semibold text-white bg-terracotta rounded-md shadow-sm";
+          } else if (link.textContent.trim().includes("Harga Jual")) {
+            link.className = "block px-3 py-2 text-xs font-medium text-slate-600 hover:text-terracotta rounded-md hover:bg-cream-200";
+          }
+        });
+      }
+    })();
+  </script>
+
+  <!-- BEGIN: PageTitleHeader -->
+  <section class="flex flex-col md:flex-row md:items-center md:justify-between gap-4" data-purpose="page-header">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Data PBF</h1>
+      <p class="text-xs text-slate-500 mt-1">Kelola informasi pemasok dan distributor obat (Pedagang Besar Farmasi) rekanan apotek.</p>
+    </div>
+    <!-- Top Action Buttons -->
+    <div class="flex items-center gap-3">
+      <button class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-cream-100 transition-colors shadow-xs" onclick="alert('Mengekspor data PBF (CSV/XLSX)...');" type="button">
+        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+          <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+        Export Data
+      </button>
+      <!-- UBAH Tag <a> Ini di datapbf.html -->
+<a href="/datamaster/tambahpbf" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#964334] hover:bg-[#80382B] text-white text-xs font-semibold rounded-lg shadow-sm hover:shadow transition-all duration-200 cursor-pointer">
+  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+  </svg>
+  <span>Tambah PBF Baru</span>
+</a>
+    </div>
+  </section>
+  <!-- END: PageTitleHeader -->
+
+  <!-- BEGIN: MetricCardsSummary -->
+  <section class="grid grid-cols-1 md:grid-cols-3 gap-5" data-purpose="summary-metrics-grid">
+    <!-- Card 1: Total Distributor Resmi -->
+    <div class="bg-white p-5 rounded-2xl border border-cream-300 shadow-xs flex items-center justify-between">
+      <div class="space-y-2">
+        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Total Distributor Resmi</span>
+        <div class="flex items-baseline gap-2.5">
+          <span class="text-3xl font-bold text-slate-900 tracking-tight">15</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-red-50 text-terracotta border border-terracotta/20">
+            PBF Terdaftar
+          </span>
+        </div>
+        <div class="flex items-center gap-1.5 text-xs text-slate-500 pt-0.5">
+          <svg class="w-3.5 h-3.5 text-terracotta" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+            <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <span>Izin CDOB Kemenkes Tervalidasi</span>
+        </div>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-terracotta-subtle border border-terracotta-border/40 text-terracotta flex items-center justify-center flex-shrink-0">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+          <path d="M8 17a2 2 0 100 4 2 2 0 000-4zm10 0a2 2 0 100 4 2 2 0 000-4zM3 4h11v13H3V4zm11 4h5l3 4v5h-8V8z" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Card 2: Status Operasional -->
+    <div class="bg-white p-5 rounded-2xl border border-cream-300 shadow-xs flex items-center justify-between">
+      <div class="space-y-2">
+        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Status Operasional</span>
+        <div class="flex items-baseline gap-2.5">
+          <span class="text-3xl font-bold text-slate-900 tracking-tight">13</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+            86.7% Aktif
+          </span>
+        </div>
+        <div class="flex items-center gap-1.5 text-xs text-slate-500 pt-0.5">
+          <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <span>Siap melayani PO &amp; penerimaan faktur</span>
+        </div>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Card 3: Distributor Nonaktif -->
+    <div class="bg-white p-5 rounded-2xl border border-cream-300 shadow-xs flex items-center justify-between">
+      <div class="space-y-2">
+        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Distributor Nonaktif</span>
+        <div class="flex items-baseline gap-2.5">
+          <span class="text-3xl font-bold text-slate-900 tracking-tight">2</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+            Menunggu review
+          </span>
+        </div>
+        <div class="flex items-center gap-1.5 text-xs text-slate-500 pt-0.5">
+          <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <span>Pengadaan sementara ditangguhkan</span>
+        </div>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+          <path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+    </div>
+  </section>
+  <!-- END: MetricCardsSummary -->
+
+  <!-- BEGIN: FilterAndSearchToolbar -->
+  <section class="bg-white p-3.5 rounded-xl border border-cream-300 shadow-xs flex flex-wrap items-center justify-between gap-3" data-purpose="table-filter-bar">
+    <div class="flex flex-1 items-center gap-3 min-w-[280px]">
+      <div class="relative flex-1 max-w-md">
+        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <input class="w-full pl-9 pr-8 py-2 text-xs bg-cream-50/50 border border-cream-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta" id="search-pbf" placeholder="Cari nama atau kode PBF..." type="text"/>
+        <button class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 hidden" id="clear-pbf-search" type="button">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+            <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="w-44">
+        <select class="w-full py-2 pl-3 pr-8 text-xs bg-white border border-cream-300 rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-terracotta/20 focus:border-terracotta" id="status-pbf-filter">
+          <option value="">Semua Status</option>
+          <option value="aktif">Aktif</option>
+          <option value="nonaktif">Nonaktif</option>
+        </select>
+      </div>
+    </div>
+    <button class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 hover:text-terracotta bg-cream-50 hover:bg-cream-200 border border-cream-300 rounded-lg transition-colors" onclick="resetFilterPBF()" type="button">
+      <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+        <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+      Reset Filter
+    </button>
+  </section>
+  <!-- END: FilterAndSearchToolbar -->
+
+  <!-- BEGIN: TableCardSection -->
+  <section class="bg-white rounded-2xl border border-cream-300 shadow-xs overflow-hidden" data-purpose="pbf-table-card">
+    <div class="px-6 py-4 bg-white border-b border-cream-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div class="flex items-center gap-2 text-slate-800 font-semibold text-sm">
+        <svg class="w-4 h-4 text-terracotta" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+          <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+        <span>Daftar Pedagang Besar Farmasi (PBF) Rekanan Resmi</span>
+      </div>
+      <span class="text-xs text-slate-500">
+        Diurutkan berdasarkan Kode PBF • Data Terkoneksi ke Modul Penerimaan Barang
+      </span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs border-collapse">
+        <thead>
+          <tr class="bg-cream-100 border-b border-cream-300 text-slate-700 font-semibold tracking-wider uppercase text-[11px]">
+            <th class="py-3.5 px-4 text-center w-12" scope="col">NO</th>
+            <th class="py-3.5 px-4 w-28" scope="col">KODE PBF</th>
+            <th class="py-3.5 px-5" scope="col">NAMA PBF</th>
+            <th class="py-3.5 px-4" scope="col">PENANGGUNG JAWAB</th>
+            <th class="py-3.5 px-4" scope="col">NO. TELEPON</th>
+            <th class="py-3.5 px-4" scope="col">EMAIL</th>
+            <th class="py-3.5 px-4 text-center" scope="col">STATUS</th>
+            <th class="py-3.5 px-4 text-center w-28" scope="col">AKSI</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-cream-200">
+          <!-- Row 1 -->
+          <tr class="hover:bg-cream-50/60 transition-colors">
+            <td class="py-4 px-4 text-center font-medium text-slate-500">1</td>
+            <td class="py-4 px-4">
+              <span class="inline-block px-2.5 py-1 font-mono text-[11px] font-semibold text-terracotta bg-terracotta-subtle border border-terracotta-border/50 rounded-md">PBF-001</span>
+            </td>
+            <td class="py-4 px-5">
+              <div class="font-bold text-slate-900 text-sm">PT Kimia Farma Trading &amp; Distribution</div>
+              <div class="text-[11px] text-slate-500 mt-0.5 line-clamp-1">Jl. Budi Utomo No. 1, Pasar Baru, Jakarta Pusat</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px] flex items-center justify-center border border-amber-200">A</span>
+                <span class="font-medium text-slate-800">Andi</span>
+              </div>
+            </td>
+            <td class="py-4 px-4 font-mono text-slate-600">081234567890</td>
+            <td class="py-4 px-4 text-slate-600 hover:text-terracotta">andi@kimiafarma.co.id</td>
+            <td class="py-4 px-4 text-center">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif
+              </span>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-center justify-center gap-1.5">
+                <button class="p-1.5 rounded-lg border border-cream-300 text-slate-500 hover:text-terracotta hover:bg-cream-100 transition-colors" title="Detail PBF" type="button">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+                <button class="p-1.5 rounded-lg border border-cream-300 text-slate-500 hover:text-terracotta hover:bg-cream-100 transition-colors" title="Ubah Data" type="button">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+                <button class="p-1.5 rounded-lg border border-cream-300 text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors" title="Hapus Data" type="button">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 2 -->
+          <tr class="hover:bg-cream-50/60 transition-colors">
+            <td class="py-4 px-4 text-center font-medium text-slate-500">2</td>
+            <td class="py-4 px-4">
+              <span class="inline-block px-2.5 py-1 font-mono text-[11px] font-semibold text-terracotta bg-terracotta-subtle border border-terracotta-border/50 rounded-md">PBF-002</span>
+            </td>
+            <td class="py-4 px-5">
+              <div class="font-bold text-slate-900 text-sm">PT Anugrah Argon Medica</div>
+              <div class="text-[11px] text-slate-500 mt-0.5 line-clamp-1">Titan Center Lt. 3, Jl. Boulevard Bintaro, Tangerang Selatan</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-orange-100 text-orange-800 font-bold text-[10px] flex items-center justify-center border border-orange-200">B</span>
+                <span class="font-medium text-slate-800">Budi</span>
+              </div>
+            </td>
+            <td class="py-4 px-4 font-mono text-slate-600">081234567891</td>
+            <td class="py-4 px-4 text-slate-600 hover:text-terracotta">budi@aam.co.id</td>
+            <td class="py-4 px-4 text-center">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif
+              </span>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-center justify-center gap-1.5">
+                <button class="p-1.5 rounded-lg border border-cream-300 text-slate-500 hover:text-terracotta hover:bg-cream-100 transition-colors" title="Detail PBF" type="button">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+                <button class="p-1.5 rounded-lg border border-cream-300 text-slate-500 hover:text-terracotta hover:bg-cream-100 transition-colors" title="Ubah Data" type="button">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+                <button class="p-1.5 rounded-lg border border-cream-300 text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors" title="Hapus Data" type="button">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 3 -->
+          <tr class="hover:bg-cream-50/60 transition-colors">
+            <td class="py-4 px-4 text-center font-medium text-slate-500">3</td>
+            <td class="py-4 px-4">
+              <span class="inline-block px-2.5 py-1 font-mono text-[11px] font-semibold text-terracotta bg-terracotta-subtle border border-terracotta-border/50 rounded-md">PBF-003</span>
+            </td>
+            <td class="py-4 px-5">
+              <div class="font-bold text-slate-900 text-sm">PT Enseval Putera Megatrading</div>
+              <div class="text-[11px] text-slate-500 mt-0.5 line-clamp-1">Kawasan Industri Pulo Gadung, Jl. Rawa Gelam IV No. 2, Jakarta Timur</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px] flex items-center justify-center border border-emerald-200">C</span>
+                <span class="font-medium text-slate-800">Citra</span>
+              </div>
+            </td>
+            <td class="py-4 px-4 font-mono text-slate-600">081234567892</td>
+            <td class="py-4 px-4 text-slate-600 hover:text-terracotta">citra@enseval.co.id</td>
+            <td class="py-4 px-4 text-center">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif
+              </span>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-center justify-center gap-1.5">
+                <button class="p-1.5 rounded-lg border border-cream-300 text-slate-500 hover:text-terracotta hover:bg-cream-100 transition-colors" title="Detail PBF" type="button">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+                <button class="p-1.5 rounded-lg border border-cream-300 text-slate-500 hover:text-terracotta hover:bg-cream-100 transition-colors" title="Ubah Data" type="button">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+                <button class="p-1.5 rounded-lg border border-cream-300 text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors" title="Hapus Data" type="button">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 4 -->
+          <tr class="hover:bg-cream-50/60 transition-colors">
+            <td class="py-4 px-4 text-center font-medium text-slate-500">4</td>
+            <td class="py-4 px-4">
+              <span class="inline-block px-2.5 py-1 font-mono text-[11px] font-semibold text-terracotta bg-terracotta-subtle border border-terracotta-border/50 rounded-md">PBF-004</span>
+            </td>
+            <td class="py-4 px-5">
+              <div class="font-bold text-slate-900 text-sm">PT Mensa Binasukses</div>
+              <div class="text-[11px] text-slate-500 mt-0.5 line-clamp-1">Gedung Mensa 2, Jl. HR. Rasuna Said Kav. B-34, Jakarta Selatan</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-800 font-bold text-[10px] flex items-center justify-center border border-blue-200">D</span>
+                <span class="font-medium text-slate-800">Dedi</span>
+              </div>
+            </td>
+            <td class="py-4 px-4 font-mono text-slate-600">081234567893</td>
+            <td class="py-4 px-4 text-slate-600 hover:text-terracotta">dedi@mbs.co.id</td>
+            <td class="py-4 px-4 text-center">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-red-50 text-red-700 border border-red-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Nonaktif
+              </span>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-center justify-center gap-1.5">
+                <button class="p-1.5 rounded-lg border border-cream-300 text-slate-500 hover:text-terracotta hover:bg-cream-100 transition-colors" title="Detail PBF" type="button">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+                <button class="p-1.5 rounded-lg border border-cream-300 text-slate-500 hover:text-terracotta hover:bg-cream-100 transition-colors" title="Ubah Data" type="button">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+                <button class="p-1.5 rounded-lg border border-cream-300 text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors" title="Hapus Data" type="button">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 5 -->
+          <tr class="hover:bg-cream-50/60 transition-colors">
+            <td class="py-4 px-4 text-center font-medium text-slate-500">5</td>
+            <td class="py-4 px-4">
+              <span class="inline-block px-2.5 py-1 font-mono text-[11px] font-semibold text-terracotta bg-terracotta-subtle border border-terracotta-border/50 rounded-md">PBF-005</span>
+            </td>
+            <td class="py-4 px-5">
+              <div class="font-bold text-slate-900 text-sm">PT Dos Ni Roha</div>
+              <div class="text-[11px] text-slate-500 mt-0.5 line-clamp-1">DNR Building, Jl. Raden Inten II No. 8, Duren Sawit, Jakarta Timur</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-800 font-bold text-[10px] flex items-center justify-center border border-purple-200">E</span>
+                <span class="font-medium text-slate-800">Eka</span>
+              </div>
+            </td>
+            <td class="py-4 px-4 font-mono text-slate-600">081234567894</td>
+            <td class="py-4 px-4 text-slate-600 hover:text-terracotta">eka@dnr.co.id</td>
+            <td class="py-4 px-4 text-center">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif
+              </span>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-center justify-center gap-1.5">
+                <button class="p-1.5 rounded-lg border border-cream-300 text-slate-500 hover:text-terracotta hover:bg-cream-100 transition-colors" title="Detail PBF" type="button">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+                <button class="p-1.5 rounded-lg border border-cream-300 text-slate-500 hover:text-terracotta hover:bg-cream-100 transition-colors" title="Ubah Data" type="button">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+                <button class="p-1.5 rounded-lg border border-cream-300 text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors" title="Hapus Data" type="button">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Table Pagination Footer -->
+    <div class="px-6 py-4 bg-cream-50/50 border-t border-cream-200 flex flex-col sm:flex-row items-center justify-between gap-4" data-purpose="table-pagination-footer">
+      <span class="text-xs text-slate-500">
+        Menampilkan <strong class="text-slate-800">1 – 5</strong> dari <strong class="text-slate-800">15</strong> data Pedagang Besar Farmasi
+      </span>
+      <div class="flex items-center gap-1.5">
+        <button class="px-3 py-1.5 text-xs font-medium text-slate-500 bg-white border border-cream-300 rounded-lg hover:bg-cream-100 disabled:opacity-40" disabled="" type="button">Sebelumnya</button>
+        <button class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold text-white bg-terracotta shadow-xs" type="button">1</button>
+        <button class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-medium text-slate-700 bg-white border border-cream-300 hover:bg-cream-100 transition-colors" type="button">2</button>
+        <button class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-medium text-slate-700 bg-white border border-cream-300 hover:bg-cream-100 transition-colors" type="button">3</button>
+        <button class="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-cream-300 rounded-lg hover:bg-cream-100 transition-colors" type="button">Selanjutnya</button>
+      </div>
+    </div>
+  </section>
+  <!-- END: TableCardSection -->
+
+  <!-- BEGIN: ComplianceBanner -->
+  <aside class="bg-[#FFF9F5] border border-terracotta-border/80 rounded-2xl p-5 flex items-start gap-4" data-purpose="regulatory-banner">
+    <div class="w-10 h-10 rounded-xl bg-terracotta-subtle border border-terracotta-border flex-shrink-0 flex items-center justify-center text-terracotta mt-0.5">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+        <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </div>
+    <div class="space-y-1">
+      <h4 class="text-xs font-bold text-slate-900 leading-snug">
+        Ketentuan Pengadaan Barang Apotek Sumber Waras (CDOB Compliance)
+      </h4>
+      <p class="text-xs text-slate-600 leading-relaxed">
+        PBF terdaftar wajib memiliki nomor izin PBF resmi dari Kemenkes RI yang masih berlaku. Seluruh pengadaan faktur obat keras &amp; prekursor hanya dapat dialokasikan ke distributor dengan status <strong class="text-slate-800">Aktif</strong>.
+      </p>
+    </div>
+  </aside>
+  <!-- END: ComplianceBanner -->
+</main>
+
+<script>
+  function resetFilterPBF() {
+    const searchInput = document.getElementById('search-pbf');
+    const clearBtn = document.getElementById('clear-pbf-search');
+    const statusFilter = document.getElementById('status-pbf-filter');
+    
+    if (searchInput) searchInput.value = '';
+    if (clearBtn) clearBtn.classList.add('hidden');
+    if (statusFilter) statusFilter.selectedIndex = 0;
+
+    document.querySelectorAll('tbody tr').forEach(row => {
+      row.style.display = '';
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('search-pbf');
+    const clearBtn = document.getElementById('clear-pbf-search');
+    const statusFilter = document.getElementById('status-pbf-filter');
+    const tableRows = document.querySelectorAll('tbody tr');
+
+    function filterTable() {
+      const searchVal = searchInput ? searchInput.value.toLowerCase().trim() : '';
+      const statusVal = statusFilter ? statusFilter.value.toLowerCase().trim() : '';
+
+      tableRows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const matchesSearch = text.includes(searchVal);
+        const matchesStatus = statusVal === '' || text.includes(statusVal);
+
+        row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+      });
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        if (e.target.value.length > 0) {
+          clearBtn?.classList.remove('hidden');
+        } else {
+          clearBtn?.classList.add('hidden');
+        }
+        filterTable();
+      });
+    }
+
+    if (statusFilter) {
+      statusFilter.addEventListener('change', filterTable);
+    }
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        if (searchInput) searchInput.value = '';
+        clearBtn.classList.add('hidden');
+        filterTable();
+      });
+    }
+  });
+</script>
+{{ end }}
