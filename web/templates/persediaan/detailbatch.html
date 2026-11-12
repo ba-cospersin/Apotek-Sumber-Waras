@@ -1,0 +1,413 @@
+{{ define "content" }}
+<!-- Konten Utama Tanpa Sidebar & Header (Siap untuk Go Template) -->
+<main class="w-full max-w-[1720px] mx-auto p-6 md:p-8 lg:p-10 space-y-6 bg-[#F8F6F2] text-[#2D2926]">
+
+  <!-- Baris Navigasi & Judul Halaman -->
+  <header class="space-y-4">
+    <!-- Navigasi Atas: Tombol Kembali & Breadcrumb -->
+    <div class="flex flex-wrap items-center gap-4">
+      <a href="/persediaan/stock-batch" class="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-neutral-50 border border-[#ECE7E1] rounded-full text-xs md:text-sm font-semibold text-[#443E38] shadow-sm hover:border-[#DCD5CB] transition-all">
+        <svg class="w-4 h-4 text-[#766F66]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Kembali ke Daftar
+      </a>
+
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-xs md:text-sm text-[#766F66] font-medium" aria-label="Breadcrumb">
+        <a href="/dashboard" class="hover:text-neutral-900 transition-colors">Beranda</a>
+        <span class="text-neutral-400">›</span>
+        <span>Persediaan</span>
+        <span class="text-neutral-400">›</span>
+        <a href="/persediaan/stock-batch" class="hover:text-neutral-900 transition-colors">Stok per Batch</a>
+        <span class="text-neutral-400">›</span>
+        <span class="text-[#964334] font-semibold">Detail Batch</span>
+      </nav>
+    </div>
+
+    <!-- Judul Utama, Badge Status & Badge Mode Baca Audit -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-1">
+      <div class="space-y-1.5">
+        <div class="flex flex-wrap items-center gap-3">
+          <h1 id="detailHeadingBatch" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#1E1B18]">
+            Rincian Batch: AMX240801
+          </h1>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#EBF7EE] text-[#1E824C] border border-[#C5E8CE]">
+            <span class="w-2 h-2 rounded-full bg-[#27AE60] animate-pulse"></span>
+            Stok Aman
+          </span>
+        </div>
+        <p class="text-xs sm:text-sm text-[#766F66] flex flex-wrap items-center gap-2">
+          <span>ID Batch Terdaftar: <strong id="detailRegId" class="font-mono text-[#38332E]">BTC-2026-AMX-001</strong></span>
+          <span class="hidden sm:inline text-neutral-300">•</span>
+          <span>Terakhir Diperbarui: <span class="font-medium text-[#38332E]">Hari Ini, 09:15 WIB</span></span>
+        </p>
+      </div>
+
+      <!-- Mode Baca / Arsip Audit Sah (Non-Interaktif Sesuai Regulasi) -->
+      <div class="self-start md:self-auto inline-flex items-center gap-2.5 px-4 py-2.5 bg-[#EAE6DF] border border-[#DDD7CD] rounded-xl text-xs font-bold text-[#4F4941] shadow-xs">
+        <svg class="w-4 h-4 text-[#766F66]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+        </svg>
+        <span class="tracking-wide">MODE BACA / ARSIP AUDIT SAH</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Grid 3 Kartu Informasi Sejajar (Kartu A, Kartu B, Kartu C) -->
+  <section class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+    <!-- KARTU A: Identitas Obat & Sediaan -->
+    <article class="bg-white rounded-2xl border border-[#ECE7E1] p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+      <div class="space-y-5">
+        <!-- Header Kartu A -->
+        <div class="flex items-start gap-3.5 pb-4 border-b border-[#F4EFEA]">
+          <div class="w-8 h-8 rounded-full bg-[#FBF0EE] border border-[#E8C5BD] text-[#964334] font-extrabold flex items-center justify-center text-sm shrink-0">
+            A
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-[#1E1B18] tracking-tight">Identitas Obat &amp; Sediaan</h2>
+            <p class="text-xs text-[#766F66]">Informasi master katalog farmasi terdaftar</p>
+          </div>
+        </div>
+
+        <!-- Nama Obat -->
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-[#8A8279]">Nama Obat</span>
+          <p id="detailDrugName" class="text-xl font-extrabold text-[#1E1B18] leading-tight mt-0.5">
+            Amoxicillin Trihydrate 500 mg
+          </p>
+        </div>
+
+        <!-- Dua Kolom: Kode SKU & Bentuk Sediaan -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <div class="bg-[#FAF8F5] p-3 rounded-xl border border-[#F0EBE4]">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#8A8279] block">Kode Obat (SKU)</span>
+            <span id="detailSkuCode" class="font-mono text-xs font-bold text-[#1E1B18] bg-white px-2 py-0.5 mt-1 inline-block rounded border border-[#E5DFD6]">
+              MED-AMX-12
+            </span>
+          </div>
+          <div class="bg-[#FAF8F5] p-3 rounded-xl border border-[#F0EBE4]">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#8A8279] block">Bentuk Sediaan</span>
+            <span id="detailDosageForm" class="text-xs font-semibold text-[#1E1B18] mt-1 block">
+              Kapsul (10 blister @ 10 kapsul / Box)
+            </span>
+          </div>
+        </div>
+
+        <!-- Kategori Regulasi BPOM -->
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-[#8A8279] block mb-1.5">Kategori Regulasi BPOM</span>
+          <span id="detailBpomBadge" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#FDF2F2] text-[#C53030] border border-[#F8D7DA]">
+            <span class="w-2 h-2 rounded-full bg-[#E53E3E]"></span>
+            Antibiotik Keras (Obat Keras - Lingkaran Merah K)
+          </span>
+        </div>
+
+        <!-- Pabrikan & Golongan -->
+        <div class="space-y-3 pt-2 text-xs border-t border-[#F4EFEA]">
+          <div class="flex items-center justify-between">
+            <span class="text-[#8A8279]">Pabrikan / Principal:</span>
+            <span id="detailManufacturer" class="font-bold text-[#1E1B18]">PT Kimia Farma Tbk</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-[#8A8279]">Golongan Farmasi:</span>
+            <span id="detailPharmacology" class="font-medium text-[#2E2925]">Oral Anti-Infeksi / Penicillin Derivatif</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- KARTU B: Jejak Penerimaan PBF -->
+    <article class="bg-white rounded-2xl border border-[#ECE7E1] p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+      <div class="space-y-5">
+        <!-- Header Kartu B -->
+        <div class="flex items-start gap-3.5 pb-4 border-b border-[#F4EFEA]">
+          <div class="w-8 h-8 rounded-full bg-[#FBF0EE] border border-[#E8C5BD] text-[#964334] font-extrabold flex items-center justify-center text-sm shrink-0">
+            B
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-[#1E1B18] tracking-tight">Jejak Penerimaan PBF</h2>
+            <p class="text-xs text-[#766F66]">Riwayat pasokan faktur dan kalkulasi harga</p>
+          </div>
+        </div>
+
+        <!-- PBF Penyuplai -->
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-[#8A8279]">Nama PBF Penyuplai</span>
+          <p id="detailPbfName" class="text-base font-bold text-[#964334] leading-snug mt-0.5">
+            PT Kimia Farma Trading &amp; Distribution <span class="text-xs font-semibold text-[#544D45]">(Semarang Barat)</span>
+          </p>
+        </div>
+
+        <!-- Dua Kolom: Faktur & SP -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <div class="bg-[#FAF8F5] p-3 rounded-xl border border-[#F0EBE4]">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#8A8279] block">Nomor Faktur Masuk</span>
+            <span id="detailInvoiceNo" class="font-mono text-xs font-bold text-[#964334] mt-1 block">
+              INV/KF/2026/0415
+            </span>
+          </div>
+          <div class="bg-[#FAF8F5] p-3 rounded-xl border border-[#F0EBE4]">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#8A8279] block">Nomor Surat Pesanan (SP)</span>
+            <span class="font-mono text-xs font-semibold text-[#1E1B18] mt-1 block">
+              SP-APT/2026/01-089
+            </span>
+          </div>
+        </div>
+
+        <!-- Tanggal Masuk Gudang -->
+        <div class="bg-[#FAF8F5] px-3.5 py-2.5 rounded-xl border border-[#F0EBE4] flex items-center justify-between">
+          <span class="text-xs text-[#8A8279]">Tanggal Masuk Gudang:</span>
+          <span class="text-xs font-bold text-[#1E1B18]">12 Januari 2026 (10:15 WIB)</span>
+        </div>
+
+        <!-- Dua Kolom Harga -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-[#F4EFEA]">
+          <div class="p-3 bg-[#FAF8F5] rounded-xl border border-[#ECE7E1]">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#8A8279] block">Harga Beli (HNA + PPN)</span>
+            <p id="detailBuyPrice" class="text-sm font-bold text-[#2D2926] mt-0.5">Rp 65.000 <span class="text-[11px] font-normal text-[#766F66]">/ Box</span></p>
+          </div>
+          <div class="p-3 bg-[#FBF0EE] rounded-xl border border-[#E8C5BD]">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#964334] block">Harga Jual (HJA Apotek)</span>
+            <p id="detailSellPrice" class="text-sm font-extrabold text-[#964334] mt-0.5">Rp 85.000 <span class="text-[10px] font-semibold text-[#27AE60] bg-[#EBF7EE] px-1.5 py-0.5 rounded ml-0.5">(Margin 30,7%)</span></p>
+          </div>
+        </div>
+
+        <!-- Petugas Penerima -->
+        <div class="pt-2 text-xs flex items-center justify-between border-t border-[#F4EFEA]">
+          <span class="text-[#8A8279]">Petugas Penerima (APA):</span>
+          <span class="font-bold text-[#1E1B18]">apt. Farhan Wicaksono, S.Farm (APA)</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- KARTU C: Status Penyimpanan & Stok -->
+    <article class="bg-white rounded-2xl border border-[#ECE7E1] p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+      <div class="space-y-4">
+        <!-- Header Kartu C -->
+        <div class="flex items-start gap-3.5 pb-4 border-b border-[#F4EFEA]">
+          <div class="w-8 h-8 rounded-full bg-[#FBF0EE] border border-[#E8C5BD] text-[#964334] font-extrabold flex items-center justify-center text-sm shrink-0">
+            C
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-[#1E1B18] tracking-tight">Status Penyimpanan &amp; Stok</h2>
+            <p class="text-xs text-[#766F66]">Lokasi rak fisik dan sisa stok aktif</p>
+          </div>
+        </div>
+
+        <!-- Dua Kolom: Lokasi Rak & Tanggal ED -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="bg-[#FAF8F5] p-3 rounded-xl border border-[#F0EBE4]">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#8A8279] block">Lokasi Rak / Lemari</span>
+            <p id="detailRackLocation" class="text-xs font-bold text-[#1E1B18] mt-1">Rak A2, Susun 3</p>
+            <p class="text-[10px] text-[#766F66] mt-0.5">Suhu Terkontrol 20°C - 25°C</p>
+          </div>
+          <div class="bg-[#FAF8F5] p-3 rounded-xl border border-[#F0EBE4]">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#8A8279] block">Tgl Kedaluwarsa (ED)</span>
+            <span id="detailExpDate" class="inline-flex items-center gap-1 text-xs font-bold text-[#1E824C] bg-[#EBF7EE] px-2 py-0.5 rounded mt-1 border border-[#C5E8CE]">
+              18 Juni 2027
+            </span>
+            <p class="text-[10px] text-[#27AE60] font-medium mt-1">Masa Simpan &gt; 14 Bulan (Aman)</p>
+          </div>
+        </div>
+
+        <!-- Kotak Sorotan Tengah: Sisa Stok Fisik Aktual -->
+        <div class="bg-gradient-to-br from-[#FAF8F5] to-[#F5EFEB] p-4 rounded-xl border border-[#E8DFD5] text-center space-y-1">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-[#8A8279] block">
+            Sisa Stok Fisik Aktual
+          </span>
+          <div id="detailStockBig" class="text-4xl font-extrabold text-[#964334] tracking-tight">
+            145 <span class="text-lg font-bold text-[#443E38]">Box</span>
+          </div>
+          <p id="detailStockSub" class="text-xs text-[#766F66] font-medium">
+            Setara dengan <strong class="text-[#2D2926]">1.450 Kapsul</strong> aktif siap jual
+          </p>
+          <div class="pt-2 border-t border-[#E8DFD5] mt-2 flex flex-wrap justify-center gap-3 text-[11px] text-[#615A51]">
+            <span>Tersedia: <strong id="detailStockAvail" class="text-[#1E824C]">145 Box</strong></span>
+            <span class="text-neutral-300">|</span>
+            <span>Karantina: <strong class="text-[#443E38]">0 Box</strong></span>
+            <span class="text-neutral-300">|</span>
+            <span>Dipesan: <strong class="text-[#443E38]">0 Box</strong></span>
+          </div>
+        </div>
+
+        <!-- Catatan Hijau Persediaan Konsumsi -->
+        <div class="p-3 bg-[#EBF7EE] rounded-xl border border-[#C5E8CE] flex items-center gap-2.5">
+          <svg class="w-4 h-4 text-[#27AE60] shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          <p class="text-xs font-semibold text-[#1E824C] leading-tight">
+            Persediaan mencukupi proyeksi konsumsi apotek 45 hari ke depan.
+          </p>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- Tabel Riwayat Pergerakan Kartu Stok Batch (Full Width Card) -->
+  <section class="bg-white rounded-2xl border border-[#ECE7E1] shadow-sm overflow-hidden">
+    <!-- Header Tabel -->
+    <div class="p-5 sm:p-6 border-b border-[#ECE7E1] flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white">
+      <div>
+        <h3 id="detailTableTitle" class="text-base sm:text-lg font-bold text-[#1E1B18] tracking-tight">
+          Riwayat Pergerakan Kartu Stok Batch AMX240801
+        </h3>
+        <p class="text-xs text-[#766F66] mt-0.5">
+          Log mutasi masuk dan keluar terintegrasi secara otomatis dengan faktur PBF serta transaksi POS kasir
+        </p>
+      </div>
+      <span class="text-xs font-semibold text-[#766F66] bg-[#FAF8F5] px-3 py-1.5 rounded-lg border border-[#ECE7E1] self-start sm:self-auto">
+        Menampilkan 4 mutasi terakhir secara kronologis
+      </span>
+    </div>
+
+    <!-- Wrapper Tabel Responsif -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-[#FAF8F5] border-b border-[#ECE7E1] text-[11px] font-bold uppercase tracking-wider text-[#766F66]">
+            <th scope="col" class="py-3.5 px-5">Tanggal</th>
+            <th scope="col" class="py-3.5 px-5">Jenis Transaksi</th>
+            <th scope="col" class="py-3.5 px-5">Referensi Dokumen</th>
+            <th scope="col" class="py-3.5 px-5 text-right">Masuk</th>
+            <th scope="col" class="py-3.5 px-5 text-right">Keluar</th>
+            <th scope="col" class="py-3.5 px-5 text-right">Saldo Akhir</th>
+            <th scope="col" class="py-3.5 px-5">Petugas / Catatan</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#F4EFEA] text-xs font-medium text-[#2E2925]">
+          <!-- Baris 1: Penerimaan Barang PBF -->
+          <tr class="hover:bg-[#FAF8F5] transition-colors">
+            <td class="py-4 px-5 whitespace-nowrap text-[#1E1B18] font-semibold">12 Jan 2026</td>
+            <td class="py-4 px-5 whitespace-nowrap font-bold text-[#1E1B18]">Penerimaan Barang PBF</td>
+            <td class="py-4 px-5 whitespace-nowrap">
+              <span class="font-mono font-bold text-[#964334] bg-[#FBF0EE] px-2 py-0.5 rounded border border-[#E8C5BD]">
+                INV/KF/2026/0415
+              </span>
+            </td>
+            <td class="py-4 px-5 whitespace-nowrap text-right font-extrabold text-[#1E824C]">+200 Box</td>
+            <td class="py-4 px-5 whitespace-nowrap text-right text-neutral-400 font-mono">-</td>
+            <td class="py-4 px-5 whitespace-nowrap text-right font-extrabold text-[#1E1B18]">200 Box</td>
+            <td class="py-4 px-5 whitespace-nowrap text-[#615A51]">
+              Farhan W. <span class="text-neutral-400">(Faktur Baru)</span>
+            </td>
+          </tr>
+
+          <!-- Baris 2: Penjualan Kasir (Resep Dokter) -->
+          <tr class="hover:bg-[#FAF8F5] transition-colors">
+            <td class="py-4 px-5 whitespace-nowrap text-[#1E1B18] font-semibold">18 Jan 2026</td>
+            <td class="py-4 px-5 whitespace-nowrap text-[#443E38]">Penjualan Kasir (Resep Dokter)</td>
+            <td class="py-4 px-5 whitespace-nowrap font-mono text-[#544D45]">TRX-POS-2026-0881</td>
+            <td class="py-4 px-5 whitespace-nowrap text-right text-neutral-400 font-mono">-</td>
+            <td class="py-4 px-5 whitespace-nowrap text-right font-extrabold text-[#C53030]">20 Box</td>
+            <td class="py-4 px-5 whitespace-nowrap text-right font-extrabold text-[#1E1B18]">180 Box</td>
+            <td class="py-4 px-5 whitespace-nowrap text-[#615A51]">Kasir 1</td>
+          </tr>
+
+          <!-- Baris 3: Penjualan Kasir Umum -->
+          <tr class="hover:bg-[#FAF8F5] transition-colors">
+            <td class="py-4 px-5 whitespace-nowrap text-[#1E1B18] font-semibold">02 Feb 2026</td>
+            <td class="py-4 px-5 whitespace-nowrap text-[#443E38]">Penjualan Kasir Umum</td>
+            <td class="py-4 px-5 whitespace-nowrap font-mono text-[#544D45]">TRX-POS-2026-1402</td>
+            <td class="py-4 px-5 whitespace-nowrap text-right text-neutral-400 font-mono">-</td>
+            <td class="py-4 px-5 whitespace-nowrap text-right font-extrabold text-[#C53030]">15 Box</td>
+            <td class="py-4 px-5 whitespace-nowrap text-right font-extrabold text-[#1E1B18]">165 Box</td>
+            <td class="py-4 px-5 whitespace-nowrap text-[#615A51]">Kasir 2</td>
+          </tr>
+
+          <!-- Baris 4: Penjualan Kasir (Resep) -->
+          <tr class="hover:bg-[#FAF8F5] transition-colors bg-[#FFFCFA]">
+            <td class="py-4 px-5 whitespace-nowrap text-[#1E1B18] font-semibold">20 Feb 2026</td>
+            <td class="py-4 px-5 whitespace-nowrap text-[#443E38]">Penjualan Kasir (Resep)</td>
+            <td class="py-4 px-5 whitespace-nowrap font-mono text-[#544D45]">TRX-POS-2026-2109</td>
+            <td class="py-4 px-5 whitespace-nowrap text-right text-neutral-400 font-mono">-</td>
+            <td class="py-4 px-5 whitespace-nowrap text-right font-extrabold text-[#C53030]">20 Box</td>
+            <td class="py-4 px-5 whitespace-nowrap text-right font-extrabold text-[#964334]">145 Box</td>
+            <td class="py-4 px-5 whitespace-nowrap text-[#615A51]">Kasir 1</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Footer Status Sinkronisasi -->
+  <footer class="pt-4 pb-2 border-t border-[#ECE7E1] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#766F66]">
+    <div class="flex items-center gap-2">
+      <span class="w-2.5 h-2.5 rounded-full bg-[#27AE60] ring-4 ring-[#EBF7EE]"></span>
+      <span>
+        Batch ID <strong id="detailFooterBatch" class="text-[#2D2926] font-mono">AMX240801</strong> sinkron dengan <span class="font-medium text-[#443E38]">Sistem Pelaporan BPOM &amp; CDOB Apotek Sumber Waras</span>
+      </span>
+    </div>
+    <div class="text-[11px] font-semibold text-[#8A8279] tracking-wider uppercase">
+      Apotek Sumber Waras • SIM Farmasi Terintegrasi
+    </div>
+  </footer>
+
+  <!-- Script Sinkronisasi Data Batch dari Query String (?batch=...) -->
+  <script>
+    (function() {
+      const batchDatabase = {
+        'PCT241005': {
+          regId: 'BTC-2026-PCT-002',
+          name: 'Paracetamol Drop 15ml',
+          sku: 'MED-PCM-01',
+          form: 'Sirup Drop (Botol 15 ml + Pipet)',
+          bpom: 'Obat Bebas (Lingkaran Hijau)',
+          mfg: 'PT Sanbe Farma',
+          pharm: 'Analgesik & Antipiretik Anak',
+          pbf: 'PT Enseval Putera Megatrading Tbk',
+          inv: 'INV/ENS/2026/0882',
+          rack: 'Rak B1, Susun 1',
+          exp: '12 Januari 2028',
+          stockNum: '320',
+          stockUnit: 'Botol',
+          stockSub: 'Setara dengan <strong>32 Karton Segel</strong> aktif siap jual'
+        },
+        'CT2240914': {
+          regId: 'BTC-2026-CTZ-003',
+          name: 'Cetirizine 10mg',
+          sku: 'MED-CTZ-08',
+          form: 'Tablet Salut Selaput (Strip @ 10 Tablet)',
+          bpom: 'Obat Keras (Lingkaran Merah K)',
+          mfg: 'PT Kalbe Farma Tbk',
+          pharm: 'Antihistamin Generasi Kedua',
+          pbf: 'PT Kebayoran Pharma',
+          inv: 'INV/KBY/2026/0519',
+          rack: 'Rak A1, Susun 2',
+          exp: '04 Agustus 2027',
+          stockNum: '85',
+          stockUnit: 'Strip',
+          stockSub: 'Setara dengan <strong>850 Tablet Salut</strong> aktif siap jual'
+        }
+      };
+
+      const params = new URLSearchParams(window.location.search);
+      const batchCode = params.get('batch');
+      if (batchCode) {
+        document.getElementById('detailHeadingBatch').innerText = 'Rincian Batch: ' + batchCode;
+        document.getElementById('detailTableTitle').innerText = 'Riwayat Pergerakan Kartu Stok Batch ' + batchCode;
+        document.getElementById('detailFooterBatch').innerText = batchCode;
+
+        const data = batchDatabase[batchCode];
+        if (data) {
+          document.getElementById('detailRegId').innerText = data.regId;
+          document.getElementById('detailDrugName').innerText = data.name;
+          document.getElementById('detailSkuCode').innerText = data.sku;
+          document.getElementById('detailDosageForm').innerText = data.form;
+          document.getElementById('detailManufacturer').innerText = data.mfg;
+          document.getElementById('detailPharmacology').innerText = data.pharm;
+          document.getElementById('detailPbfName').innerText = data.pbf;
+          document.getElementById('detailInvoiceNo').innerText = data.inv;
+          document.getElementById('detailRackLocation').innerText = data.rack;
+          document.getElementById('detailExpDate').innerText = data.exp;
+          document.getElementById('detailStockBig').innerHTML = `${data.stockNum} <span class="text-lg font-bold text-[#443E38]">${data.stockUnit}</span>`;
+          document.getElementById('detailStockSub').innerHTML = data.stockSub;
+          document.getElementById('detailStockAvail').innerText = `${data.stockNum} ${data.stockUnit}`;
+        }
+      }
+    })();
+  </script>
+</main>
+{{ end }}

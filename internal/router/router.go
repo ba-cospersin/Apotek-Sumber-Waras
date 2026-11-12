@@ -236,22 +236,34 @@ func New(db *sql.DB) *http.ServeMux {
 		}
 	})
 
-	mux.HandleFunc("/persediaan/stock", func(w http.ResponseWriter, r *http.Request) {
+	// Halaman Utama: Katalog & Stok per Batch Aktif
+	mux.HandleFunc("/persediaan/stock-batch", func(w http.ResponseWriter, r *http.Request) {
 		tmpl, err := template.ParseFiles(
 			"web/templates/layouts/base.html",
 			"web/templates/partials/sidebar.html",
-			"web/templates/partials/header.html",
 			"web/templates/persediaan/stock.html",
 		)
-
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		if err := tmpl.ExecuteTemplate(w, "base.html", nil); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	})
 
-		// Mengeksekusi template dengan base.html sebagai kerangka utamanya
-		err = tmpl.ExecuteTemplate(w, "base.html", nil)
+	// Halaman Detail: Rincian Batch (Mode Read-Only)
+	mux.HandleFunc("/persediaan/stock-batch/detail", func(w http.ResponseWriter, r *http.Request) {
+		tmpl, err := template.ParseFiles(
+			"web/templates/layouts/base.html",
+			"web/templates/partials/sidebar.html",
+			"web/templates/persediaan/detailbatch.html",
+		)
 		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if err := tmpl.ExecuteTemplate(w, "base.html", nil); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	})
@@ -304,6 +316,21 @@ func New(db *sql.DB) *http.ServeMux {
 			return
 		}
 
+		if err := tmpl.ExecuteTemplate(w, "base.html", nil); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	})
+
+	mux.HandleFunc("/persediaan/audit/form", func(w http.ResponseWriter, r *http.Request) {
+		tmpl, err := template.ParseFiles(
+			"web/templates/layouts/base.html",
+			"web/templates/partials/sidebar.html",
+			"web/templates/persediaan/form_audit.html",
+		)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		if err := tmpl.ExecuteTemplate(w, "base.html", nil); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}

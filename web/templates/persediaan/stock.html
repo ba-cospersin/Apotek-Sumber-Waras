@@ -88,7 +88,7 @@
           </p>
         </div>
       </div>
-      <button class="text-xs font-bold text-red-600 hover:text-white bg-red-50 hover:bg-red-600 border border-red-200 hover:border-red-600 px-3.5 py-2 rounded-xl transition duration-150 uppercase tracking-wider shrink-0 ml-2" onclick="openRestockModal('Antasida Doen Suspensi', 'ATD240322', '8 Botol')">
+      <button class="text-xs font-bold text-red-600 hover:text-white bg-red-50 hover:bg-red-600 border border-red-200 hover:border-red-600 px-3.5 py-2 rounded-xl transition duration-150 uppercase tracking-wider shrink-0 ml-2 cursor-pointer" onclick="openRestockModal('Antasida Doen Suspensi (Sirup)', 'ATD240322', 8, 15, 'Botol', 14500, 'PT Parit Padang Global')">
         RESTOCK SEGERA
       </button>
     </div>
@@ -129,7 +129,7 @@
       </div>
     </div>
 
-    <button class="inline-flex items-center space-x-2 bg-white text-xs font-semibold text-slate-700 hover:text-[#964334] hover:border-[#964334] px-4 py-2.5 rounded-xl border border-[#E2D9CE] transition shadow-2xs" onclick="alert('Mengekspor seluruh data stok aktif per batch ke format Microsoft Excel/CSV...')">
+    <button class="inline-flex items-center space-x-2 bg-white text-xs font-semibold text-slate-700 hover:text-[#964334] hover:border-[#964334] px-4 py-2.5 rounded-xl border border-[#E2D9CE] transition shadow-2xs cursor-pointer" onclick="exportTableCSV()">
       <svg class="w-4 h-4 text-[#964334]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
       </svg>
@@ -154,9 +154,9 @@
             <th class="py-3.5 px-4 text-center">AKSI</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-[#F0EAE1] text-xs">
+        <tbody class="divide-y divide-[#F0EAE1] text-xs" id="batch-table-body">
           <!-- ROW 1 -->
-          <tr class="hover:bg-[#FCFAF8] transition-colors group table-row-item">
+          <tr class="hover:bg-[#FCFAF8] transition-colors group table-row-item" data-batch="AMX240801" data-exp="2027-06-18" data-nama="Amoxicillin Trihydrate 500 mg" data-stok="145">
             <td class="py-4 px-4 text-center font-medium text-slate-400">1</td>
             <td class="py-4 px-4">
               <span class="inline-block bg-[#F2ECE4] text-slate-700 font-mono text-[11px] font-bold px-2.5 py-1 rounded-lg">MED-AMX-12</span>
@@ -184,13 +184,13 @@
               <div class="text-[10px] font-medium text-emerald-600 mt-0.5">3 Tahun 1 Bulan lagi</div>
             </td>
             <td class="py-4 px-4">
-              <div class="font-semibold text-slate-800">Rak A2, Susun 3</div>
+              <div class="font-semibold text-slate-800 row-rak-text">Rak A2, Susun 3</div>
               <div class="text-[10px] text-slate-400 mt-0.5">Suhu Ruang (15–25°C)</div>
             </td>
             <td class="py-4 px-4">
               <div class="flex items-baseline space-x-1">
-                <span class="text-base font-extrabold text-slate-900">145</span>
-                <span class="text-xs font-semibold text-slate-600">Box</span>
+                <span class="text-base font-extrabold text-slate-900 row-stok-angka">145</span>
+                <span class="text-xs font-semibold text-slate-600 row-stok-satuan">Box</span>
               </div>
               <div class="text-[10px] text-slate-400 mt-0.5">= 1.450 Kapsul</div>
             </td>
@@ -200,17 +200,20 @@
               </span>
             </td>
             <td class="py-4 px-4 text-center">
-              <div class="flex items-center justify-center space-x-2">
-                <button class="inline-flex items-center space-x-1 bg-[#964334] hover:bg-[#7E3629] text-white font-semibold text-xs px-3 py-1.5 rounded-xl shadow-xs transition cursor-pointer" onclick="openDetailModal('Amoxicillin Trihydrate 500 mg', 'AMX240801', '145 Box', '18 Jun 2027', 'Rak A2, Susun 3', 'Kimia Farma TBK', 'PBF: Anugrah Argon M.')">
+              <div class="flex items-center justify-center space-x-1.5">
+                <a class="inline-flex items-center space-x-1 bg-[#964334] hover:bg-[#7E3629] text-white font-semibold text-xs px-3 py-1.5 rounded-xl shadow-xs transition" href="/persediaan/stock-batch/detail?batch=AMX240801">
                   <span>Lihat Detail</span>
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                </a>
+                <button class="w-8 h-8 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-[#964334] flex items-center justify-center transition cursor-pointer" onclick="openKelolaModal('AMX240801', 'Amoxicillin Trihydrate 500 mg', '18 Jun 2027', 145, 'Box')" title="Kelola Batch" type="button">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
                 </button>
               </div>
             </td>
           </tr>
 
           <!-- ROW 2 -->
-          <tr class="hover:bg-[#FCFAF8] transition-colors group table-row-item">
+          <tr class="hover:bg-[#FCFAF8] transition-colors group table-row-item" data-batch="PCT241005" data-exp="2028-01-12" data-nama="Paracetamol Drop 15ml" data-stok="320">
             <td class="py-4 px-4 text-center font-medium text-slate-400">2</td>
             <td class="py-4 px-4">
               <span class="inline-block bg-[#F2ECE4] text-slate-700 font-mono text-[11px] font-bold px-2.5 py-1 rounded-lg">MED-PCM-01</span>
@@ -238,13 +241,13 @@
               <div class="text-[10px] font-medium text-emerald-600 mt-0.5">3 Tahun 8 Bulan lagi</div>
             </td>
             <td class="py-4 px-4">
-              <div class="font-semibold text-slate-800">Rak B1, Susun 1</div>
+              <div class="font-semibold text-slate-800 row-rak-text">Rak B1, Susun 1</div>
               <div class="text-[10px] text-slate-400 mt-0.5">Suhu Ruang (15–25°C)</div>
             </td>
             <td class="py-4 px-4">
               <div class="flex items-baseline space-x-1">
-                <span class="text-base font-extrabold text-slate-900">320</span>
-                <span class="text-xs font-semibold text-slate-600">Botol</span>
+                <span class="text-base font-extrabold text-slate-900 row-stok-angka">320</span>
+                <span class="text-xs font-semibold text-slate-600 row-stok-satuan">Botol</span>
               </div>
               <div class="text-[10px] text-slate-400 mt-0.5">= 32 Karton Segel</div>
             </td>
@@ -254,17 +257,20 @@
               </span>
             </td>
             <td class="py-4 px-4 text-center">
-              <div class="flex items-center justify-center space-x-2">
-                <button class="inline-flex items-center space-x-1 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs px-3 py-1.5 rounded-xl border border-slate-200 transition cursor-pointer" onclick="openDetailModal('Paracetamol Drop 15ml', 'PCT241005', '320 Botol', '12 Jan 2028', 'Rak B1, Susun 1', 'Sanbe Farma', 'PBF: Enseval Putera M.')">
+              <div class="flex items-center justify-center space-x-1.5">
+                <a class="inline-flex items-center space-x-1 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs px-3 py-1.5 rounded-xl border border-slate-200 transition" href="/persediaan/stock-batch/detail?batch=PCT241005">
                   <span>Lihat Detail</span>
                   <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                </a>
+                <button class="w-8 h-8 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-[#964334] flex items-center justify-center transition cursor-pointer" onclick="openKelolaModal('PCT241005', 'Paracetamol Drop 15ml', '12 Jan 2028', 320, 'Botol')" title="Kelola Batch" type="button">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
                 </button>
               </div>
             </td>
           </tr>
 
           <!-- ROW 3 -->
-          <tr class="hover:bg-[#FCFAF8] transition-colors group table-row-item">
+          <tr class="hover:bg-[#FCFAF8] transition-colors group table-row-item" data-batch="CT2240914" data-exp="2027-08-04" data-nama="Cetirizine 10mg" data-stok="85">
             <td class="py-4 px-4 text-center font-medium text-slate-400">3</td>
             <td class="py-4 px-4">
               <span class="inline-block bg-[#F2ECE4] text-slate-700 font-mono text-[11px] font-bold px-2.5 py-1 rounded-lg">MED-CTZ-08</span>
@@ -292,13 +298,13 @@
               <div class="text-[10px] font-medium text-emerald-600 mt-0.5">3 Tahun 2 Bulan lagi</div>
             </td>
             <td class="py-4 px-4">
-              <div class="font-semibold text-slate-800">Rak A1, Susun 2</div>
+              <div class="font-semibold text-slate-800 row-rak-text">Rak A1, Susun 2</div>
               <div class="text-[10px] text-slate-400 mt-0.5">Suhu Ruang (15–25°C)</div>
             </td>
             <td class="py-4 px-4">
               <div class="flex items-baseline space-x-1">
-                <span class="text-base font-extrabold text-slate-900">85</span>
-                <span class="text-xs font-semibold text-slate-600">Strip</span>
+                <span class="text-base font-extrabold text-slate-900 row-stok-angka">85</span>
+                <span class="text-xs font-semibold text-slate-600 row-stok-satuan">Strip</span>
               </div>
               <div class="text-[10px] text-slate-400 mt-0.5">= 850 Tablet Salut</div>
             </td>
@@ -308,17 +314,20 @@
               </span>
             </td>
             <td class="py-4 px-4 text-center">
-              <div class="flex items-center justify-center space-x-2">
-                <button class="inline-flex items-center space-x-1 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs px-3 py-1.5 rounded-xl border border-slate-200 transition cursor-pointer" onclick="openDetailModal('Cetirizine 10mg', 'CT2240914', '85 Strip', '04 Agu 2027', 'Rak A1, Susun 2', 'Kalbe Farma', 'PBF: Kebayoran Pharma')">
+              <div class="flex items-center justify-center space-x-1.5">
+                <a class="inline-flex items-center space-x-1 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs px-3 py-1.5 rounded-xl border border-slate-200 transition" href="/persediaan/stock-batch/detail?batch=CT2240914">
                   <span>Lihat Detail</span>
                   <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                </a>
+                <button class="w-8 h-8 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-[#964334] flex items-center justify-center transition cursor-pointer" onclick="openKelolaModal('CT2240914', 'Cetirizine 10mg', '04 Agu 2027', 85, 'Strip')" title="Kelola Batch" type="button">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
                 </button>
               </div>
             </td>
           </tr>
 
           <!-- ROW 4 (FEFO / Low Stock Highlight) -->
-          <tr class="bg-red-50/30 hover:bg-red-50/60 transition-colors border-l-4 border-l-red-500 group table-row-item">
+          <tr class="bg-red-50/30 hover:bg-red-50/60 transition-colors border-l-4 border-l-red-500 group table-row-item" data-batch="ATD240322" data-exp="2026-11-25" data-nama="Antasida Doen Suspensi" data-stok="8">
             <td class="py-4 px-4 text-center font-bold text-red-600">4</td>
             <td class="py-4 px-4">
               <span class="inline-block bg-red-100/70 text-red-700 font-mono text-[11px] font-bold px-2.5 py-1 rounded-lg">MED-ANT-04</span>
@@ -346,26 +355,29 @@
               <div class="text-[10px] font-bold text-red-600 mt-0.5 uppercase tracking-wide">Mendekati FEFO Prioritas</div>
             </td>
             <td class="py-4 px-4">
-              <div class="font-semibold text-slate-800">Rak B2, Susun 4</div>
+              <div class="font-semibold text-slate-800 row-rak-text">Rak B2, Susun 4</div>
               <div class="text-[10px] text-slate-400 mt-0.5">Suhu Ruang (15–25°C)</div>
             </td>
             <td class="py-4 px-4">
               <div class="flex items-baseline space-x-1">
-                <span class="text-base font-extrabold text-red-600">8</span>
-                <span class="text-xs font-bold text-red-600">Botol</span>
+                <span class="text-base font-extrabold text-red-600 row-stok-angka">8</span>
+                <span class="text-xs font-bold text-red-600 row-stok-satuan">Botol</span>
               </div>
               <div class="text-[10px] text-red-500 font-medium mt-0.5">Di bawah Buffer (15)</div>
             </td>
-            <td class="py-4 px-4 text-center">
+            <td class="py-4 px-4 text-center row-status-cell">
               <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200">
                 <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span> Stok Menipis
               </span>
             </td>
             <td class="py-4 px-4 text-center">
-              <div class="flex items-center justify-center space-x-2">
-                <button class="inline-flex items-center space-x-1 bg-red-600 hover:bg-red-700 text-white font-semibold text-xs px-3 py-1.5 rounded-xl shadow-xs transition cursor-pointer" onclick="openRestockModal('Antasida Doen Suspensi', 'ATD240322', '8 Botol')">
+              <div class="flex items-center justify-center space-x-1.5">
+                <button class="inline-flex items-center space-x-1 bg-red-600 hover:bg-red-700 text-white font-semibold text-xs px-3 py-1.5 rounded-xl shadow-xs transition cursor-pointer" onclick="openRestockModal('Antasida Doen Suspensi (Sirup)', 'ATD240322', 8, 15, 'Botol', 14500, 'PT Parit Padang Global')">
                   <span>Restock</span>
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                </button>
+                <button class="w-8 h-8 rounded-xl border border-red-200 bg-white hover:bg-red-50 text-red-600 flex items-center justify-center transition cursor-pointer" onclick="openKelolaModal('ATD240322', 'Antasida Doen Suspensi', '25 Nov 2026', 8, 'Botol')" title="Kelola Batch" type="button">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
                 </button>
               </div>
             </td>
@@ -378,7 +390,7 @@
     <div class="p-4 bg-white border-t border-[#EBE3DB] flex flex-col sm:flex-row items-center justify-between gap-4" data-purpose="table-pagination">
       <div class="text-xs text-slate-500 flex items-center space-x-1.5">
         <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-        <span>Menampilkan <strong class="text-slate-800">1 - 4</strong> dari total <strong class="text-slate-800">1.205</strong> batch obat terdaftar</span>
+        <span>Menampilkan <strong class="text-slate-800" id="visible-count">1 - 4</strong> dari total <strong class="text-slate-800">1.205</strong> batch obat terdaftar</span>
       </div>
       <div class="flex items-center space-x-1.5 text-xs font-semibold">
         <button class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600 hover:bg-[#FAF7F2] transition disabled:opacity-50" disabled="">‹ Sebelumnya</button>
@@ -391,141 +403,453 @@
       </div>
     </div>
   </section>
-</main>
 
-<!-- MODAL 1: Detail Batch Obat -->
-<div class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4" id="detailModal">
-  <div class="bg-white rounded-2xl max-w-lg w-full border border-[#EBE3DB] shadow-2xl p-6 relative animate-in fade-in zoom-in duration-200" data-purpose="batch-detail-modal-card">
-    <button class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full p-1.5 transition" onclick="closeModal('detailModal')">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-    </button>
-    <div class="flex items-center space-x-3 mb-4">
-      <div class="w-10 h-10 rounded-xl bg-[#964334]/10 text-[#964334] flex items-center justify-center font-bold">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-3-3v6m-7 5h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-      </div>
-      <div>
-        <h3 class="text-base font-bold text-slate-900 leading-tight" id="modalDrugName">Nama Obat</h3>
-        <p class="text-xs text-slate-500">Informasi Detail Batch Fisik &amp; Karantina</p>
-      </div>
-    </div>
-    <div class="grid grid-cols-2 gap-3 text-xs bg-[#FAF7F2] p-4 rounded-xl border border-[#EBE3DB] mb-5">
-      <div>
-        <span class="text-slate-400 block text-[10px] uppercase font-bold">Nomor Batch:</span>
-        <span class="font-mono font-bold text-[#964334] text-sm" id="modalBatchNo">AMX240801</span>
-      </div>
-      <div>
-        <span class="text-slate-400 block text-[10px] uppercase font-bold">Sisa Stok Fisik:</span>
-        <span class="font-bold text-slate-900 text-sm" id="modalStock">145 Box</span>
-      </div>
-      <div>
-        <span class="text-slate-400 block text-[10px] uppercase font-bold">Kedaluwarsa (ED):</span>
-        <span class="font-semibold text-slate-800" id="modalExpiry">18 Jun 2027</span>
-      </div>
-      <div>
-        <span class="text-slate-400 block text-[10px] uppercase font-bold">Penyimpanan / Rak:</span>
-        <span class="font-semibold text-slate-800" id="modalRack">Rak A2, Susun 3</span>
-      </div>
-      <div>
-        <span class="text-slate-400 block text-[10px] uppercase font-bold">Produsen:</span>
-        <span class="text-slate-700" id="modalManufacturer">Kimia Farma TBK</span>
-      </div>
-      <div>
-        <span class="text-slate-400 block text-[10px] uppercase font-bold">Distributor (PBF):</span>
-        <span class="text-slate-700" id="modalPBF">PBF: Anugrah Argon M.</span>
-      </div>
-    </div>
-    <div class="flex items-center justify-end space-x-2.5">
-      <button class="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer" onclick="closeModal('detailModal')">Tutup</button>
-      <button class="px-4 py-2 text-xs font-semibold text-white bg-[#964334] hover:bg-[#7E3629] rounded-xl transition shadow-xs cursor-pointer" onclick="alert('Kartu batch dicetak ke printer thermal apotek.'); closeModal('detailModal')">Cetak Label Barcode</button>
-    </div>
-  </div>
-</div>
+  <!-- MODAL 1: Restock / Buku Defecta Apotek (Sesuai Alur 2.jpg) -->
+  <div class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/45 backdrop-blur-xs flex items-center justify-center p-4" id="restockModal">
+    <div class="bg-white rounded-3xl max-w-md w-full border border-[#EBE3DB] shadow-2xl p-6 relative" data-purpose="restock-defecta-modal">
+      <button class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full p-1.5 transition cursor-pointer" onclick="closeModal('restockModal')" type="button">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      </button>
 
-<!-- MODAL 2: Form Restock Cepat -->
-<div class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4" id="restockModal">
-  <div class="bg-white rounded-2xl max-w-md w-full border border-red-200 shadow-2xl p-6 relative" data-purpose="restock-form-modal">
-    <button class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full p-1.5 transition" onclick="closeModal('restockModal')">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-    </button>
-    <div class="flex items-center space-x-3 mb-4">
-      <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center font-bold">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      <div class="text-center">
+        <span class="inline-block px-3 py-1 rounded-full bg-[#FFF5F2] border border-[#FED7AA] text-[#964334] text-[10px] font-bold tracking-wider uppercase mb-3">
+          RESTOCK / DEFECTA APOTEK
+        </span>
+        <div class="mx-auto w-14 h-14 rounded-full bg-[#FFF5F2] border-4 border-[#FFE4DE] flex items-center justify-center text-[#FF7E67] mb-3">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+        </div>
+        <h3 class="text-base font-extrabold text-slate-900">Masukkan ke Daftar Rencana Pembelian?</h3>
+
+        <div class="mt-2.5 inline-flex items-center justify-center flex-wrap gap-2 px-3.5 py-1.5 rounded-xl bg-[#FAF7F2] border border-[#EBE3DB] text-xs">
+          <span class="font-bold text-slate-800" id="defectaDrugName">• Antasida Doen Suspensi (Sirup)</span>
+          <span class="text-red-600 font-bold bg-red-50 px-2 py-0.5 rounded-md border border-red-200" id="defectaStockInfo">Sisa: 8 Botol (Min: 15)</span>
+        </div>
+
+        <p class="text-[11px] text-slate-500 leading-relaxed mt-3">
+          Obat telah mencapai batas minimum stok apotek. Tentukan kuantitas pengadaan untuk dimasukkan ke buku <strong class="text-slate-700">Defecta (Rencana Pesanan)</strong> ke PBF.
+        </p>
       </div>
-      <div>
-        <h3 class="text-base font-bold text-slate-900 leading-tight">Buat Pesanan Restock Cepat</h3>
-        <p class="text-xs text-red-600 font-semibold mt-0.5" id="restockDrugInfo">Antasida Doen Suspensi (8 Botol)</p>
+
+      <!-- Form Rencana Pesanan -->
+      <div class="mt-4 bg-[#FAF8F5] border border-[#EBE3DB] rounded-2xl p-4 space-y-3 text-xs">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Jumlah Rencana Order</label>
+            <div class="flex items-center gap-1.5">
+              <input class="w-full bg-white border border-[#E2D9CE] rounded-xl px-3 py-2 font-bold text-slate-800 focus:outline-none focus:border-[#964334]" id="defectaOrderQty" min="1" oninput="updateDefectaSubtotal()" type="number" value="30"/>
+              <span class="font-semibold text-slate-500" id="defectaUnitLabel">Botol</span>
+            </div>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Harga Beli Terakhir</label>
+            <input class="w-full bg-slate-100 border border-[#E2D9CE] rounded-xl px-3 py-2 font-semibold text-slate-600 cursor-not-allowed" id="defectaUnitPriceText" readonly="" type="text" value="Rp 14.500"/>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">PBF Pemasok Utama</label>
+          <select class="w-full bg-white border border-[#E2D9CE] rounded-xl px-3 py-2 font-medium text-slate-800 focus:outline-none focus:border-[#964334]" id="defectaPbfSelect">
+            <option value="PT Parit Padang Global">PT Parit Padang Global</option>
+            <option value="PT Kimia Farma Trading &amp; Distribution">PT Kimia Farma Trading &amp; Distribution</option>
+            <option value="PT Enseval Putera Megatrading Tbk">PT Enseval Putera Megatrading Tbk</option>
+            <option value="PT Anugrah Argon Medica">PT Anugrah Argon Medica</option>
+          </select>
+        </div>
+
+        <div class="pt-2 border-t border-[#EBE3DB] flex items-center justify-between">
+          <span class="text-slate-500 font-medium">Estimasi Total Pengadaan:</span>
+          <span class="text-sm font-extrabold text-[#964334]" id="defectaTotalEstimasi">Rp 435.000</span>
+        </div>
       </div>
-    </div>
-    <div class="space-y-3 text-xs mb-5">
-      <div>
-        <label class="block text-slate-600 font-medium mb-1">PBF / Distributor Terkait:</label>
-        <input class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-600 cursor-not-allowed" readonly="" type="text" value="PBF: Parit Padang Global"/>
+
+      <div class="grid grid-cols-2 gap-3 mt-5">
+        <button class="w-full py-2.5 rounded-xl border border-[#E2D9CE] bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition cursor-pointer" onclick="closeModal('restockModal')" type="button">
+          Nanti Saja
+        </button>
+        <button class="w-full py-2.5 rounded-xl bg-[#FF7E67] hover:bg-[#964334] text-white text-xs font-bold shadow-sm transition cursor-pointer" onclick="submitDefecta()" type="button">
+          + Ya, Tambahkan ke Defecta
+        </button>
       </div>
-      <div>
-        <label class="block text-slate-700 font-medium mb-1">Jumlah Order Restock (Unit):</label>
-        <input class="w-full border border-[#E2D9CE] rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500" min="1" type="number" value="30"/>
-      </div>
-      <div>
-        <label class="block text-slate-700 font-medium mb-1">Prioritas Pengiriman:</label>
-        <select class="w-full border border-[#E2D9CE] rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-red-500">
-          <option>Urgent / Segera (1x24 Jam)</option>
-          <option>Reguler (2-3 Hari)</option>
-        </select>
-      </div>
-    </div>
-    <div class="flex items-center justify-end space-x-2.5">
-      <button class="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer" onclick="closeModal('restockModal')">Batalkan</button>
-      <button class="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-xs cursor-pointer" onclick="alert('Pesanan Pembelian (PO Restock) berhasil diterbitkan ke PBF Parit Padang Global!'); closeModal('restockModal')">Kirim PO ke PBF</button>
     </div>
   </div>
-</div>
 
-<script>
-  function openDetailModal(drug, batch, stock, exp, rack, mfg, pbf) {
-    document.getElementById('modalDrugName').innerText = drug;
-    document.getElementById('modalBatchNo').innerText = batch;
-    document.getElementById('modalStock').innerText = stock;
-    document.getElementById('modalExpiry').innerText = exp;
-    document.getElementById('modalRack').innerText = rack;
-    document.getElementById('modalManufacturer').innerText = mfg;
-    document.getElementById('modalPBF').innerText = pbf;
-    document.getElementById('detailModal').classList.remove('hidden');
-  }
+  <!-- MODAL 2: Kelola Batch (Titik Tiga - Sesuai Alur 3_2.jpg + 3 Sub-Tampilan) -->
+  <div class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/45 backdrop-blur-xs flex items-center justify-center p-4" id="kelolaModal">
+    <div class="bg-white rounded-3xl max-w-md w-full border border-[#EBE3DB] shadow-2xl p-6 relative" data-purpose="kelola-batch-modal">
+      <button class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full p-1.5 transition cursor-pointer" onclick="closeModal('kelolaModal')" type="button">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      </button>
 
-  function openRestockModal(drug, batch, stock) {
-    document.getElementById('restockDrugInfo').innerText = drug + ' (Sisa ' + stock + ' - Batch ' + batch + ')';
-    document.getElementById('restockModal').classList.remove('hidden');
-  }
+      <!-- Header Modal -->
+      <div class="mb-4 pr-8">
+        <h3 class="text-base font-extrabold text-slate-900" id="kelolaTitle">Kelola Batch: AMX240801</h3>
+        <p class="text-xs text-[#964334] font-semibold mt-0.5" id="kelolaSubtitle">• Amoxicillin Trihydrate 500 mg • Rak A2, Susun 3</p>
+      </div>
 
-  function closeModal(id) {
-    document.getElementById(id).classList.add('hidden');
-  }
+      <!-- VIEW 0: Menu Utama Kelola Batch -->
+      <div class="space-y-2.5" id="kelolaViewMenu">
+        <button class="w-full text-left p-3.5 rounded-2xl border border-[#EBE3DB] hover:border-[#964334] hover:bg-[#FAF8F5] transition flex items-center justify-between group cursor-pointer" onclick="switchKelolaView('barcode')" type="button">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-orange-50 text-[#964334] flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-slate-900 group-hover:text-[#964334]">Cetak Label Barcode</div>
+              <div class="text-[11px] text-slate-400">Cetak label barcode &amp; QR batch untuk rak fisik</div>
+            </div>
+          </div>
+          <span class="text-slate-300 group-hover:text-[#964334] font-bold">›</span>
+        </button>
 
-  window.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      closeModal('detailModal');
-      closeModal('restockModal');
+        <button class="w-full text-left p-3.5 rounded-2xl border border-[#EBE3DB] hover:border-[#964334] hover:bg-[#FAF8F5] transition flex items-center justify-between group cursor-pointer" onclick="switchKelolaView('rak')" type="button">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-slate-900 group-hover:text-[#964334]">Pindah Lokasi Rak Penyimpanan</div>
+              <div class="text-[11px] text-slate-400">Perbarui nomor rak &amp; susunan penyimpanan obat</div>
+            </div>
+          </div>
+          <span class="text-slate-300 group-hover:text-[#964334] font-bold">›</span>
+        </button>
+
+        <button class="w-full text-left p-3.5 rounded-2xl border border-[#EBE3DB] hover:border-red-300 hover:bg-red-50/40 transition flex items-center justify-between group cursor-pointer" onclick="switchKelolaView('opname')" type="button">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-rose-700">Laporkan Selisih Fisik (Stock Opname)</div>
+              <div class="text-[11px] text-slate-400">Catat penyesuaian jumlah fisik dengan sistem</div>
+            </div>
+          </div>
+          <span class="text-slate-300 group-hover:text-rose-600 font-bold">›</span>
+        </button>
+
+        <div class="pt-3">
+          <button class="w-full py-2.5 rounded-xl border border-[#E2D9CE] bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition cursor-pointer" onclick="closeModal('kelolaModal')" type="button">
+            Tutup
+          </button>
+        </div>
+      </div>
+
+      <!-- VIEW 1: Sub-Tampilan Cetak Label Barcode -->
+      <div class="hidden space-y-4 text-xs" id="kelolaViewBarcode">
+        <button class="inline-flex items-center text-slate-500 hover:text-slate-800 font-semibold cursor-pointer" onclick="switchKelolaView('menu')" type="button">
+          ← Kembali ke Menu Kelola
+        </button>
+        <div class="p-4 rounded-2xl border-2 border-dashed border-[#E2D9CE] bg-[#FAF8F5] text-center space-y-1.5">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">APOTEK SUMBER WARAS</p>
+          <p class="text-sm font-extrabold text-slate-900" id="barcodePreviewName">Amoxicillin Trihydrate 500 mg</p>
+          <div class="py-1 font-mono text-lg tracking-[0.25em] font-black text-slate-800 select-none">|||| ||| || |||| |||</div>
+          <p class="font-mono text-xs font-bold text-[#964334]" id="barcodePreviewMeta">BATCH: AMX240801 | ED: 18 Jun 2027</p>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Jumlah Stiker yang Dicetak (Lembar)</label>
+          <input class="w-full border border-[#E2D9CE] rounded-xl px-3 py-2 font-bold text-slate-800" id="barcodeQtyInput" min="1" type="number" value="5"/>
+        </div>
+        <button class="w-full py-2.5 rounded-xl bg-[#964334] hover:bg-[#7E3629] text-white font-bold shadow-xs transition cursor-pointer" onclick="submitCetakBarcode()" type="button">
+          Cetak Stiker Sekarang
+        </button>
+      </div>
+
+      <!-- VIEW 2: Sub-Tampilan Pindah Lokasi Rak -->
+      <div class="hidden space-y-3.5 text-xs" id="kelolaViewRak">
+        <button class="inline-flex items-center text-slate-500 hover:text-slate-800 font-semibold cursor-pointer" onclick="switchKelolaView('menu')" type="button">
+          ← Kembali ke Menu Kelola
+        </button>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Rak Tujuan Baru</label>
+            <select class="w-full border border-[#E2D9CE] rounded-xl px-3 py-2 font-medium text-slate-800" id="newRakSelect">
+              <option value="Rak A1">Rak A1 (Obat Keras)</option>
+              <option value="Rak A2">Rak A2 (Antibiotik)</option>
+              <option value="Rak B1">Rak B1 (Sirup &amp; Drop)</option>
+              <option value="Rak B2">Rak B2 (Obat Bebas)</option>
+              <option value="Lemari Chiller">Lemari Chiller (2–8°C)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Susunan / Tingkat</label>
+            <select class="w-full border border-[#E2D9CE] rounded-xl px-3 py-2 font-medium text-slate-800" id="newSusunSelect">
+              <option value="Susun 1">Susun 1</option>
+              <option value="Susun 2">Susun 2</option>
+              <option value="Susun 3">Susun 3</option>
+              <option value="Susun 4">Susun 4</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Catatan Pemindahan</label>
+          <input class="w-full border border-[#E2D9CE] rounded-xl px-3 py-2 text-slate-800" id="rakNoteInput" placeholder="Contoh: Penataan ulang area FEFO prioritas" type="text"/>
+        </div>
+        <button class="w-full py-2.5 rounded-xl bg-[#964334] hover:bg-[#7E3629] text-white font-bold shadow-xs transition cursor-pointer" onclick="submitPindahRak()" type="button">
+          Simpan Perubahan Lokasi
+        </button>
+      </div>
+
+      <!-- VIEW 3: Sub-Tampilan Stock Opname / Selisih Fisik -->
+      <div class="hidden space-y-3.5 text-xs" id="kelolaViewOpname">
+        <button class="inline-flex items-center text-slate-500 hover:text-slate-800 font-semibold cursor-pointer" onclick="switchKelolaView('menu')" type="button">
+          ← Kembali ke Menu Kelola
+        </button>
+        <div class="grid grid-cols-2 gap-3 bg-[#FAF8F5] p-3 rounded-xl border border-[#EBE3DB]">
+          <div>
+            <span class="text-[10px] font-bold text-slate-400 uppercase block">Stok Sistem</span>
+            <span class="text-base font-extrabold text-slate-800" id="opnameSystemStockText">145 Box</span>
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-slate-700 uppercase block mb-1">Stok Fisik Nyata</label>
+            <input class="w-full bg-white border border-[#E2D9CE] rounded-lg px-2.5 py-1 font-extrabold text-slate-900" id="opnamePhysicalInput" min="0" oninput="calculateOpnameDiff()" type="number" value="145"/>
+          </div>
+        </div>
+        <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-900">
+          <span class="font-semibold">Selisih Tercatat:</span>
+          <span class="font-extrabold" id="opnameDiffBadge">0 Box (Sesuai)</span>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Alasan Penyesuaian</label>
+          <select class="w-full border border-[#E2D9CE] rounded-xl px-3 py-2 font-medium text-slate-800" id="opnameReasonSelect">
+            <option value="Kemasan Rusak / Pecah">Kemasan Rusak / Pecah</option>
+            <option value="Kesalahan Input Awal">Kesalahan Input Awal</option>
+            <option value="Selisih Audit Bulanan">Selisih Audit Bulanan</option>
+          </select>
+        </div>
+        <button class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-xs transition cursor-pointer" onclick="submitOpname()" type="button">
+          Simpan &amp; Ajukan Penyesuaian
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="fixed bottom-6 right-6 z-50 hidden bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-xl flex items-center space-x-2.5" id="toastNotif">
+    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+    <span id="toastNotifText">Perubahan berhasil disimpan.</span>
+  </div>
+
+  <script>
+    let currentDefectaBatch = '';
+    let currentDefectaPrice = 0;
+    let currentDefectaUnit = '';
+
+    let activeKelolaBatch = '';
+    let activeKelolaDrug = '';
+    let activeKelolaExp = '';
+    let activeKelolaSystemStock = 0;
+    let activeKelolaUnit = '';
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotif');
+      document.getElementById('toastNotifText').innerText = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3200);
     }
-  });
 
-  // Client-side search and filter logic
-  const searchInput = document.getElementById('search-input');
-  const categoryFilter = document.getElementById('category-filter');
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
 
-  function filterTable() {
-    const q = searchInput.value.toLowerCase().trim();
-    const cat = categoryFilter.value.toLowerCase().trim();
-    const rows = document.querySelectorAll('#batch-table tbody tr');
+    // --- 1. LOGIKA RESTOCK / BUKU DEFECTA ---
+    function openRestockModal(drug, batch, currentStock, minStock, unit, price, pbf) {
+      currentDefectaBatch = batch;
+      currentDefectaPrice = price;
+      currentDefectaUnit = unit;
 
-    rows.forEach(row => {
-      const text = row.innerText.toLowerCase();
-      const matchSearch = !q || text.includes(q);
-      const matchCat = !cat || text.includes(cat);
-      row.style.display = (matchSearch && matchCat) ? '' : 'none';
+      document.getElementById('defectaDrugName').innerText = '• ' + drug;
+      document.getElementById('defectaStockInfo').innerText = `Sisa: ${currentStock} ${unit} (Min: ${minStock})`;
+      document.getElementById('defectaUnitLabel').innerText = unit;
+      document.getElementById('defectaUnitPriceText').value = 'Rp ' + price.toLocaleString('id-ID');
+      document.getElementById('defectaOrderQty').value = Math.max(minStock * 2 - currentStock, 20);
+
+      const pbfSelect = document.getElementById('defectaPbfSelect');
+      for (let i = 0; i < pbfSelect.options.length; i++) {
+        if (pbfSelect.options[i].value === pbf) {
+          pbfSelect.selectedIndex = i;
+          break;
+        }
+      }
+
+      updateDefectaSubtotal();
+      document.getElementById('restockModal').classList.remove('hidden');
+    }
+
+    function updateDefectaSubtotal() {
+      const qty = parseInt(document.getElementById('defectaOrderQty').value || 0, 10);
+      const total = qty * currentDefectaPrice;
+      document.getElementById('defectaTotalEstimasi').innerText = 'Rp ' + total.toLocaleString('id-ID');
+    }
+
+    function submitDefecta() {
+      const qty = document.getElementById('defectaOrderQty').value;
+      const row = document.querySelector(`tr[data-batch="${currentDefectaBatch}"]`);
+      if (row) {
+        const statusCell = row.querySelector('.row-status-cell');
+        if (statusCell) {
+          statusCell.innerHTML = `
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-sky-50 text-sky-700 border border-sky-200">
+              <span class="w-1.5 h-1.5 rounded-full bg-sky-500 mr-1.5"></span> Masuk Defecta (${qty} ${currentDefectaUnit})
+            </span>`;
+        }
+      }
+      closeModal('restockModal');
+      showToast(`Batch ${currentDefectaBatch} (${qty} ${currentDefectaUnit}) berhasil ditambahkan ke Buku Defecta.`);
+    }
+
+    // --- 2. LOGIKA KELOLA BATCH (TITIK TIGA) ---
+    function openKelolaModal(batch, drug, exp, stock, unit) {
+      activeKelolaBatch = batch;
+      activeKelolaDrug = drug;
+      activeKelolaExp = exp;
+      activeKelolaSystemStock = stock;
+      activeKelolaUnit = unit;
+
+      const row = document.querySelector(`tr[data-batch="${batch}"]`);
+      const currentRak = row ? row.querySelector('.row-rak-text').innerText : '-';
+
+      document.getElementById('kelolaTitle').innerText = `Kelola Batch: ${batch}`;
+      document.getElementById('kelolaSubtitle').innerText = `• ${drug} • ${currentRak}`;
+
+      // Isi data default sub-tampilan
+      document.getElementById('barcodePreviewName').innerText = drug;
+      document.getElementById('barcodePreviewMeta').innerText = `BATCH: ${batch} | ED: ${exp}`;
+      document.getElementById('opnameSystemStockText').innerText = `${stock} ${unit}`;
+      document.getElementById('opnamePhysicalInput').value = stock;
+      calculateOpnameDiff();
+
+      switchKelolaView('menu');
+      document.getElementById('kelolaModal').classList.remove('hidden');
+    }
+
+    function switchKelolaView(viewName) {
+      document.getElementById('kelolaViewMenu').classList.add('hidden');
+      document.getElementById('kelolaViewBarcode').classList.add('hidden');
+      document.getElementById('kelolaViewRak').classList.add('hidden');
+      document.getElementById('kelolaViewOpname').classList.add('hidden');
+
+      if (viewName === 'menu') document.getElementById('kelolaViewMenu').classList.remove('hidden');
+      if (viewName === 'barcode') document.getElementById('kelolaViewBarcode').classList.remove('hidden');
+      if (viewName === 'rak') document.getElementById('kelolaViewRak').classList.remove('hidden');
+      if (viewName === 'opname') document.getElementById('kelolaViewOpname').classList.remove('hidden');
+    }
+
+    function submitCetakBarcode() {
+      const qty = document.getElementById('barcodeQtyInput').value;
+      closeModal('kelolaModal');
+      showToast(`Mencetak ${qty} stiker label barcode untuk Batch ${activeKelolaBatch}...`);
+    }
+
+    function submitPindahRak() {
+      const rak = document.getElementById('newRakSelect').value;
+      const susun = document.getElementById('newSusunSelect').value;
+      const lokasiBaru = `${rak}, ${susun}`;
+
+      const row = document.querySelector(`tr[data-batch="${activeKelolaBatch}"]`);
+      if (row) {
+        row.querySelector('.row-rak-text').innerText = lokasiBaru;
+      }
+      closeModal('kelolaModal');
+      showToast(`Lokasi Batch ${activeKelolaBatch} dipindahkan ke ${lokasiBaru}.`);
+    }
+
+    function calculateOpnameDiff() {
+      const physical = parseInt(document.getElementById('opnamePhysicalInput').value || 0, 10);
+      const diff = physical - activeKelolaSystemStock;
+      const badge = document.getElementById('opnameDiffBadge');
+      if (diff === 0) {
+        badge.innerText = `0 ${activeKelolaUnit} (Sesuai)`;
+      } else if (diff > 0) {
+        badge.innerText = `+${diff} ${activeKelolaUnit} (Lebih)`;
+      } else {
+        badge.innerText = `${diff} ${activeKelolaUnit} (Selisih Kurang)`;
+      }
+    }
+
+    function submitOpname() {
+      const physical = parseInt(document.getElementById('opnamePhysicalInput').value || 0, 10);
+      const row = document.querySelector(`tr[data-batch="${activeKelolaBatch}"]`);
+      if (row) {
+        row.setAttribute('data-stok', physical);
+        row.querySelector('.row-stok-angka').innerText = physical;
+      }
+      closeModal('kelolaModal');
+      showToast(`Stock Opname Batch ${activeKelolaBatch} dicatat (Stok diperbarui menjadi ${physical} ${activeKelolaUnit}).`);
+    }
+
+    // --- 3. FILTER, SEARCH, SORT & EKSPOR CSV ---
+    const searchInput = document.getElementById('search-input');
+    const categoryFilter = document.getElementById('category-filter');
+    const sortFilter = document.getElementById('sort-filter');
+    const tbody = document.getElementById('batch-table-body');
+
+    function filterAndSortTable() {
+      const q = searchInput.value.toLowerCase().trim();
+      const cat = categoryFilter.value.toLowerCase().trim();
+      const sortBy = sortFilter.value;
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+
+      rows.sort((a, b) => {
+        if (sortBy === 'fefo') {
+          return a.getAttribute('data-exp').localeCompare(b.getAttribute('data-exp'));
+        } else if (sortBy === 'nama') {
+          return a.getAttribute('data-nama').localeCompare(b.getAttribute('data-nama'));
+        } else if (sortBy === 'stok-min') {
+          return parseInt(a.getAttribute('data-stok'), 10) - parseInt(b.getAttribute('data-stok'), 10);
+        } else if (sortBy === 'stok-max') {
+          return parseInt(b.getAttribute('data-stok'), 10) - parseInt(a.getAttribute('data-stok'), 10);
+        }
+        return 0;
+      });
+
+      let visible = 0;
+      rows.forEach(row => {
+        tbody.appendChild(row);
+        const text = row.innerText.toLowerCase();
+        const matchSearch = !q || text.includes(q);
+        const matchCat = !cat || text.includes(cat);
+        if (matchSearch && matchCat) {
+          row.style.display = '';
+          visible++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      document.getElementById('visible-count').innerText = visible > 0 ? `1 - ${visible}` : '0';
+    }
+
+    searchInput.addEventListener('input', filterAndSortTable);
+    categoryFilter.addEventListener('change', filterAndSortTable);
+    sortFilter.addEventListener('change', filterAndSortTable);
+
+    function exportTableCSV() {
+      let csv = 'Kode Obat,Nama Obat,No Batch,Tanggal Kedaluwarsa,Lokasi Rak,Stok Tersedia\n';
+      tbody.querySelectorAll('tr').forEach(row => {
+        if (row.style.display !== 'none') {
+          const cols = row.querySelectorAll('td');
+          const kode = cols[1].innerText.trim();
+          const nama = row.getAttribute('data-nama');
+          const batch = row.getAttribute('data-batch');
+          const exp = row.getAttribute('data-exp');
+          const rak = row.querySelector('.row-rak-text').innerText.trim();
+          const stok = row.getAttribute('data-stok') + ' ' + row.querySelector('.row-stok-satuan').innerText.trim();
+          csv += `"${kode}","${nama}","${batch}","${exp}","${rak}","${stok}"\n`;
+        }
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'stok_per_batch_apotek.csv';
+      link.click();
+    }
+
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeModal('restockModal');
+        closeModal('kelolaModal');
+      }
     });
-  }
-
-  if (searchInput) searchInput.addEventListener('input', filterTable);
-  if (categoryFilter) categoryFilter.addEventListener('change', filterTable);
-</script>
+  </script>
+</main>
 {{ end }}

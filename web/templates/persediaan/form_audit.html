@@ -1,0 +1,535 @@
+{{ define "content" }}
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type=number] { -moz-appearance: textfield; }
+  .modal-backdrop { background-color: rgba(15, 23, 42, 0.45); backdrop-filter: blur(4px); }
+</style>
+
+<main class="max-w-[1600px] mx-auto p-6 md:p-8 space-y-6 bg-[#F8F6F2] text-[#1E1915] min-h-screen">
+
+  <!-- 1. HEADER & BREADCRUMB -->
+  <header class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div>
+      <nav class="flex items-center gap-2 text-xs md:text-sm text-[#766F66] mb-1.5 font-medium">
+        <a href="/persediaan/stock-batch" class="hover:text-[#964334] transition-colors">Persediaan</a>
+        <span class="text-gray-400">›</span>
+        <a href="/persediaan/audit" class="hover:text-[#964334] transition-colors">Stock Opname</a>
+        <span class="text-gray-400">›</span>
+        <span id="breadcrumbSesi" class="text-[#964334] font-semibold">Sesi Aktif: SO-NOV2026</span>
+      </nav>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <h1 id="judulSesiAudit" class="text-2xl md:text-3xl font-extrabold text-[#1E1915] tracking-tight">
+          Lembar Kerja Audit: SO-NOV2026
+        </h1>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">
+          <span class="w-2 h-2 rounded-full bg-[#D97706] animate-pulse"></span>
+          Sedang Berlangsung
+        </span>
+      </div>
+
+      <p class="text-xs md:text-sm text-[#766F66] mt-1">
+        Pencatatan input fisik rak obat real-time • Verifikasi batch dan kartu stok otomatis.
+      </p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center gap-3 self-start lg:self-center">
+      <a href="/persediaan/audit" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-[#ECE7E1] hover:bg-gray-50 text-[#766F66] text-sm font-semibold rounded-xl shadow-xs transition-all">
+        <span>← Kembali</span>
+      </a>
+      <button id="btnSimpanDraft" type="button" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-[#ECE7E1] hover:bg-gray-50 text-[#1E1915] text-sm font-semibold rounded-xl shadow-xs transition-all cursor-pointer">
+        <i data-lucide="bookmark" class="w-4 h-4 text-[#766F66]"></i>
+        <span>Simpan Draft</span>
+      </button>
+      <button id="btnBukaModalSelesaikan" type="button" class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#FF7E67] hover:bg-[#964334] text-white text-sm font-bold rounded-xl shadow-sm transition-all cursor-pointer">
+        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+        <span>Selesaikan Stok</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 2. KARTU RINGKASAN SESI (5 Kolom Sejajar) -->
+  <section class="bg-white border border-[#ECE7E1] rounded-2xl p-5 shadow-xs">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6 divide-y lg:divide-y-0 lg:divide-x divide-[#ECE7E1]">
+      <div class="pt-2 lg:pt-0 lg:px-3 first:pl-0">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-[#766F66] mb-1">No. Dokumen Audit</p>
+        <p id="dokumenAuditNo" class="text-base font-bold font-mono text-[#1E1915] tracking-tight">SO/2026/11/001</p>
+      </div>
+      <div class="pt-2 lg:pt-0 lg:px-4">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-[#766F66] mb-1">Petugas Pemeriksa</p>
+        <p class="text-sm md:text-base font-bold text-[#1E1915]">apt. Siti Rahmawati, S.Farm</p>
+      </div>
+      <div class="pt-2 lg:pt-0 lg:px-4">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-[#766F66] mb-1">Area Target Audit</p>
+        <p class="text-sm md:text-base font-semibold text-[#1E1915]">Rak A &amp; Rak B <span class="text-xs text-[#766F66] font-normal">(Antibiotik &amp; Bebas)</span></p>
+      </div>
+      <div class="pt-2 lg:pt-0 lg:px-4">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-[#766F66] mb-1">Waktu Dimulai</p>
+        <p class="text-sm md:text-base font-semibold text-[#1E1915]">05 Nov 2026, 09:30 WIB</p>
+      </div>
+      <div class="col-span-2 md:col-span-1 pt-2 lg:pt-0 lg:px-4">
+        <div class="flex items-center justify-between text-[11px] mb-1">
+          <span class="font-bold uppercase tracking-wider text-[#766F66]">Progres Verifikasi</span>
+          <span id="labelProgress" class="font-extrabold text-emerald-600">66.7% Terhitung</span>
+        </div>
+        <div class="w-full bg-[#EAE6DF] h-2.5 rounded-full overflow-hidden">
+          <div id="progressBarFill" class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: 66.7%;"></div>
+        </div>
+        <p id="labelProgressDetail" class="text-[11px] text-[#766F66] mt-1 text-right font-medium">2 dari 3 Terisi</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. KARTU UTAMA: FORMULIR PENCOCOKAN STOK FISIK VS SISTEM -->
+  <section class="bg-white border border-[#ECE7E1] rounded-2xl shadow-xs overflow-hidden">
+    <div class="p-5 border-b border-[#ECE7E1] flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-lg font-bold text-[#1E1915]">Formulir Pencocokan Stok Fisik vs Sistem</h2>
+        <p class="text-xs text-[#766F66] mt-0.5">Masukkan jumlah fisik terkini pada kotak input. Selisih akan terhitung otomatis.</p>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <div class="relative w-full md:w-72">
+          <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+          <input type="text" id="inputCariObat" placeholder="Cari nama obat atau batch di daftar..." class="w-full pl-9 pr-4 py-2 text-xs bg-[#FAF8F5] border border-[#ECE7E1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] transition">
+        </div>
+        <select id="filterStatusAudit" class="px-3 py-2 bg-white border border-[#ECE7E1] hover:bg-gray-50 text-xs font-semibold text-[#1E1915] rounded-xl transition cursor-pointer">
+          <option value="all">Semua Status</option>
+          <option value="cocok">Stok Cocok</option>
+          <option value="selisih">Ada Selisih</option>
+          <option value="belum">Belum Dihitung</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs md:text-sm">
+        <thead>
+          <tr class="bg-[#F8F6F2] text-[#766F66] font-bold text-[11px] uppercase tracking-wider border-b border-[#ECE7E1]">
+            <th class="py-3 px-4 w-28">KODE</th>
+            <th class="py-3 px-4 min-w-[240px]">NAMA OBAT &amp; BATCH</th>
+            <th class="py-3 px-4 min-w-[180px]">LOKASI RAK</th>
+            <th class="py-3 px-4 text-center w-36">STOK SISTEM</th>
+            <th class="py-3 px-4 text-center w-44">STOK FISIK AKTUAL</th>
+            <th class="py-3 px-4 text-center w-36">SELISIH</th>
+            <th class="py-3 px-4 min-w-[260px]">KETERANGAN / TINDAK LANJUT</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#ECE7E1]" id="tabelBodyAudit">
+          <!-- BARIS 1 -->
+          <tr class="hover:bg-[#FAF8F5]/60 transition-colors item-row" data-row-id="1" data-sistem="145" data-satuan="Box" data-nama="Amoxicillin Trihydrate 500 mg" data-batch="AMX240801" data-rak="Rak A2, Susun 3" data-status="cocok">
+            <td class="py-4 px-4 align-top font-mono font-semibold text-xs text-gray-700">
+              <span class="bg-gray-100 px-2 py-1 rounded text-gray-800">MED-AMX-12</span>
+              <p class="text-[11px] font-sans text-[#766F66] mt-1 font-normal">Kapsul 500mg</p>
+            </td>
+            <td class="py-4 px-4 align-top">
+              <div class="font-bold text-sm text-[#1E1915]">Amoxicillin Trihydrate 500 mg</div>
+              <div class="flex items-center gap-1.5 mt-1 font-mono text-[11px]">
+                <span class="bg-red-50 text-red-600 px-1.5 py-0.5 rounded font-semibold border border-red-100">Batch: AMX240801</span>
+              </div>
+              <div class="text-[11px] text-[#766F66] mt-1">Exp: 18 Jun 2027 • PT Kimia Farma</div>
+            </td>
+            <td class="py-4 px-4 align-top">
+              <div class="flex items-center gap-1.5 text-xs font-semibold text-[#1E1915]">
+                <i data-lucide="package" class="w-3.5 h-3.5 text-[#766F66]"></i>
+                Rak A2, Susun 3
+              </div>
+              <div class="text-[11px] text-[#766F66] mt-0.5">Zona Antibiotik (Suhu 22°C)</div>
+              <span class="inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-100">FEFO Prioritas 1</span>
+            </td>
+            <td class="py-4 px-4 align-top text-center">
+              <div class="bg-[#F8F6F2] py-2 px-3 rounded-xl border border-[#ECE7E1] inline-block min-w-[100px]">
+                <span class="text-base font-extrabold text-[#1E1915] font-mono">145</span>
+                <p class="text-[10px] text-[#766F66] font-medium">Box (1.450 Kapsul)</p>
+              </div>
+            </td>
+            <td class="py-4 px-4 align-top text-center">
+              <div class="relative inline-block w-32">
+                <input type="number" class="input-stok-fisik w-full text-center py-2 px-2 text-base font-extrabold font-mono rounded-xl border-2 border-emerald-500 bg-emerald-50/20 text-emerald-800 focus:outline-none" value="145" data-row="1">
+                <p class="text-[10px] font-bold text-emerald-600 mt-1 flex items-center justify-center gap-0.5"><i data-lucide="check" class="w-3 h-3"></i> Sesuai Fisik</p>
+              </div>
+            </td>
+            <td class="py-4 px-4 align-top text-center">
+              <div class="selisih-wrapper">
+                <span class="inline-block font-mono text-base font-bold text-emerald-600">0</span>
+                <div class="mt-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">Sesuai (Match)</span></div>
+              </div>
+            </td>
+            <td class="py-4 px-4 align-top">
+              <p class="text-xs text-[#1E1915] leading-relaxed row-catatan-text">Penghitungan fisik cocok sempurna dengan catatan mutasi kartu stok sistem.</p>
+              <div class="flex items-center gap-2 mt-2">
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Stok Cocok</span>
+                <button type="button" onclick="editCatatan(1)" class="text-[11px] font-semibold text-[#964334] hover:underline flex items-center gap-1 cursor-pointer"><i data-lucide="edit-3" class="w-3 h-3"></i> Ubah Catatan</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- BARIS 2 -->
+          <tr class="hover:bg-[#FAF8F5]/60 transition-colors item-row bg-rose-50/20" data-row-id="2" data-sistem="8" data-satuan="Botol" data-nama="Antasida Doen Suspensi" data-batch="ANT240510" data-rak="Rak B1, Susun 1" data-status="selisih">
+            <td class="py-4 px-4 align-top font-mono font-semibold text-xs text-rose-700">
+              <span class="bg-rose-100/70 px-2 py-1 rounded text-rose-800">MED-ANT-04</span>
+              <p class="text-[11px] font-sans text-[#766F66] mt-1 font-normal">Suspensi 60ml</p>
+            </td>
+            <td class="py-4 px-4 align-top">
+              <div class="font-bold text-sm text-[#1E1915]">Antasida Doen Suspensi</div>
+              <div class="flex items-center gap-1.5 mt-1 font-mono text-[11px]">
+                <span class="bg-red-50 text-red-600 px-1.5 py-0.5 rounded font-semibold border border-red-100">Batch: ANT240510</span>
+              </div>
+              <div class="text-[11px] text-[#766F66] mt-1">Exp: 14 Des 2026 • Kimia Farma</div>
+            </td>
+            <td class="py-4 px-4 align-top">
+              <div class="flex items-center gap-1.5 text-xs font-semibold text-[#1E1915]">
+                <i data-lucide="package" class="w-3.5 h-3.5 text-[#766F66]"></i>
+                Rak B1, Susun 1
+              </div>
+              <div class="text-[11px] text-[#766F66] mt-0.5">Zona Obat Bebas Cair</div>
+              <span class="inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-100 text-rose-800 border border-rose-200">Selisih Kurang</span>
+            </td>
+            <td class="py-4 px-4 align-top text-center">
+              <div class="bg-[#F8F6F2] py-2 px-3 rounded-xl border border-[#ECE7E1] inline-block min-w-[100px]">
+                <span class="text-base font-extrabold text-[#1E1915] font-mono">8</span>
+                <p class="text-[10px] text-[#766F66] font-medium">Botol (60 ml)</p>
+              </div>
+            </td>
+            <td class="py-4 px-4 align-top text-center">
+              <div class="relative inline-block w-32">
+                <input type="number" class="input-stok-fisik w-full text-center py-2 px-2 text-base font-extrabold font-mono rounded-xl border-2 border-rose-500 bg-rose-50/30 text-rose-800 focus:outline-none" value="7" data-row="2">
+                <p class="text-[10px] font-bold text-rose-600 mt-1 flex items-center justify-center gap-0.5">Botol Fisik Terhitung</p>
+              </div>
+            </td>
+            <td class="py-4 px-4 align-top text-center">
+              <div class="selisih-wrapper">
+                <span class="inline-block font-mono text-base font-bold text-rose-600">-1</span>
+                <div class="mt-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-100 text-rose-800">Kurang 1 Botol</span></div>
+              </div>
+            </td>
+            <td class="py-4 px-4 align-top">
+              <p class="text-xs text-[#1E1915] leading-relaxed row-catatan-text">Ditemukan selisih fisik kurang 1 botol. Diduga terjadi kebocoran botol atau belum terinput retur.</p>
+              <div class="flex items-center gap-2 mt-2">
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-100 text-rose-700 border border-rose-200">Perlu Investigasi</span>
+                <button type="button" onclick="editCatatan(2)" class="text-[11px] font-semibold text-[#964334] hover:underline flex items-center gap-1 cursor-pointer"><i data-lucide="edit-3" class="w-3 h-3"></i> Ubah Catatan</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- BARIS 3 -->
+          <tr class="hover:bg-[#FAF8F5]/60 transition-colors item-row" data-row-id="3" data-sistem="20" data-satuan="Strip" data-nama="Paracetamol 500 mg" data-batch="PCT250114" data-rak="Rak B2, Susun 2" data-status="belum">
+            <td class="py-4 px-4 align-top font-mono font-semibold text-xs text-gray-700">
+              <span class="bg-gray-100 px-2 py-1 rounded text-gray-800">MED-PCM-01</span>
+              <p class="text-[11px] font-sans text-[#766F66] mt-1 font-normal">Tablet 500mg</p>
+            </td>
+            <td class="py-4 px-4 align-top">
+              <div class="font-bold text-sm text-[#1E1915]">Paracetamol 500 mg</div>
+              <div class="flex items-center gap-1.5 mt-1 font-mono text-[11px]">
+                <span class="bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded font-semibold border border-gray-200">Batch: PCT250114</span>
+              </div>
+              <div class="text-[11px] text-[#766F66] mt-1">Exp: 22 Feb 2028 • PT Kalbe Farma</div>
+            </td>
+            <td class="py-4 px-4 align-top">
+              <div class="flex items-center gap-1.5 text-xs font-semibold text-[#1E1915]">
+                <i data-lucide="package" class="w-3.5 h-3.5 text-[#766F66]"></i>
+                Rak B2, Susun 2
+              </div>
+              <div class="text-[11px] text-[#766F66] mt-0.5">Zona Analgesik &amp; Antipiretik</div>
+              <span class="inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-600 border border-gray-200">Menunggu Audit</span>
+            </td>
+            <td class="py-4 px-4 align-top text-center">
+              <div class="bg-[#F8F6F2] py-2 px-3 rounded-xl border border-[#ECE7E1] inline-block min-w-[100px]">
+                <span class="text-base font-extrabold text-[#1E1915] font-mono">20</span>
+                <p class="text-[10px] text-[#766F66] font-medium">Strip (@10 Tablet)</p>
+              </div>
+            </td>
+            <td class="py-4 px-4 align-top text-center">
+              <div class="relative inline-block w-32">
+                <input type="number" placeholder="-" class="input-stok-fisik w-full text-center py-2 px-2 text-base font-extrabold font-mono rounded-xl border-2 border-dashed border-gray-300 bg-white text-gray-700 focus:outline-none" value="" data-row="3">
+                <p class="text-[10px] font-medium text-[#766F66] mt-1 flex items-center justify-center gap-0.5">Klik untuk input</p>
+              </div>
+            </td>
+            <td class="py-4 px-4 align-top text-center">
+              <div class="selisih-wrapper">
+                <span class="inline-block font-mono text-base font-bold text-gray-400">-</span>
+                <div class="mt-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-600">Belum Dihitung</span></div>
+              </div>
+            </td>
+            <td class="py-4 px-4 align-top">
+              <p class="text-xs text-[#766F66] leading-relaxed row-catatan-text">Item belum dihitung oleh petugas lapangan. Masukkan angka fisik untuk mengkalkulasi selisih.</p>
+              <div class="flex items-center gap-2 mt-2">
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">Menunggu Verifikasi</span>
+                <button type="button" onclick="editCatatan(3)" class="text-[11px] font-semibold text-[#964334] hover:underline flex items-center gap-1 cursor-pointer"><i data-lucide="plus-circle" class="w-3 h-3"></i> Tambah Catatan</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer Tabel Ringkasan Pill -->
+    <div class="p-4 bg-[#FAF8F5] border-t border-[#ECE7E1] flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+      <div class="flex items-center gap-2 text-[#766F66]">
+        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+        <span>Menampilkan <strong>3 item obat</strong> dalam sesi audit ini • Standar CDOB &amp; BPOM RI</span>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <span id="pillCocok" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> 1 Item Cocok
+        </span>
+        <span id="pillSelisih" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+          <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-600"></i> 1 Selisih Fisik
+        </span>
+        <span id="pillBelum" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200">
+          <i data-lucide="clock" class="w-3.5 h-3.5 text-gray-500"></i> 1 Item Belum Dihitung
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. BARIS SHORTCUT BAWAH -->
+  <div class="bg-white border border-[#ECE7E1] rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#766F66]">
+    <div class="flex flex-wrap items-center gap-4">
+      <div class="flex items-center gap-1.5">
+        <kbd class="px-2 py-0.5 text-[10px] font-mono font-semibold bg-gray-100 text-gray-800 border border-gray-300 rounded">Tab</kbd>
+        <span>Pindah ke kotak input fisik berikutnya</span>
+      </div>
+      <span class="hidden md:inline text-gray-300">•</span>
+      <div class="flex items-center gap-1.5">
+        <kbd class="px-2 py-0.5 text-[10px] font-mono font-semibold bg-gray-100 text-gray-800 border border-gray-300 rounded">Ctrl + S</kbd>
+        <span>Simpan draft audit sementara</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 text-emerald-600 font-semibold self-end sm:self-center">
+      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+      <span>Sinkronisasi Kartu Stok Otomatis Terhubung</span>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL KONFIRMASI PENYELESAIAN AUDIT -->
+<div id="modalKonfirmasiAudit" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+  <div class="bg-white rounded-2xl max-w-xl w-full shadow-2xl border border-[#ECE7E1] overflow-hidden" id="modalAuditCard">
+    <div class="p-6 pb-4 border-b border-[#ECE7E1] flex items-start gap-4">
+      <div class="w-12 h-12 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center shrink-0 text-rose-600">
+        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+      </div>
+      <div class="flex-1 pr-2">
+        <h3 class="text-lg font-extrabold text-[#1E1915]">Selesaikan Audit &amp; Sesuaikan Stok?</h3>
+        <p class="text-xs text-rose-600 font-semibold mt-0.5">Pemberitahuan Penyesuaian Permanen Kartu Stok Fisik</p>
+      </div>
+      <button id="btnTutupModalX" type="button" class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-lg cursor-pointer">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <div class="p-6 space-y-4">
+      <p class="text-xs md:text-sm text-gray-700 leading-relaxed" id="modalRingkasanText">
+        Anda akan menyelesaikan sesi <strong class="text-[#1E1915] font-mono">SO-NOV2026</strong>. Terdapat selisih pada <strong class="text-rose-600">1 item obat</strong> dari total 3 item yang diaudit. Menyelesaikan proses ini akan mengubah sisa stok di sistem secara permanen untuk menyamai fisik.
+      </p>
+
+      <div id="modalRincianSelisihBox" class="bg-[#FFF5F5] border border-rose-200 rounded-xl p-4 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-rose-100">
+          <span class="text-[11px] font-extrabold uppercase tracking-wider text-rose-800">Rincian Selisih Fisik</span>
+          <span class="text-[11px] font-bold text-rose-600">Perlu Rekonsiliasi Otomatis</span>
+        </div>
+        <div id="modalDaftarSelisih" class="space-y-3"></div>
+      </div>
+    </div>
+
+    <div class="p-4 md:p-6 bg-[#FAF8F5] border-t border-[#ECE7E1] flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3">
+      <div class="flex items-center gap-1.5 text-[11px] text-[#766F66]">
+        <i data-lucide="clock" class="w-3.5 h-3.5 text-gray-400"></i>
+        <span>SOP Verifikasi Farmasi BPOM RI</span>
+      </div>
+      <div class="flex items-center justify-end gap-2.5">
+        <button id="btnBatalModal" type="button" class="px-4 py-2 bg-white border border-[#ECE7E1] hover:bg-gray-100 text-gray-700 text-xs font-bold rounded-xl cursor-pointer">
+          Cek Kembali
+        </button>
+        <button id="btnSubmitModal" type="button" class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i>
+          <span>Ya, Sesuaikan Stok Permanen</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+
+  // Sinkronisasi parameter URL (?sesi=... dari halaman audit.html)
+  const urlParams = new URLSearchParams(window.location.search);
+  const sesiParam = urlParams.get('sesi');
+  if (sesiParam) {
+    document.getElementById('breadcrumbSesi').innerText = 'Sesi Aktif: ' + sesiParam;
+    document.getElementById('judulSesiAudit').innerText = 'Lembar Kerja Audit: ' + sesiParam;
+    document.getElementById('dokumenAuditNo').innerText = sesiParam;
+  }
+
+  const modal = document.getElementById('modalKonfirmasiAudit');
+  const btnBukaModal = document.getElementById('btnBukaModalSelesaikan');
+  const btnTutupX = document.getElementById('btnTutupModalX');
+  const btnBatal = document.getElementById('btnBatalModal');
+  const btnSubmit = document.getElementById('btnSubmitModal');
+  const btnSimpanDraft = document.getElementById('btnSimpanDraft');
+
+  function openModal() {
+    // Bangun daftar selisih dinamis sesuai input terbaru di tabel
+    const daftarContainer = document.getElementById('modalDaftarSelisih');
+    daftarContainer.innerHTML = '';
+    let selisihItems = 0;
+
+    document.querySelectorAll('#tabelBodyAudit tr').forEach(row => {
+      const input = row.querySelector('.input-stok-fisik');
+      const valStr = input.value.trim();
+      const sistem = parseInt(row.getAttribute('data-sistem'), 10);
+      if (valStr !== '' && !isNaN(valStr)) {
+        const fisik = parseInt(valStr, 10);
+        const diff = fisik - sistem;
+        if (diff !== 0) {
+          selisihItems++;
+          const nama = row.getAttribute('data-nama');
+          const batch = row.getAttribute('data-batch');
+          const rak = row.getAttribute('data-rak');
+          const satuan = row.getAttribute('data-satuan');
+          const diffLabel = diff > 0 ? `+${diff} ${satuan} (Lebih)` : `${diff} ${satuan} (Kurang)`;
+
+          daftarContainer.innerHTML += `
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <div class="font-bold text-[#1E1915]">${nama} <span class="text-[#766F66] font-normal font-mono">(Batch ${batch})</span></div>
+                <span class="bg-white px-2 py-0.5 rounded text-[11px] font-semibold text-gray-700 border border-rose-200">${rak}</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="bg-white p-2 rounded-lg border border-rose-100">
+                  <p class="text-[10px] uppercase font-bold text-[#766F66]">Stok Sistem</p>
+                  <p class="text-sm font-extrabold text-[#1E1915] font-mono mt-0.5">${sistem} ${satuan}</p>
+                </div>
+                <div class="bg-white p-2 rounded-lg border-2 border-rose-400">
+                  <p class="text-[10px] uppercase font-bold text-rose-600">Stok Fisik</p>
+                  <p class="text-sm font-extrabold text-rose-700 font-mono mt-0.5">${fisik} ${satuan}</p>
+                </div>
+                <div class="bg-rose-100/60 p-2 rounded-lg border border-rose-300">
+                  <p class="text-[10px] uppercase font-bold text-rose-800">Selisih Hasil Audit</p>
+                  <p class="text-sm font-extrabold text-rose-600 font-mono mt-0.5">${diffLabel}</p>
+                </div>
+              </div>
+            </div>`;
+        }
+      }
+    });
+
+    const boxSelisih = document.getElementById('modalRincianSelisihBox');
+    const ringkasanText = document.getElementById('modalRingkasanText');
+    const namaSesi = sesiParam || 'SO-NOV2026';
+
+    if (selisihItems === 0) {
+      boxSelisih.classList.add('hidden');
+      ringkasanText.innerHTML = `Anda akan menyelesaikan sesi <strong class="text-[#1E1915] font-mono">${namaSesi}</strong>. Seluruh item yang dihitung telah <strong>cocok 100%</strong> dengan stok sistem.`;
+    } else {
+      boxSelisih.classList.remove('hidden');
+      ringkasanText.innerHTML = `Anda akan menyelesaikan sesi <strong class="text-[#1E1915] font-mono">${namaSesi}</strong>. Terdapat selisih pada <strong class="text-rose-600">${selisihItems} item obat</strong>. Menyelesaikan proses ini akan mengubah sisa stok di sistem secara permanen untuk menyamai fisik.`;
+    }
+
+    modal.classList.remove('hidden');
+  }
+
+  function closeModal() {
+    modal.classList.add('hidden');
+  }
+
+  btnBukaModal.addEventListener('click', openModal);
+  btnTutupX.addEventListener('click', closeModal);
+  btnBatal.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+  btnSubmit.addEventListener('click', () => {
+    alert("Sukses! Sesi audit berhasil diselesaikan dan kartu stok telah disesuaikan permanen.");
+    window.location.href = "/persediaan/audit";
+  });
+
+  btnSimpanDraft.addEventListener('click', () => {
+    alert("Draft sesi audit berhasil disimpan.");
+  });
+
+  const inputStokList = document.querySelectorAll('.input-stok-fisik');
+  function updateKalkulasi() {
+    let totalRows = inputStokList.length;
+    let terhitungCount = 0, cocokCount = 0, selisihCount = 0, belumCount = 0;
+
+    inputStokList.forEach(input => {
+      const row = input.closest('tr');
+      const stokSistem = parseInt(row.getAttribute('data-sistem'), 10);
+      const valStr = input.value.trim();
+      const selisihCell = row.querySelector('.selisih-wrapper');
+      const statusHelper = input.nextElementSibling;
+
+      if (valStr === '' || isNaN(valStr)) {
+        belumCount++;
+        row.setAttribute('data-status', 'belum');
+        input.className = "input-stok-fisik w-full text-center py-2 px-2 text-base font-extrabold font-mono rounded-xl border-2 border-dashed border-gray-300 bg-white text-gray-700 focus:outline-none";
+        statusHelper.innerHTML = `Klik untuk input`;
+        statusHelper.className = "text-[10px] font-medium text-[#766F66] mt-1 flex items-center justify-center gap-0.5";
+        selisihCell.innerHTML = `<span class="inline-block font-mono text-base font-bold text-gray-400">-</span><div class="mt-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-600">Belum Dihitung</span></div>`;
+        row.classList.remove('bg-rose-50/20');
+      } else {
+        terhitungCount++;
+        const stokFisik = parseInt(valStr, 10);
+        const diff = stokFisik - stokSistem;
+        if (diff === 0) {
+          cocokCount++;
+          row.setAttribute('data-status', 'cocok');
+          input.className = "input-stok-fisik w-full text-center py-2 px-2 text-base font-extrabold font-mono rounded-xl border-2 border-emerald-500 bg-emerald-50/20 text-emerald-800 focus:outline-none";
+          statusHelper.innerHTML = `<i data-lucide="check" class="w-3 h-3"></i> Sesuai Fisik`;
+          statusHelper.className = "text-[10px] font-bold text-emerald-600 mt-1 flex items-center justify-center gap-0.5";
+          selisihCell.innerHTML = `<span class="inline-block font-mono text-base font-bold text-emerald-600">0</span><div class="mt-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">Sesuai (Match)</span></div>`;
+          row.classList.remove('bg-rose-50/20');
+        } else {
+          selisihCount++;
+          row.setAttribute('data-status', 'selisih');
+          const diffText = diff > 0 ? `+${diff}` : `${diff}`;
+          const labelSelisih = diff > 0 ? `Lebih ${diff} Unit` : `Kurang ${Math.abs(diff)} Unit`;
+          input.className = "input-stok-fisik w-full text-center py-2 px-2 text-base font-extrabold font-mono rounded-xl border-2 border-rose-500 bg-rose-50/30 text-rose-800 focus:outline-none";
+          statusHelper.innerHTML = `Fisik Terhitung: ${stokFisik}`;
+          statusHelper.className = "text-[10px] font-bold text-rose-600 mt-1 flex items-center justify-center gap-0.5";
+          selisihCell.innerHTML = `<span class="inline-block font-mono text-base font-bold text-rose-600">${diffText}</span><div class="mt-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-100 text-rose-800">${labelSelisih}</span></div>`;
+          row.classList.add('bg-rose-50/20');
+        }
+      }
+    });
+
+    const pct = ((terhitungCount / totalRows) * 100).toFixed(1);
+    document.getElementById('labelProgress').textContent = `${pct}% Terhitung`;
+    document.getElementById('labelProgressDetail').textContent = `${terhitungCount} dari ${totalRows} Terisi`;
+    document.getElementById('progressBarFill').style.width = `${pct}%`;
+
+    document.getElementById('pillCocok').innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> ${cocokCount} Item Cocok`;
+    document.getElementById('pillSelisih').innerHTML = `<i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-600"></i> ${selisihCount} Selisih Fisik`;
+    document.getElementById('pillBelum').innerHTML = `<i data-lucide="clock" class="w-3.5 h-3.5 text-gray-500"></i> ${belumCount} Item Belum Dihitung`;
+    lucide.createIcons();
+  }
+
+  inputStokList.forEach(input => input.addEventListener('input', updateKalkulasi));
+
+  // Filter & Search
+  function filterAuditTable() {
+    const q = document.getElementById('inputCariObat').value.toLowerCase();
+    const statusFilter = document.getElementById('filterStatusAudit').value;
+    document.querySelectorAll('#tabelBodyAudit tr').forEach(row => {
+      const matchText = row.innerText.toLowerCase().includes(q);
+      const matchStatus = statusFilter === 'all' || row.getAttribute('data-status') === statusFilter;
+      row.style.display = (matchText && matchStatus) ? '' : 'none';
+    });
+  }
+  document.getElementById('inputCariObat').addEventListener('input', filterAuditTable);
+  document.getElementById('filterStatusAudit').addEventListener('change', filterAuditTable);
+
+  window.editCatatan = function(rowId) {
+    const row = document.querySelector(`tr[data-row-id="${rowId}"]`);
+    const catatanEl = row.querySelector('.row-catatan-text');
+    const newCatatan = prompt("Perbarui catatan investigasi / keterangan baris ini:", catatanEl.innerText.trim());
+    if (newCatatan !== null && newCatatan.trim() !== "") catatanEl.innerText = newCatatan;
+  };
+</script>
+{{ end }}
