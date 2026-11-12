@@ -1,1 +1,183 @@
-.receipt-page{align-items:center}.receipt-page>.page-heading{width:100%}.receipt-paper{width:min(100%,460px);padding:30px 34px;background:#fff;border:1px solid #eadfdb;border-radius:5px;box-shadow:0 8px 30px rgba(60,35,28,.07);font-family:'Poppins',sans-serif}.receipt-brand{text-align:center}.receipt-logo{display:grid;place-items:center;width:42px;height:42px;margin:0 auto 10px;border-radius:12px;background:#fff0eb;color:#a64e3b;font-size:23px}.receipt-brand h2{margin:0;font-size:16px;letter-spacing:.3px}.receipt-brand p{margin:3px 0;color:#77635d;font-size:10px}.receipt-brand small{font-size:9px;color:#9b8580}.receipt-rule{height:1px;margin:17px 0;background:#e6dcd8}.receipt-rule.dashed{height:0;border-top:1px dashed #cdbdb7;background:none}.receipt-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px}.receipt-meta div,.receipt-total div{display:flex;justify-content:space-between;gap:12px}.receipt-meta span,.receipt-total span{font-size:9px;color:#88736d}.receipt-meta strong,.receipt-total strong{font-size:9px;text-align:right}.receipt-lines{display:flex;flex-direction:column;gap:12px}.receipt-line{display:flex;justify-content:space-between;gap:12px}.receipt-line>div{display:flex;flex-direction:column;gap:3px}.receipt-line strong{font-size:10px}.receipt-line small{font-size:9px;color:#8d7771}.receipt-total{display:flex;flex-direction:column;gap:9px}.receipt-total .grand{padding:9px 0;border-top:1px solid #eadfdb;border-bottom:1px solid #eadfdb}.receipt-total .grand strong,.receipt-total .grand span{font-size:13px;font-weight:700;color:#a34d3c}.receipt-thanks{text-align:center}.receipt-thanks strong{font-size:10px}.receipt-thanks p{margin:6px 0;color:#8b7771;font-size:9px;line-height:1.5}.receipt-thanks small{font-size:9px;color:#9b8580}.receipt-demo{margin-top:22px;padding:7px;border:1px dashed #e7b0a3;border-radius:5px;color:#ad5b49;font-size:8px;font-weight:700;letter-spacing:1px;text-align:center}.receipt-page .page-heading{align-items:center}@media(max-width:560px){.receipt-paper{padding:24px 18px}.receipt-page .page-heading{align-items:flex-start}}
+.receipt-page {
+    align-items: center;
+}
+
+.receipt-page>.page-heading {
+    width: 100%;
+}
+
+.receipt-paper {
+    width: min(100%, 480px);
+    padding: 32px 36px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 0 8px 30px rgba(60, 35, 28, .07);
+    font-family: 'Poppins', sans-serif;
+}
+
+.receipt-brand {
+    text-align: center;
+}
+
+.receipt-logo {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 10px;
+    border-radius: 12px;
+    background: #fff1ed;
+    color: var(--primary-dark);
+    font-size: 23px;
+}
+
+.receipt-brand h2 {
+    margin: 0;
+    color: var(--text);
+    font-size: 17px;
+    letter-spacing: .3px;
+}
+
+.receipt-brand p {
+    margin: 3px 0;
+    color: var(--text-soft);
+    font-size: 12px;
+}
+
+.receipt-brand small {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.receipt-rule {
+    height: 1px;
+    margin: 18px 0;
+    background: var(--border-strong);
+}
+
+.receipt-rule.dashed {
+    height: 0;
+    border-top: 1px dashed #cdbdb7;
+    background: none;
+}
+
+.receipt-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.receipt-meta div,
+.receipt-total div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.receipt-meta span,
+.receipt-total span {
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.receipt-meta strong,
+.receipt-total strong {
+    color: var(--text);
+    font-size: 11px;
+    text-align: right;
+}
+
+.receipt-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.receipt-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.receipt-line>div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.receipt-line strong {
+    color: var(--text);
+    font-size: 12px;
+}
+
+.receipt-line small {
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.receipt-total {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.receipt-total .grand {
+    padding: 10px 0;
+    border-top: 1px solid var(--border-strong);
+    border-bottom: 1px solid var(--border-strong);
+}
+
+.receipt-total .grand strong,
+.receipt-total .grand span {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
+.receipt-thanks {
+    text-align: center;
+}
+
+.receipt-thanks strong {
+    color: var(--text);
+    font-size: 12px;
+}
+
+.receipt-thanks p {
+    margin: 6px 0;
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+.receipt-thanks small {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.receipt-demo {
+    margin-top: 22px;
+    padding: 8px;
+    border: 1px dashed #e7b0a3;
+    border-radius: 5px;
+    color: var(--primary-dark);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.receipt-page .page-heading {
+    align-items: center;
+}
+
+@media (max-width: 560px) {
+    .receipt-paper {
+        padding: 24px 18px;
+    }
+
+    .receipt-page .page-heading {
+        align-items: flex-start;
+    }
+}

@@ -57,7 +57,7 @@
                             name="identifier"
                             type="text"
                             placeholder="Masukkan username atau email"
-                            value="{{.Identifier}}"
+                            value="{{if .Identifier}}{{.Identifier}}{{else}}owner{{end}}"
                             autocomplete="username"
                             required
                         >
@@ -71,6 +71,7 @@
                                 name="password"
                                 type="password"
                                 placeholder="Masukkan password"
+                                value="owner123"
                                 autocomplete="current-password"
                                 required
                             >

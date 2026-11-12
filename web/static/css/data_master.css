@@ -1,1 +1,88 @@
-.master-page{font-family:'Plus Jakarta Sans','Poppins',sans-serif}.master-page .page-heading h1,.master-page .section-title h2{font-family:'Plus Jakarta Sans','Poppins',sans-serif}.master-tabs{display:flex;align-items:center;gap:6px;padding:5px;background:#fff;border:1px solid var(--border);border-radius:10px;overflow:auto}.master-tab{min-height:36px;padding:8px 14px;border:0;border-radius:7px;background:transparent;color:#806b65;font-size:10px;font-weight:700;white-space:nowrap}.master-tab:hover{background:#fff5f1}.master-tab.is-active{background:#ff9a86;color:#fff}.master-section[hidden]{display:none}.master-section.is-visible{display:block}.master-page .data-table{min-width:780px}.master-page .data-table th,.master-page .data-table td{font-size:10px}.master-page .section-title{margin-bottom:15px}@media(max-width:600px){.master-tabs{width:100%}.master-tab{flex:1;padding:8px 10px;font-size:9px}}
+.master-page,
+body:has(.master-page) {
+    font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif;
+}
+
+.master-page .page-heading h1,
+.master-page .section-title h2 {
+    font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif;
+}
+
+.master-tabs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: auto;
+}
+
+.master-tab {
+    min-height: 40px;
+    padding: 9px 16px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-soft);
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.master-tab:hover {
+    background: #fff5f1;
+}
+
+.master-tab.is-active {
+    background: var(--primary);
+    color: #fff;
+}
+
+.master-section[hidden] {
+    display: none;
+}
+
+.master-section.is-visible {
+    display: block;
+}
+
+.master-page .data-table {
+    min-width: 820px;
+}
+
+.master-page .data-table th {
+    font-size: 11px;
+    letter-spacing: .2px;
+}
+
+.master-page .data-table td {
+    font-size: 12px;
+}
+
+.master-page .data-table td strong {
+    font-size: 14px;
+    line-height: 19px;
+}
+
+.master-page .data-table td small {
+    font-size: 12px;
+}
+
+.master-page .section-title {
+    margin-bottom: 16px;
+}
+
+@media (max-width: 600px) {
+    .master-tabs {
+        width: 100%;
+    }
+
+    .master-tab {
+        flex: 1;
+        padding: 9px 12px;
+        font-size: 12px;
+    }
+}

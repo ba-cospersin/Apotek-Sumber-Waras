@@ -1,1 +1,94 @@
-.users-page .page-heading{align-items:center}.person-cell{display:flex;align-items:center;gap:9px;min-width:190px}.person-avatar{display:grid;place-items:center;width:31px;height:31px;flex:0 0 31px;border-radius:50%;background:#f5e6df;color:#945847;font-size:11px;font-weight:700}.person-avatar.coral{background:#fff0eb;color:#ac5948}.person-avatar.green{background:#e4f5eb;color:#2e9e5b}.person-avatar.muted{background:#efefef;color:#888}.role-chip{display:inline-flex;padding:5px 8px;border-radius:20px;font-size:8px;font-weight:700}.role-chip.owner{background:#ffe8dd;color:#a64d39}.role-chip.cashier{background:#edf4ff;color:#5273a6}.role-chip.warehouse{background:#e5f5ec;color:#2e8a54}.users-page .data-table{min-width:900px}@media(max-width:600px){.users-page .page-heading{align-items:flex-start}}
+.users-page,
+body:has(.users-page) {
+    font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif;
+}
+
+.users-page .page-heading {
+    align-items: center;
+}
+
+.users-page .data-table th {
+    font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif;
+    font-size: 11px;
+    letter-spacing: .24px;
+}
+
+.users-page .data-table td strong {
+    font-size: 14px;
+    line-height: 19px;
+}
+
+.users-page .data-table td small {
+    font-size: 12px;
+    line-height: 16px;
+}
+
+.person-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 210px;
+}
+
+.person-avatar {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    border-radius: 50%;
+    background: rgba(255, 154, 134, .2);
+    color: #964737;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.person-avatar.coral {
+    background: #fff0eb;
+    color: #ac5948;
+}
+
+.person-avatar.green {
+    background: #e4f5eb;
+    color: #2e9e5b;
+}
+
+.person-avatar.muted {
+    background: #efefef;
+    color: #888;
+}
+
+.role-chip {
+    display: inline-flex;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 10px;
+    line-height: 14px;
+    font-weight: 700;
+    letter-spacing: .25px;
+}
+
+.role-chip.owner {
+    background: #ffe8dd;
+    color: #a64d39;
+}
+
+.role-chip.cashier {
+    background: #edf4ff;
+    color: #5273a6;
+}
+
+.role-chip.warehouse {
+    background: #e5f5ec;
+    color: #2e8a54;
+}
+
+.users-page .data-table {
+    min-width: 920px;
+}
+
+@media (max-width: 600px) {
+    .users-page .page-heading {
+        align-items: flex-start;
+    }
+}
