@@ -1,161 +1,191 @@
 {{ define "partials/sidebar.html" }}
-<aside class="w-full lg:w-72 bg-white border-r border-[#EBE3DB] flex-shrink-0 flex flex-col justify-between min-h-screen shadow-sm z-30" data-purpose="main-sidebar">
+<aside class="w-full lg:w-72 bg-white border-r border-slate-100 flex-shrink-0 flex flex-col justify-between min-h-screen z-30 text-slate-600" data-purpose="main-sidebar">
   <div class="p-5">
     <!-- Pharmacy Logo & Brand -->
-    <div class="flex items-center gap-3 pb-6 border-b border-[#F1EAE3]" data-purpose="brand-header">
-      <div class="w-10 h-10 rounded-xl bg-[#F6DFD7] text-[#A34839] flex items-center justify-center font-bold text-xl shadow-inner">
-        <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
-          <path d="M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z"></path>
+    <div class="flex items-center gap-3.5 pb-6" data-purpose="brand-header">
+      <div class="w-11 h-11 rounded-2xl bg-[#FCE8E3] text-[#F47B64] flex items-center justify-center shrink-0">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.5 3.5l-3.5 5M5 10h14l-1.3 6.8a3 3 0 01-2.95 2.45H9.25a3 3 0 01-2.95-2.45L5 10zm3 9.25h8M12 12.5v4m-2-2h4" />
         </svg>
       </div>
       <div>
-        <h1 class="text-sm font-extrabold tracking-wide text-slate-900 uppercase">Sumber Waras</h1>
-        <p class="text-[11px] font-medium text-slate-500">SIM Farmasi &amp; Batch</p>
+        <h1 class="text-xs font-extrabold tracking-wide text-slate-900 uppercase leading-snug">APOTEK SUMBER WARAS</h1>
+        <p class="text-[11px] font-medium text-slate-400 mt-0.5">Sistem Stok Apotek</p>
       </div>
     </div>
 
     <!-- Navigation Menu -->
-    <nav class="mt-6 space-y-1 text-sm font-medium" data-purpose="sidebar-nav">
-      <!-- Dashboard (Active) -->
-      <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg bg-[#964334] text-white shadow-sm transition" href="/dashboard">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <nav class="mt-2 space-y-1 text-xs font-medium" data-purpose="sidebar-nav">
+      <!-- Dashboard -->
+      <a class="nav-top-link flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition font-semibold" href="/dashboard">
+        <svg class="w-[18px] h-[18px] text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
           <path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round"></path>
         </svg>
-        <span class="font-semibold text-xs tracking-wide">Dashboard</span>
+        <span>Dashboard</span>
       </a>
 
-      <!-- Data Master Dropdown Toggle -->
-      <div>
-        <button class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-slate-700 hover:bg-[#F8F4EE] transition text-xs font-semibold" id="masterDataToggleBtn" onclick="toggleDataMaster()" type="button">
-          <div class="flex items-center gap-3">
-            <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round" stroke-linejoin="round"></path>
-            </svg>
-            <span>Data Master</span>
-          </div>
-          <svg class="w-4 h-4 text-slate-400 transform transition-transform duration-200 rotate-180" fill="none" id="masterChevron" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
-        </button>
-        <!-- Submenu List -->
-        <div class="pl-10 pr-2 pt-1 pb-2 space-y-1 text-xs" id="masterDataMenu">
-          <a class="block py-1.5 px-2.5 text-slate-600 hover:text-[#964334] hover:bg-[#FAF4EF] rounded font-medium" href="/datamaster/dataobat">Data Obat</a>          
-          <a class="block py-1.5 px-2.5 text-slate-600 hover:text-[#964334] hover:bg-[#FAF4EF] rounded font-medium" href="/datamaster/datasatuan">Data Satuan</a>
-          <a class="block py-1.5 px-2.5 text-slate-600 hover:text-[#964334] hover:bg-[#FAF4EF] rounded font-medium" href="/datamaster/konversisatuan">Konversi Satuan</a>
-          <a class="block py-1.5 px-2.5 text-slate-600 hover:text-[#964334] hover:bg-[#FAF4EF] rounded font-medium" href="/datamaster/hargajual">Harga Jual</a>
-          <a class="block py-1.5 px-2.5 text-slate-600 hover:text-[#964334] hover:bg-[#FAF4EF] rounded font-medium" href="/datamaster/datapbf">Data PBF</a>
-        </div>
-      </div>
+      <!-- Kasir -->
+      <a class="nav-top-link flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition font-semibold" href="#">
+        <svg class="w-[18px] h-[18px] text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m-6 4h6m-7 8h8a2 2 0 002-2v-5a2 2 0 00-2-2H8a2 2 0 00-2 2v5a2 2 0 002 2zm2-12V4a1 1 0 011-1h4a1 1 0 011 1v3" />
+        </svg>
+        <span>Kasir</span>
+      </a>
 
-      <!-- Penerimaan Barang (Cukup 1 Ikon SVG) -->
-<a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-700 hover:bg-[#F8F4EE] transition text-xs font-semibold" href="/penerimaan/penerimaan">
-  <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-    <path d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20" stroke-linecap="round" stroke-linejoin="round"></path>
-  </svg>
-  <span>Penerimaan Barang</span>
-</a>
+      <!-- Penerimaan Barang -->
+      <a class="nav-top-link flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition font-semibold" href="/penerimaan/penerimaan">
+        <svg class="w-[18px] h-[18px] text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+        <span>Penerimaan Barang</span>
+      </a>
 
-      <!-- Persediaan Dropdown Toggle -->
-      <div>
-        <button class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-slate-700 hover:bg-[#F8F4EE] transition text-xs font-semibold" id="persediaanToggleBtn" onclick="togglePersediaanDropdown()" type="button">
-          <div class="flex items-center gap-3">
-            <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" stroke-linecap="round" stroke-linejoin="round"></path>
+      <!-- Persediaan Dropdown (Cek Stok & Batch, Stock Opname, Kedaluwarsa, dll.) -->
+      <div class="dropdown-group" data-group="persediaan">
+        <button class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition font-semibold cursor-pointer" id="persediaanToggleBtn" onclick="toggleDropdown('submenu-persediaan', 'persediaanChevron')" type="button">
+          <div class="flex items-center gap-3.5">
+            <svg class="w-[18px] h-[18px] text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
             </svg>
             <span>Persediaan</span>
           </div>
-          <svg class="w-4 h-4 text-slate-400 transform transition-transform duration-200 rotate-180" fill="none" id="persediaanChevron" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <svg class="w-3.5 h-3.5 text-slate-400 transform transition-transform duration-200" fill="none" id="persediaanChevron" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
           </svg>
         </button>
-        <!-- Submenu List -->
-        <div class="pl-10 pr-2 pt-1 pb-2 space-y-1 text-xs" id="submenu-persediaan">
-          <a class="block py-1.5 px-2.5 text-slate-600 hover:text-[#964334] hover:bg-[#FAF4EF] rounded font-medium" href="/persediaan/stock-batch">Stock per Batch</a>
-          <a class="block py-1.5 px-2.5 text-slate-600 hover:text-[#964334] hover:bg-[#FAF4EF] rounded font-medium" href="/persediaan/lacak">Lacak Stock</a>
-          <a class="block py-1.5 px-2.5 text-slate-600 hover:text-[#964334] hover:bg-[#FAF4EF] rounded font-medium" href="/persediaan/audit">Audit Fisik</a>
-          <a class="block py-1.5 px-2.5 text-slate-600 hover:text-[#964334] hover:bg-[#FAF4EF] rounded font-medium" href="/persediaan/riwayat">Riwayat Penyesuaian</a>
-          <a class="block py-1.5 px-2.5 text-slate-600 hover:text-[#964334] hover:bg-[#FAF4EF] rounded font-medium" href="/persediaan/kedaluwarsa">Kedaluwarsa</a>
+
+        <div class="hidden pl-9 pr-1 pt-1 pb-1.5 space-y-1" id="submenu-persediaan">
+          <a class="nav-sub-link block py-2 px-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium transition" href="/persediaan/stock-batch">Cek Stok &amp; Batch</a>
+          <a class="nav-sub-link block py-2 px-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium transition" href="/persediaan/lacak">Penelusuran Batch</a>
+          <a class="nav-sub-link block py-2 px-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium transition" href="/persediaan/audit">Stock Opname</a>
+          <a class="nav-sub-link block py-2 px-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium transition" href="/persediaan/riwayat">Riwayat Penyesuaian</a>
+          <a class="nav-sub-link block py-2 px-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium transition" href="/persediaan/kedaluwarsa">Kedaluwarsa &amp; Blokir</a>
         </div>
       </div>
 
+      <!-- Retur Konsumen -->
+      <a class="nav-top-link flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition font-semibold" href="#">
+        <svg class="w-[18px] h-[18px] text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+        </svg>
+        <span>Retur Konsumen</span>
+      </a>
+
+      <!-- Pengembalian ke PBF -->
+      <a class="nav-top-link flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition font-semibold" href="/pengembalian/pengembalian">
+        <svg class="w-[18px] h-[18px] text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z" />
+        </svg>
+        <span>Pengembalian ke PBF</span>
+      </a>
+
       <!-- Pemusnahan Barang -->
-      <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-700 hover:bg-[#F8F4EE] transition text-xs font-semibold" href="/pemusnahan/pemusnahan">
-        <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <a class="nav-top-link flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition font-semibold" href="/pemusnahan/pemusnahan">
+        <svg class="w-[18px] h-[18px] text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
           <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round"></path>
         </svg>
         <span>Pemusnahan Barang</span>
       </a>
 
-      <!-- Pengembalian ke PBF -->
-      <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-700 hover:bg-[#F8F4EE] transition text-xs font-semibold" href="/pengembalian/pengembalian">
-        <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" stroke-linecap="round" stroke-linejoin="round"></path>
+      <!-- Laporan -->
+      <a class="nav-top-link flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition font-semibold" href="#">
+        <svg class="w-[18px] h-[18px] text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
         </svg>
-        <span>Pengembalian ke PBF</span>
+        <span>Laporan</span>
       </a>
 
-      <!-- Pengaturan -->
-      <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-700 hover:bg-[#F8F4EE] transition text-xs font-semibold" href="#">
-        <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round"></path>
-          <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+      <!-- Data Master Dropdown -->
+      <div class="dropdown-group" data-group="datamaster">
+        <button class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition font-semibold cursor-pointer" id="masterDataToggleBtn" onclick="toggleDropdown('masterDataMenu', 'masterChevron')" type="button">
+          <div class="flex items-center gap-3.5">
+            <svg class="w-[18px] h-[18px] text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+            </svg>
+            <span>Data Master</span>
+          </div>
+          <svg class="w-3.5 h-3.5 text-slate-400 transform transition-transform duration-200" fill="none" id="masterChevron" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </button>
+
+        <div class="hidden pl-9 pr-1 pt-1 pb-1.5 space-y-1" id="masterDataMenu">
+          <a class="nav-sub-link block py-2 px-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium transition" href="/datamaster/dataobat">Data Obat</a>
+          <a class="nav-sub-link block py-2 px-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium transition" href="/datamaster/datasatuan">Data Satuan</a>
+          <a class="nav-sub-link block py-2 px-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium transition" href="/datamaster/konversisatuan">Konversi Satuan</a>
+          <a class="nav-sub-link block py-2 px-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium transition" href="/datamaster/hargajual">Harga Jual</a>
+          <a class="nav-sub-link block py-2 px-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium transition" href="/datamaster/datapbf">Data PBF</a>
+        </div>
+      </div>
+
+      <!-- Manajemen Pengguna -->
+      <a class="nav-top-link flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition font-semibold" href="#">
+        <svg class="w-[18px] h-[18px] text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
-        <span>Pengaturan</span>
+        <span>Manajemen Pengguna</span>
       </a>
     </nav>
   </div>
 
   <!-- Bottom Status Card -->
-  <div class="p-4 m-4 rounded-xl bg-[#FAF5EE] border border-[#ECE0D4]" data-purpose="system-sync-card">
-    <div class="flex items-center gap-2.5">
-      <span class="relative flex h-2.5 w-2.5">
+  <div class="p-4 m-4 rounded-2xl bg-[#FFF8F0] border border-[#F3E5D4]" data-purpose="system-sync-card">
+    <div class="flex items-start gap-2.5">
+      <span class="mt-1 relative flex h-2 w-2 shrink-0">
         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
       </span>
-      <div class="text-[11px]">
-        <p class="font-bold text-slate-800">Cloud Sync Aktif</p>
-        <p class="text-slate-500">Tersinkronisasi otomatis</p>
+      <div class="text-[11px] leading-snug">
+        <p class="font-bold text-[#7C2D12]">Cloud Sync Aktif</p>
+        <p class="text-[#C2410C]/80 mt-0.5">Tersinkronisasi otomatis</p>
       </div>
     </div>
   </div>
 </aside>
 
 <script>
-  function toggleDataMaster() {
-    const subMenu = document.getElementById('masterDataMenu');
-    const chevron = document.getElementById('masterChevron');
+  function toggleDropdown(menuId, chevronId) {
+    const subMenu = document.getElementById(menuId);
+    const chevron = document.getElementById(chevronId);
     if (subMenu && chevron) {
       const isHidden = subMenu.classList.toggle('hidden');
       chevron.classList.toggle('rotate-180', !isHidden);
     }
   }
 
-  function togglePersediaanDropdown() {
-    const subMenu = document.getElementById('submenu-persediaan');
-    const chevron = document.getElementById('persediaanChevron');
-    if (subMenu && chevron) {
-      const isHidden = subMenu.classList.toggle('hidden');
-      chevron.classList.toggle('rotate-180', !isHidden);
-    }
-  }
-  // Sisipkan di dalam tag <script> bagian bawah sidebar.html
-document.addEventListener("DOMContentLoaded", function () {
-  const currentPath = window.location.pathname;
-  const navLinks = document.querySelectorAll('nav a');
+  document.addEventListener("DOMContentLoaded", function () {
+    const currentPath = window.location.pathname;
 
-  navLinks.forEach(link => {
-    const href = link.getAttribute('href');
-    if (href && href !== '#' && currentPath === href) {
-      link.classList.remove('text-slate-700', 'hover:bg-[#F8F4EE]');
-      link.classList.add('bg-[#964334]', 'text-white', 'shadow-sm');
-      
-      const svg = link.querySelector('svg');
-      if (svg) {
-        svg.classList.remove('text-slate-500');
-        svg.classList.add('text-white');
+    // 1. Sorot menu tingkat atas yang aktif (pill koral solid #F88E7B + teks putih)
+    document.querySelectorAll('.nav-top-link').forEach(link => {
+      const href = link.getAttribute('href');
+      if (href && href !== '#' && (currentPath === href || currentPath.startsWith(href + '/'))) {
+        link.classList.remove('text-slate-600', 'hover:bg-slate-50', 'hover:text-slate-900');
+        link.classList.add('bg-[#F88E7B]', 'text-white', 'shadow-sm', 'shadow-orange-200');
+        const svg = link.querySelector('svg');
+        if (svg) {
+          svg.classList.remove('text-slate-400');
+          svg.classList.add('text-white');
+        }
       }
-    }
+    });
+
+    // 2. Sorot sub-menu aktif (pill koral solid #F88E7B + teks putih) & buka dropdown induknya
+    document.querySelectorAll('.nav-sub-link').forEach(link => {
+      const href = link.getAttribute('href');
+      if (href && href !== '#' && (currentPath === href || currentPath.startsWith(href + '/'))) {
+        link.classList.remove('text-slate-500', 'hover:bg-slate-50', 'hover:text-slate-900', 'font-medium');
+        link.classList.add('bg-[#F88E7B]', 'text-white', 'font-bold', 'shadow-sm', 'shadow-orange-200');
+
+        const parentGroup = link.closest('.dropdown-group');
+        if (parentGroup) {
+          const menuDiv = parentGroup.querySelector('div[id]');
+          const chevronSvg = parentGroup.querySelector('svg[id]');
+          if (menuDiv) menuDiv.classList.remove('hidden');
+          if (chevronSvg) chevronSvg.classList.add('rotate-180');
+        }
+      }
+    });
   });
-});
 </script>
 {{ end }}
