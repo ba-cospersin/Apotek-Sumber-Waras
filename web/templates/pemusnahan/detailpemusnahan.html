@@ -1,0 +1,374 @@
+{{ define "content" }}
+<main class="p-8 space-y-6 flex-1 bg-[#F8F6F2] min-w-0" data-purpose="content-view">
+  <!-- Top Alert Banner (Audit Status) -->
+  <section class="bg-[#EBF7EE] border border-[#C6E9CC] rounded-2xl p-4 px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs" data-purpose="success-alert-banner">
+    <div class="flex items-center gap-4">
+      <div class="w-8 h-8 rounded-full bg-[#28A745] text-white flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-sm font-bold text-gray-900 leading-snug">Berhasil! Stok obat telah dimusnahkan secara permanen dan Berita Acara tersimpan.</h2>
+        <p class="text-xs text-gray-600 mt-0.5">Transaksi PMS/2026/001 telah tercatat di log audit CDOB &amp; Karantina Farmasi. Kartu stok terpotong otomatis.</p>
+      </div>
+    </div>
+    <div class="shrink-0">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white text-[#198754] text-xs font-semibold rounded-xl border border-[#BCE1C3] shadow-xs">
+        <svg class="w-3.5 h-3.5 text-[#198754]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+        <span>Status Log: Terenkripsi &amp; Sah</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Page Heading & Breadcrumb -->
+  <section class="space-y-1.5" data-purpose="page-header">
+    <nav aria-label="Breadcrumb" class="text-xs font-semibold text-gray-500 flex items-center gap-2">
+      <a href="/" class="hover:text-[#964334] transition-colors">Beranda</a>
+      <span class="text-gray-400">›</span>
+      <a href="/pemusnahan" class="hover:text-[#964334] transition-colors">Pemusnahan Barang</a>
+      <span class="text-gray-400">›</span>
+      <span class="text-[#964334]">Detail Pemusnahan</span>
+    </nav>
+    <div class="flex flex-wrap items-center gap-3 pt-1">
+      <h1 class="font-bold text-2xl text-gray-900 tracking-tight">Detail Pemusnahan - PMS/2026/001</h1>
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FDEAE8] text-[#C93B2B] text-xs font-bold rounded-full">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#C93B2B]"></span>
+        Telah Dimusnahkan
+      </span>
+      <span class="px-2.5 py-1 bg-gray-200 text-gray-600 text-[11px] font-bold rounded tracking-wide">
+        MODE BACA / AUDIT TERKUNCI
+      </span>
+    </div>
+    <p class="text-xs text-gray-500 font-medium">Bukti autentik eksekusi pemusnahan perbekalan farmasi kedaluwarsa sesuai regulasi SIPNAP &amp; Dinkes RI.</p>
+  </section>
+
+  <!-- Main Two-Column Layout Grid -->
+  <div class="grid grid-cols-12 gap-6 items-start">
+    <!-- ======================= LEFT COLUMN (8 COLS) ======================= -->
+    <div class="col-span-12 xl:col-span-8 space-y-6">
+      <!-- Card A: Informasi Obat -->
+      <article class="bg-white rounded-2xl p-6 border border-[#E9E4DC] shadow-xs" data-purpose="card-informasi-obat">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-5 border-b border-gray-100">
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-lg bg-[#FAF0ED] text-[#964334] font-bold text-sm flex items-center justify-center">A</span>
+            <div>
+              <h3 class="font-bold text-base text-gray-900 leading-tight">Informasi Obat</h3>
+              <p class="text-xs text-gray-500">Identitas sediaan farmasi yang telah ditarik dari karantina</p>
+            </div>
+          </div>
+          <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-semibold text-gray-600 bg-gray-50">
+            <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            </svg>
+            <span>Data Statis Terverifikasi</span>
+          </div>
+        </div>
+
+        <!-- 4 Grid Fields -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5">
+          <!-- Field 1 -->
+          <div class="bg-[#FBF9F6] p-3.5 rounded-xl border border-[#EFECE5]">
+            <p class="text-[10px] font-bold tracking-wider text-gray-400 uppercase">NAMA OBAT &amp; BENTUK</p>
+            <p id="detNamaObat" class="font-bold text-sm text-gray-900 mt-1">Paracetamol 500 mg</p>
+            <p class="text-[11px] text-gray-500 mt-0.5">Tablet Salut • Kategori Analgesik</p>
+          </div>
+          <!-- Field 2 -->
+          <div class="bg-[#FBF9F6] p-3.5 rounded-xl border border-[#EFECE5]">
+            <p class="text-[10px] font-bold tracking-wider text-gray-400 uppercase">KODE SKU FARMASI</p>
+            <p id="detKodeObat" class="font-mono font-bold text-sm text-gray-900 mt-1">MED-PCM-01</p>
+            <p class="text-[11px] text-gray-500 mt-0.5">Kemasan: Strip (10x10)</p>
+          </div>
+          <!-- Field 3 -->
+          <div class="bg-[#FBF9F6] p-3.5 rounded-xl border border-[#EFECE5]">
+            <p class="text-[10px] font-bold tracking-wider text-gray-400 uppercase">NOMOR BATCH PRODUSEN</p>
+            <div class="flex items-center gap-1.5 mt-1">
+              <span id="detBatch" class="font-mono font-extrabold text-sm text-gray-900">B001</span>
+              <span class="text-[10px] font-bold px-1.5 py-0.5 bg-[#FDEAE8] text-[#964334] rounded">PBF: PT Kimia Farma</span>
+            </div>
+            <p class="text-[11px] text-gray-500 mt-0.5">Asal Faktur: INV/2024/881</p>
+          </div>
+          <!-- Field 4 -->
+          <div class="bg-[#FBF9F6] p-3.5 rounded-xl border border-[#EFECE5]">
+            <p class="text-[10px] font-bold tracking-wider text-gray-400 uppercase">TANGGAL KEDALUWARSA (ED)</p>
+            <div class="flex items-center gap-1.5 mt-1 text-[#DC3545] font-bold text-sm">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
+                <polyline points="12 6 12 12 16 14" stroke-width="2"></polyline>
+              </svg>
+              <span id="detED">10/2026 (Expired)</span>
+            </div>
+            <p class="text-[11px] text-gray-500 mt-0.5">Lewat Batas Aman Konsumsi</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card B: Rincian Pelaksanaan Pemusnahan -->
+      <article class="bg-white rounded-2xl p-6 border border-[#E9E4DC] shadow-xs space-y-5" data-purpose="card-rincian-pelaksanaan">
+        <div class="pb-3 border-b border-gray-100">
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-lg bg-[#FAF0ED] text-[#964334] font-bold text-sm flex items-center justify-center">B</span>
+            <div>
+              <h3 class="font-bold text-base text-gray-900 leading-tight">Rincian Pelaksanaan Pemusnahan</h3>
+              <p class="text-xs text-gray-500">Log teknis eksekusi pemusnahan sesuai SOP Dinkes</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Execution Metric Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <!-- Exec Item 1 -->
+          <div class="bg-[#FBF9F6] p-3.5 rounded-xl border border-[#EFECE5]">
+            <p class="text-[10px] font-bold tracking-wider text-gray-400 uppercase">TANGGAL PEMUSNAHAN</p>
+            <p id="detTanggal" class="font-bold text-sm text-gray-900 mt-1">11 Mei 2026</p>
+            <p class="text-[11px] text-gray-500 mt-0.5">Pukul 09:30 WIB (Pagi)</p>
+          </div>
+          <!-- Exec Item 2 -->
+          <div class="bg-[#FBF9F6] p-3.5 rounded-xl border border-[#EFECE5]">
+            <p class="text-[10px] font-bold tracking-wider text-gray-400 uppercase">JUMLAH YANG DIMUSNAHKAN</p>
+            <p id="detJumlah" class="font-extrabold text-sm text-[#DC3545] mt-1">100 Tablet</p>
+            <p class="text-[11px] text-gray-500 mt-0.5">Sesuai Verifikasi Karantina</p>
+          </div>
+          <!-- Exec Item 3 -->
+          <div class="bg-[#FBF9F6] p-3.5 rounded-xl border border-[#EFECE5]">
+            <p class="text-[10px] font-bold tracking-wider text-gray-400 uppercase">ALASAN PEMUSNAHAN</p>
+            <p id="detAlasan" class="font-bold text-sm text-gray-900 mt-1">Kedaluwarsa (ED Lewat)</p>
+            <p class="text-[11px] text-gray-500 mt-0.5">Kriteria: Tidak layak konsumsi</p>
+          </div>
+          <!-- Exec Item 4 -->
+          <div class="bg-[#FBF9F6] p-3.5 rounded-xl border border-[#EFECE5]">
+            <p class="text-[10px] font-bold tracking-wider text-gray-400 uppercase">METODE PEMUSNAHAN</p>
+            <p id="detMetode" class="font-bold text-sm text-gray-900 mt-1">Enkapsulasi &amp; Pengenceran</p>
+            <p class="text-[11px] text-gray-500 mt-0.5">SOP Limbah B3 Farmasi Dinkes</p>
+          </div>
+        </div>
+
+        <!-- Catatan & Saksi Pelaksanaan Box -->
+        <div class="bg-[#FBF9F6] rounded-xl p-4 border border-[#EFECE5]" data-purpose="catatan-saksi-box">
+          <div class="flex items-center gap-2 mb-2 text-[#964334]">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            </svg>
+            <h4 class="text-xs font-bold tracking-wide uppercase">CATATAN &amp; SAKSI PELAKSANAAN RESMI</h4>
+          </div>
+          <p id="detCatatan" class="text-xs text-gray-700 leading-relaxed">
+            Disaksikan oleh <span class="font-bold text-gray-900">apt. Farhan Wicaksono, S.Farm (SIPA: 1984/SIPA/2022)</span> dan <span class="font-bold text-gray-900">Siti Rahma, A.Md.Farm</span> (Tenaga Teknis Kefarmasian). Obat dikeluarkan dari blister kemasan, dihancurkan secara mekanik, dilarutkan ke sistem pengolahan limbah bersertifikasi, dan limbah padat dienkapsulasi semen sesuai pedoman B3 Farmasi.
+          </p>
+          <!-- Tags / Pill Badges -->
+          <div class="flex flex-wrap items-center gap-2 mt-3 pt-2">
+            <span class="px-2.5 py-1 bg-white rounded-lg border border-gray-200 text-[11px] font-semibold text-gray-700">Lokasi: Karantina Farmasi K-02</span>
+            <span class="px-2.5 py-1 bg-white rounded-lg border border-gray-200 text-[11px] font-semibold text-gray-700">Saksi 1: Apoteker Penanggung Jawab (APJ)</span>
+            <span class="px-2.5 py-1 bg-white rounded-lg border border-gray-200 text-[11px] font-semibold text-gray-700">Saksi 2: TTK Pendamping</span>
+            <span class="px-2.5 py-1 bg-white rounded-lg border border-gray-200 text-[11px] font-semibold text-gray-700">Integritas: Disahkan 100%</span>
+          </div>
+        </div>
+
+        <!-- Soft Coral / Impact Warning Banner -->
+        <div class="bg-[#FFF4F2] border border-[#FCD6D0] rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4" data-purpose="dampak-mutasi-banner">
+          <div class="flex items-start gap-3">
+            <div class="text-[#964334] mt-0.5">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+              </svg>
+            </div>
+            <div>
+              <h5 class="text-xs font-bold text-[#964334]">Dampak Mutasi Stok Karantina: Nonaktif &amp; Terhapus Permanen</h5>
+              <p id="detMutasiDesc" class="text-xs text-gray-600 mt-0.5">
+                Stok karantina awal: <span class="font-bold text-gray-900">100 Tablet</span> • Dikeluarkan untuk dimusnahkan: <span class="font-bold text-[#964334]">-100 Tablet</span>.<br/>
+                Nomor batch <span class="font-bold text-gray-900">B001</span> telah dipensiunkan permanen dari daftar stok aktif apotek dan dicatat ke pelaporan SIPNAP Dinkes RI.
+              </p>
+            </div>
+          </div>
+          <div class="shrink-0">
+            <div id="detSisaBadge" class="px-4 py-2 bg-[#964334] text-white text-xs font-bold rounded-xl shadow-xs">
+              Sisa Stok: 0 Tablet
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- ======================= RIGHT COLUMN (4 COLS) ======================= -->
+    <div class="col-span-12 xl:col-span-4 space-y-6">
+      <!-- Card C: Dokumen Berita Acara -->
+      <article class="bg-white rounded-2xl p-6 border border-[#E9E4DC] shadow-xs space-y-4" data-purpose="card-dokumen-ba">
+        <div class="pb-3 border-b border-gray-100">
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-lg bg-[#FAF0ED] text-[#964334] font-bold text-sm flex items-center justify-center">C</span>
+            <div>
+              <h3 class="font-bold text-base text-gray-900 leading-tight">Dokumen Berita Acara</h3>
+              <p class="text-xs text-gray-500">Berkas bukti sah pemusnahan</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PDF File Box -->
+        <div class="p-3.5 bg-[#FBF9F6] rounded-xl border border-[#EFECE5] flex items-center justify-between gap-2">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-lg bg-[#E74C3C] text-white flex flex-col items-center justify-center font-bold text-[10px] shrink-0 leading-tight">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path clip-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" fill-rule="evenodd"></path>
+              </svg>
+              <span>PDF</span>
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-bold text-xs text-gray-900 truncate">Berita_Acara_Pemusnahan.pdf</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 bg-[#EBF7EE] text-[#1E7E34] rounded">✓ Sah &amp; Terverifikasi</span>
+              </div>
+              <p class="text-[10px] text-gray-500 mt-0.5">Ukuran: 1.2 MB • Diunggah: 11 Mei 2026, 09:42 WIB</p>
+            </div>
+          </div>
+          <button type="button" onclick="alert('Membuka pratinjau dokumen Berita Acara Pemusnahan resmi...')" class="px-2.5 py-1.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-xs font-medium flex items-center gap-1 shrink-0 cursor-pointer">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+              <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            </svg>
+            <span>Pratinjau</span>
+          </button>
+        </div>
+
+        <!-- Physical Archive Callout Note -->
+        <div class="bg-[#FFFDF9] border-l-4 border-[#964334] p-3 rounded-r-xl border-y border-r border-[#ECE6DB] text-xs text-gray-600 leading-relaxed">
+          <span class="font-bold text-gray-900">Ketentuan Arsip Farmasi:</span> Salinan fisik Berita Acara wajib disimpan di lemari arsip apotek minimal 3 (tiga) tahun untuk keperluan inspeksi rutin BPOM dan Balai Besar POM setempat.
+        </div>
+      </article>
+
+      <!-- Card D: Kelengkapan Yuridis & Saksi -->
+      <article class="bg-white rounded-2xl p-6 border border-[#E9E4DC] shadow-xs space-y-3.5" data-purpose="card-kelengkapan-yuridis">
+        <div class="pb-3 border-b border-gray-100">
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-lg bg-[#FAF0ED] text-[#964334] font-bold text-sm flex items-center justify-center">D</span>
+            <div>
+              <h3 class="font-bold text-base text-gray-900 leading-tight">Kelengkapan Yuridis &amp; Saksi</h3>
+              <p class="text-xs text-gray-500">Audit checklist Berita Acara (BA)</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Checklist Item 1 -->
+        <div class="p-3 bg-[#FBF9F6] rounded-xl border border-[#EFECE5] flex items-start gap-3">
+          <div class="w-5 h-5 rounded-full bg-[#28A745] text-white flex items-center justify-center shrink-0 mt-0.5">
+            <svg class="w-3.5 h-3.5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="font-bold text-xs text-gray-900">Kesesuaian Data Obat, Nomor Batch &amp; ED</p>
+            <p id="detCheck1" class="text-[11px] text-gray-500 mt-0.5">Fisik 100 Tablet Paracetamol 500 mg B001 sesuai dengan catatan karantina.</p>
+          </div>
+        </div>
+
+        <!-- Checklist Item 2 -->
+        <div class="p-3 bg-[#FBF9F6] rounded-xl border border-[#EFECE5] flex items-start gap-3">
+          <div class="w-5 h-5 rounded-full bg-[#28A745] text-white flex items-center justify-center shrink-0 mt-0.5">
+            <svg class="w-3.5 h-3.5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="font-bold text-xs text-gray-900">Pemeriksaan Fisik oleh Tenaga Teknis Kefarmasian</p>
+            <p class="text-[11px] text-gray-500 mt-0.5">Diverifikasi oleh TTK Siti Rahma, A.Md.Farm dengan paraf sah.</p>
+          </div>
+        </div>
+
+        <!-- Checklist Item 3 -->
+        <div class="p-3 bg-[#FBF9F6] rounded-xl border border-[#EFECE5] flex items-start gap-3">
+          <div class="w-5 h-5 rounded-full bg-[#28A745] text-white flex items-center justify-center shrink-0 mt-0.5">
+            <svg class="w-3.5 h-3.5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="font-bold text-xs text-gray-900">Tanda Tangan Apoteker Pengelola Apotek (APA)</p>
+            <p class="text-[11px] text-gray-500 mt-0.5">Otorisasi resmi apt. Farhan Wicaksono (SIPA: 1984/SIPA/2022).</p>
+          </div>
+        </div>
+
+        <!-- Legal Yellow Callout Box -->
+        <div class="bg-[#FFFDF2] border border-[#F3E8B5] p-3 rounded-xl flex items-start gap-2.5">
+          <div class="w-4 h-4 rounded-full border border-amber-600 text-amber-600 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+            i
+          </div>
+          <p class="text-[11px] text-amber-900 leading-snug">
+            Pemusnahan ini sah secara hukum dan otomatis terintegrasi ke modul pelaporan SIPNAP Kemenkes &amp; Dinas Kesehatan Kab/Kota.
+          </p>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <!-- BEGIN: StickyFooterBar -->
+  <footer class="bg-white rounded-2xl p-4 px-6 border border-[#E9E4DC] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4" data-purpose="footer-actions">
+    <!-- Locked Transaction Info -->
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
+          <polyline points="12 6 12 12 16 14" stroke-width="2"></polyline>
+        </svg>
+      </div>
+      <div>
+        <div class="text-xs font-bold text-gray-900">
+          ID Transaksi Terkunci: PMS/2026/001 • Terverifikasi Sistem SIM Apotek
+        </div>
+        <div class="text-[11px] text-gray-500">
+          Waktu Eksekusi: 11 Mei 2026, 09:30:14 WIB • Operator: apt. Farhan Wicaksono, S.Farm
+        </div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex items-center gap-3">
+      <a href="/pemusnahan" class="px-5 py-2.5 bg-white border border-[#D5CEC2] hover:bg-gray-50 text-gray-700 text-xs font-bold rounded-xl transition shadow-xs">
+        ← Kembali ke Daftar
+      </a>
+      <button onclick="window.print()" class="px-5 py-2.5 bg-[#964334] hover:bg-[#7F3629] text-white text-xs font-bold rounded-xl flex items-center gap-2 transition shadow-sm cursor-pointer" type="button">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+        <span>Cetak Berita Acara (PDF)</span>
+      </button>
+    </div>
+  </footer>
+  <!-- END: StickyFooterBar -->
+
+  <script>
+    // Baca parameter dari Halaman 2 agar data hasil input otomatis muncul
+    const q = new URLSearchParams(window.location.search);
+    if (q.has('obat')) {
+      const obat = q.get('obat');
+      const kode = q.get('kode') || 'MED-PCM-01';
+      const batch = q.get('batch') || 'B001';
+      const ed = q.get('ed') || '10/2026';
+      const stokAwal = q.get('stokAwal') || '100';
+      const jumlah = q.get('jumlah') || '100';
+      const sisa = q.get('sisa') || '0';
+      const satuan = q.get('satuan') || 'Tablet';
+      const tanggal = q.get('tanggal') || '11 Mei 2026';
+      const alasan = q.get('alasan') || 'Kedaluwarsa (ED Lewat)';
+      const metode = q.get('metode') || 'Enkapsulasi & Pengenceran';
+      const catatan = q.get('catatan');
+
+      document.getElementById('detNamaObat').textContent = obat;
+      document.getElementById('detKodeObat').textContent = kode;
+      document.getElementById('detBatch').textContent = batch;
+      document.getElementById('detED').textContent = `${ed} (Expired)`;
+      document.getElementById('detTanggal').textContent = tanggal;
+      document.getElementById('detJumlah').textContent = `${jumlah} ${satuan}`;
+      document.getElementById('detAlasan').textContent = alasan;
+      document.getElementById('detMetode').textContent = metode;
+      if (catatan) document.getElementById('detCatatan').textContent = catatan;
+
+      document.getElementById('detMutasiDesc').innerHTML = `
+        Stok karantina awal: <span class="font-bold text-gray-900">${stokAwal} ${satuan}</span> • Dikeluarkan untuk dimusnahkan: <span class="font-bold text-[#964334]">-${jumlah} ${satuan}</span>.<br/>
+        Nomor batch <span class="font-bold text-gray-900">${batch}</span> telah diperbarui statusnya di daftar stok apotek dan dicatat ke pelaporan SIPNAP Dinkes RI.
+      `;
+      document.getElementById('detSisaBadge').textContent = `Sisa Stok: ${sisa} ${satuan}`;
+      document.getElementById('detCheck1').textContent = `Fisik ${jumlah} ${satuan} ${obat} (${batch}) sesuai dengan catatan karantina.`;
+    }
+  </script>
+</main>
+{{ end }}

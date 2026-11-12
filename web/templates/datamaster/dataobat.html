@@ -8,7 +8,7 @@
 </div>
 <div class="flex items-center gap-3">
 <!-- Secondary Action: Export -->
-<button class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-cream-300 rounded-xl text-xs font-semibold text-slate-700 hover:bg-cream-50 hover:border-slate-300 shadow-subtle transition-all" type="button">
+<button class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-cream-300 rounded-xl text-xs font-semibold text-slate-700 hover:bg-cream-50 hover:border-slate-300 shadow-subtle transition-all cursor-pointer" type="button" onclick="alert('Mengekspor data obat ke format Excel/CSV...')">
 <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewbox="0 0 24 24">
 <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
 </svg>
@@ -90,21 +90,21 @@
 <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
 </svg>
 </span>
-<input class="w-full pl-9 pr-4 py-2 bg-cream-50 hover:bg-white focus:bg-white border border-cream-300 rounded-xl text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-terracotta-500 focus:border-transparent transition-all" placeholder="Cari kode atau nama obat..." type="text"/>
+<input id="searchObatInput" class="w-full pl-9 pr-4 py-2 bg-cream-50 hover:bg-white focus:bg-white border border-cream-300 rounded-xl text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-terracotta-500 focus:border-transparent transition-all" placeholder="Cari kode atau nama obat..." type="text"/>
 </div>
 <!-- Filter: Kategori Obat -->
 <div class="w-48">
-<select class="w-full py-2 pl-3 pr-8 bg-cream-50 hover:bg-white border border-cream-300 rounded-xl text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-terracotta-500 transition-all cursor-pointer">
+<select id="filterKategori" class="w-full py-2 pl-3 pr-8 bg-cream-50 hover:bg-white border border-cream-300 rounded-xl text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-terracotta-500 transition-all cursor-pointer">
 <option value="">Semua Kategori</option>
-<option value="bebas">Obat Bebas</option>
-<option value="terbatas">Obat Bebas Terbatas</option>
-<option value="keras">Obat Keras</option>
+<option value="obat bebas">Obat Bebas</option>
+<option value="obat bebas terbatas">Obat Bebas Terbatas</option>
+<option value="obat keras">Obat Keras</option>
 <option value="fitofarmaka">Fitofarmaka / Herbal</option>
 </select>
 </div>
 <!-- Filter: Jenis Obat -->
 <div class="w-44">
-<select class="w-full py-2 pl-3 pr-8 bg-cream-50 hover:bg-white border border-cream-300 rounded-xl text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-terracotta-500 transition-all cursor-pointer">
+<select id="filterJenis" class="w-full py-2 pl-3 pr-8 bg-cream-50 hover:bg-white border border-cream-300 rounded-xl text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-terracotta-500 transition-all cursor-pointer">
 <option value="">Semua Jenis Obat</option>
 <option value="generik">Generik</option>
 <option value="paten">Paten / Branded</option>
@@ -112,7 +112,7 @@
 </div>
 <!-- Filter: Status -->
 <div class="w-40">
-<select class="w-full py-2 pl-3 pr-8 bg-cream-50 hover:bg-white border border-cream-300 rounded-xl text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-terracotta-500 transition-all cursor-pointer">
+<select id="filterStatus" class="w-full py-2 pl-3 pr-8 bg-cream-50 hover:bg-white border border-cream-300 rounded-xl text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-terracotta-500 transition-all cursor-pointer">
 <option value="">Semua Status</option>
 <option value="aktif">Aktif</option>
 <option value="nonaktif">Nonaktif</option>
@@ -120,7 +120,7 @@
 </select>
 </div>
 <!-- Reset Button -->
-<button class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-cream-100 hover:bg-cream-200 text-slate-700 rounded-xl text-xs font-medium transition-colors" type="button">
+<button id="btnResetFilter" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-cream-100 hover:bg-cream-200 text-slate-700 rounded-xl text-xs font-medium transition-colors cursor-pointer" type="button">
 <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewbox="0 0 24 24">
 <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
 </svg>
@@ -136,35 +136,51 @@
 <div class="flex items-center gap-2">
 <h2 class="font-bold text-slate-900 text-sm">Daftar Obat Terdaftar</h2>
 <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-terracotta-50 text-terracotta-700 border border-terracotta-200">
-              328 Total SKU
-            </span>
+  328 Total SKU
+</span>
 </div>
-<span class="text-xs text-slate-500">Menampilkan halaman 1 dari 55</span>
+<span class="text-xs text-slate-500">Klik judul kolom untuk mengurutkan data</span>
 </div>
 <!-- Table Responsive Wrapper -->
 <div class="overflow-x-auto">
-<table class="w-full text-left border-collapse">
+<table id="obatTable" class="w-full text-left border-collapse">
 <thead>
-<tr class="bg-cream-50 border-b border-cream-300 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+<tr class="bg-cream-50 border-b border-cream-300 text-[11px] font-bold text-slate-600 uppercase tracking-wider select-none">
 <th class="pl-6 pr-3 py-3.5 w-10" scope="col">
-<input class="w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+<input id="checkAllObat" class="w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
 </th>
-<th class="px-3 py-3.5" scope="col">KODE OBAT</th>
-<th class="px-4 py-3.5" scope="col">NAMA OBAT</th>
-<th class="px-4 py-3.5" scope="col">KATEGORI</th>
-<th class="px-4 py-3.5" scope="col">JENIS OBAT</th>
-<th class="px-4 py-3.5" scope="col">SATUAN</th>
-<th class="px-4 py-3.5 text-right" scope="col">HARGA BELI</th>
-<th class="px-4 py-3.5 text-right" scope="col">HARGA JUAL</th>
-<th class="px-4 py-3.5 text-center" scope="col">STATUS</th>
+<th class="px-3 py-3.5 cursor-pointer hover:text-slate-900 transition-colors" scope="col" onclick="sortObatTable(1, 'text')">
+  KODE OBAT <span class="sort-icon text-slate-400 ml-0.5" data-col="1">↕</span>
+</th>
+<th class="px-4 py-3.5 cursor-pointer hover:text-slate-900 transition-colors" scope="col" onclick="sortObatTable(2, 'text')">
+  NAMA OBAT <span class="sort-icon text-slate-400 ml-0.5" data-col="2">↕</span>
+</th>
+<th class="px-4 py-3.5 cursor-pointer hover:text-slate-900 transition-colors" scope="col" onclick="sortObatTable(3, 'text')">
+  KATEGORI <span class="sort-icon text-slate-400 ml-0.5" data-col="3">↕</span>
+</th>
+<th class="px-4 py-3.5 cursor-pointer hover:text-slate-900 transition-colors" scope="col" onclick="sortObatTable(4, 'text')">
+  JENIS OBAT <span class="sort-icon text-slate-400 ml-0.5" data-col="4">↕</span>
+</th>
+<th class="px-4 py-3.5 cursor-pointer hover:text-slate-900 transition-colors" scope="col" onclick="sortObatTable(5, 'text')">
+  SATUAN <span class="sort-icon text-slate-400 ml-0.5" data-col="5">↕</span>
+</th>
+<th class="px-4 py-3.5 text-right cursor-pointer hover:text-slate-900 transition-colors" scope="col" onclick="sortObatTable(6, 'price')">
+  HARGA BELI <span class="sort-icon text-slate-400 ml-0.5" data-col="6">↕</span>
+</th>
+<th class="px-4 py-3.5 text-right cursor-pointer hover:text-slate-900 transition-colors" scope="col" onclick="sortObatTable(7, 'price')">
+  HARGA JUAL <span class="sort-icon text-slate-400 ml-0.5" data-col="7">↕</span>
+</th>
+<th class="px-4 py-3.5 text-center cursor-pointer hover:text-slate-900 transition-colors" scope="col" onclick="sortObatTable(8, 'text')">
+  STATUS <span class="sort-icon text-slate-400 ml-0.5" data-col="8">↕</span>
+</th>
 <th class="pr-6 pl-4 py-3.5 text-center" scope="col">AKSI</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-cream-200 text-xs">
+<tbody id="obatTableBody" class="divide-y divide-cream-200 text-xs">
 <!-- Row 1: Paracetamol -->
-<tr class="hover:bg-cream-50/70 transition-colors group">
+<tr class="obat-row hover:bg-cream-50/70 transition-colors group">
 <td class="pl-6 pr-3 py-3.5">
-<input class="w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+<input class="row-checkbox w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
 </td>
 <td class="px-3 py-3.5 font-mono font-medium text-slate-600 whitespace-nowrap">MED-PCM-01</td>
 <td class="px-4 py-3.5 font-semibold text-slate-800 whitespace-nowrap">Paracetamol 500mg</td>
@@ -197,15 +213,15 @@
 </td>
 </tr>
 <!-- Row 2: Amoxicillin -->
-<tr class="hover:bg-cream-50/70 transition-colors group">
+<tr class="obat-row hover:bg-cream-50/70 transition-colors group">
 <td class="pl-6 pr-3 py-3.5">
-<input class="w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+<input class="row-checkbox w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
 </td>
 <td class="px-3 py-3.5 font-mono font-medium text-slate-600 whitespace-nowrap">MED-AMX-12</td>
 <td class="px-4 py-3.5 font-semibold text-slate-800 whitespace-nowrap">Amoxicillin 500mg</td>
 <td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">
 <span class="inline-flex items-center gap-1.5">
-<span class="w-2 h-2 rounded-full bg-rose-500"></span> Antibiotik / Keras
+<span class="w-2 h-2 rounded-full bg-rose-500"></span> Antibiotik / Obat Keras
 </span>
 </td>
 <td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">Generik</td>
@@ -232,9 +248,9 @@
 </td>
 </tr>
 <!-- Row 3: Cetirizine -->
-<tr class="hover:bg-cream-50/70 transition-colors group">
+<tr class="obat-row hover:bg-cream-50/70 transition-colors group">
 <td class="pl-6 pr-3 py-3.5">
-<input class="w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+<input class="row-checkbox w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
 </td>
 <td class="px-3 py-3.5 font-mono font-medium text-slate-600 whitespace-nowrap">MED-CTZ-08</td>
 <td class="px-4 py-3.5 font-semibold text-slate-800 whitespace-nowrap">Cetirizine 10mg</td>
@@ -267,9 +283,9 @@
 </td>
 </tr>
 <!-- Row 4: Antasida Doen -->
-<tr class="hover:bg-cream-50/70 transition-colors group">
+<tr class="obat-row hover:bg-cream-50/70 transition-colors group">
 <td class="pl-6 pr-3 py-3.5">
-<input class="w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+<input class="row-checkbox w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
 </td>
 <td class="px-3 py-3.5 font-mono font-medium text-slate-600 whitespace-nowrap">MED-ANT-04</td>
 <td class="px-4 py-3.5 font-semibold text-slate-800 whitespace-nowrap">Antasida Doen Suspensi</td>
@@ -302,9 +318,9 @@
 </td>
 </tr>
 <!-- Row 5: Salep Hidrokortison -->
-<tr class="hover:bg-cream-50/70 transition-colors group">
+<tr class="obat-row hover:bg-cream-50/70 transition-colors group">
 <td class="pl-6 pr-3 py-3.5">
-<input class="w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+<input class="row-checkbox w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
 </td>
 <td class="px-3 py-3.5 font-mono font-medium text-slate-600 whitespace-nowrap">MED-OBT-15</td>
 <td class="px-4 py-3.5 font-semibold text-slate-800 whitespace-nowrap">Salep Hidrokortison 1%</td>
@@ -337,9 +353,9 @@
 </td>
 </tr>
 <!-- Row 6: Cefixime -->
-<tr class="hover:bg-cream-50/70 transition-colors group">
+<tr class="obat-row hover:bg-cream-50/70 transition-colors group">
 <td class="pl-6 pr-3 py-3.5">
-<input class="w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
+<input class="row-checkbox w-4 h-4 rounded border-cream-400 text-terracotta-600 focus:ring-terracotta-500 focus:ring-offset-0 cursor-pointer" type="checkbox"/>
 </td>
 <td class="px-3 py-3.5 font-mono font-medium text-slate-600 whitespace-nowrap">MED-CFX-22</td>
 <td class="px-4 py-3.5 font-semibold text-slate-800 whitespace-nowrap">Cefixime 100mg</td>
@@ -371,14 +387,21 @@
 </div>
 </td>
 </tr>
+<!-- Empty State Row -->
+<tr id="emptyStateRow" class="hidden">
+  <td colspan="10" class="py-12 text-center text-slate-500">
+    <p class="font-semibold text-slate-700 text-sm">Data obat tidak ditemukan</p>
+    <p class="text-xs mt-1">Tidak ada obat yang cocok dengan pencarian atau filter yang dipilih.</p>
+  </td>
+</tr>
 </tbody>
 </table>
 </div>
 
 <!-- BEGIN: Pagination Footer -->
 <div class="px-6 py-4 bg-cream-50/50 border-t border-cream-200 flex flex-col sm:flex-row items-center justify-between gap-4" data-purpose="table-pagination">
-<span class="text-xs text-slate-500 font-medium">
-Menampilkan <span class="font-semibold text-slate-800">1</span> sampai <span class="font-semibold text-slate-800">6</span> dari <span class="font-semibold text-slate-800">328</span> data obat
+<span id="tableCountText" class="text-xs text-slate-500 font-medium">
+Menampilkan <span class="font-semibold text-slate-800">1</span> sampai <span class="font-semibold text-slate-800">6</span> dari <span class="font-semibold text-slate-800">6</span> data obat
 </span>
 <div class="inline-flex items-center gap-1.5 select-none">
 <button class="px-3 py-1.5 rounded-lg border border-cream-300 text-xs font-medium text-slate-400 bg-white cursor-not-allowed opacity-60" disabled="" type="button">Sebelumnya</button>
@@ -393,5 +416,138 @@ Menampilkan <span class="font-semibold text-slate-800">1</span> sampai <span cla
 <!-- END: Pagination Footer -->
 </section>
 <!-- END: Table Container Card -->
+
+<script>
+  const searchInput = document.getElementById('searchObatInput');
+  const filterKategori = document.getElementById('filterKategori');
+  const filterJenis = document.getElementById('filterJenis');
+  const filterStatus = document.getElementById('filterStatus');
+  const btnResetFilter = document.getElementById('btnResetFilter');
+  const tableBody = document.getElementById('obatTableBody');
+  const emptyStateRow = document.getElementById('emptyStateRow');
+  const tableCountText = document.getElementById('tableCountText');
+  const checkAllObat = document.getElementById('checkAllObat');
+
+  // 1. Fungsi Filter & Pencarian Real-Time
+  function applyObatFilter() {
+    const keyword = searchInput.value.toLowerCase().trim();
+    const kategoriVal = filterKategori.value.toLowerCase();
+    const jenisVal = filterJenis.value.toLowerCase();
+    const statusVal = filterStatus.value.toLowerCase();
+
+    const rows = Array.from(tableBody.querySelectorAll('tr.obat-row'));
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      const kodeText = cells[1].textContent.toLowerCase().trim();
+      const namaText = cells[2].textContent.toLowerCase().trim();
+      const kategoriText = cells[3].textContent.toLowerCase().trim();
+      const jenisText = cells[4].textContent.toLowerCase().trim();
+      const statusText = cells[8].textContent.toLowerCase().trim();
+
+      const matchKeyword = !keyword || kodeText.includes(keyword) || namaText.includes(keyword);
+      
+      // Cocokkan kategori (khusus "obat bebas" jangan sampai ikut mencocokkan "obat bebas terbatas")
+      let matchKategori = !kategoriVal;
+      if (kategoriVal === 'obat bebas') {
+        matchKategori = kategoriText.includes('obat bebas') && !kategoriText.includes('terbatas');
+      } else if (kategoriVal) {
+        matchKategori = kategoriText.includes(kategoriVal);
+      }
+
+      const matchJenis = !jenisVal || jenisText.includes(jenisVal);
+      const matchStatus = !statusVal || statusText === statusVal;
+
+      if (matchKeyword && matchKategori && matchJenis && matchStatus) {
+        row.style.display = '';
+        visibleCount++;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+
+    // Tampilkan pesan kosong jika hasil 0
+    if (visibleCount === 0) {
+      emptyStateRow.classList.remove('hidden');
+      tableCountText.innerHTML = 'Menampilkan <span class="font-semibold text-slate-800">0</span> data obat';
+    } else {
+      emptyStateRow.classList.add('hidden');
+      tableCountText.innerHTML = `Menampilkan <span class="font-semibold text-slate-800">1</span> sampai <span class="font-semibold text-slate-800">${visibleCount}</span> dari <span class="font-semibold text-slate-800">${rows.length}</span> data obat`;
+    }
+  }
+
+  searchInput.addEventListener('input', applyObatFilter);
+  filterKategori.addEventListener('change', applyObatFilter);
+  filterJenis.addEventListener('change', applyObatFilter);
+  filterStatus.addEventListener('change', applyObatFilter);
+
+  btnResetFilter.addEventListener('click', () => {
+    searchInput.value = '';
+    filterKategori.value = '';
+    filterJenis.value = '';
+    filterStatus.value = '';
+    applyObatFilter();
+  });
+
+  // 2. Fungsi Sorting Kolom Tabel (Klik Header)
+  let currentSortCol = -1;
+  let sortAsc = true;
+
+  function parseRupiah(str) {
+    return parseInt(str.replace(/[^0-9]/g, ''), 10) || 0;
+  }
+
+  function sortObatTable(colIndex, type) {
+    if (currentSortCol === colIndex) {
+      sortAsc = !sortAsc;
+    } else {
+      currentSortCol = colIndex;
+      sortAsc = true;
+    }
+
+    // Update ikon panah pada header
+    document.querySelectorAll('.sort-icon').forEach(icon => {
+      const col = parseInt(icon.getAttribute('data-col'), 10);
+      if (col === colIndex) {
+        icon.textContent = sortAsc ? '▲' : '▼';
+        icon.className = 'sort-icon text-terracotta-600 ml-0.5';
+      } else {
+        icon.textContent = '↕';
+        icon.className = 'sort-icon text-slate-400 ml-0.5';
+      }
+    });
+
+    const rows = Array.from(tableBody.querySelectorAll('tr.obat-row'));
+    rows.sort((a, b) => {
+      const valA = a.querySelectorAll('td')[colIndex].textContent.trim();
+      const valB = b.querySelectorAll('td')[colIndex].textContent.trim();
+
+      if (type === 'price') {
+        const numA = parseRupiah(valA);
+        const numB = parseRupiah(valB);
+        return sortAsc ? numA - numB : numB - numA;
+      } else {
+        return sortAsc
+          ? valA.localeCompare(valB, 'id', { sensitivity: 'base' })
+          : valB.localeCompare(valA, 'id', { sensitivity: 'base' });
+      }
+    });
+
+    // Susun ulang baris ke dalam tbody (tetap pertahankan emptyStateRow di paling bawah)
+    rows.forEach(row => tableBody.insertBefore(row, emptyStateRow));
+  }
+
+  // 3. Fungsi Select All Checkbox
+  if (checkAllObat) {
+    checkAllObat.addEventListener('change', (e) => {
+      document.querySelectorAll('.row-checkbox').forEach(cb => {
+        if (cb.closest('tr').style.display !== 'none') {
+          cb.checked = e.target.checked;
+        }
+      });
+    });
+  }
+</script>
 </main>
 {{ end }}

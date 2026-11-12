@@ -1,0 +1,557 @@
+{{ define "content" }}
+<!-- Material Symbols untuk ikon bawaan Stitch -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+<main class="flex-1 flex flex-col min-w-0 bg-[#F8F6F2]">
+  <div class="flex flex-col w-full">
+    <!-- Content Canvas Area -->
+    <div class="p-6 md:p-8 space-y-6 max-w-7xl mx-auto w-full">
+      <!-- Top Bar: Navigation & Action -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <!-- Breadcrumb -->
+          <nav class="flex items-center gap-2 text-xs text-slate-500 mb-2">
+            <a href="/" class="hover:text-[#964334] transition-colors">Beranda</a>
+            <span class="material-symbols-outlined text-slate-400" style="font-size: 14px;">chevron_right</span>
+            <a href="/pemusnahan" class="hover:text-[#964334] transition-colors">Pemusnahan Barang</a>
+            <span class="material-symbols-outlined text-slate-400" style="font-size: 14px;">chevron_right</span>
+            <span class="font-semibold text-[#964334]">Formulir Pemusnahan</span>
+          </nav>
+          <!-- Header Title & Badges -->
+          <div class="flex flex-wrap items-center gap-3">
+            <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Formulir Pemusnahan Barang</h2>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 text-xs font-semibold tracking-wide">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></span>
+              KARANTINA FARMASI
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1">
+            Lengkapi informasi legalitas dan teknis sebelum mengonfirmasi proses pemusnahan sediaan farmasi.
+          </p>
+        </div>
+        <!-- Action Button -->
+        <div class="shrink-0">
+          <a href="/pemusnahan" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white border border-[#ECE7E1] text-slate-800 hover:bg-[#F3EFE9] transition-colors shadow-xs text-xs font-semibold">
+            <span class="material-symbols-outlined text-[#964334]" style="font-size: 18px;">arrow_back</span>
+            Kembali ke Daftar
+          </a>
+        </div>
+      </div>
+
+      <!-- Main 2-Column Bento Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- LEFT COLUMN: Detailed Form Data (8 Cols) -->
+        <div class="lg:col-span-8 space-y-6">
+          <!-- CARD A: Informasi Obat yang Dimusnahkan -->
+          <div class="bg-white border border-[#ECE7E1] rounded-xl p-6 shadow-xs relative overflow-hidden">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-4 mb-5 border-b border-[#F1EDE8]">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-lg bg-[#FDF6F3] border border-[#E8D2CB] flex items-center justify-center text-[#964334]">
+                  <span class="material-symbols-outlined" style="font-size: 20px;">medication</span>
+                </span>
+                <h3 class="text-sm font-bold text-slate-900">Informasi Obat yang Dimusnahkan</h3>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F8F6F2] border border-[#ECE7E1] text-slate-600 text-xs font-medium">
+                <span class="material-symbols-outlined text-slate-400" style="font-size: 14px;">lock</span>
+                Data Terkunci Otomatis dari Karantina
+              </span>
+            </div>
+
+            <!-- 6-Grid Information Metrics -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+              <!-- 1. Nama Obat -->
+              <div class="p-3.5 rounded-lg bg-[#FAF8F5] border border-[#F1EDE8]">
+                <span class="text-[11px] font-semibold text-slate-400 uppercase block mb-1">Nama Sediaan</span>
+                <p id="dispNamaObat" class="text-sm font-bold text-slate-900 leading-tight">Paracetamol 500 mg</p>
+                <span class="text-xs text-slate-500 mt-0.5 block">Analgesik &amp; Antipiretik</span>
+              </div>
+              <!-- 2. Kode Obat -->
+              <div class="p-3.5 rounded-lg bg-[#FAF8F5] border border-[#F1EDE8]">
+                <span class="text-[11px] font-semibold text-slate-400 uppercase block mb-1">Kode Obat</span>
+                <p id="dispKodeObat" class="font-mono text-xs font-bold text-slate-800">MED-PCM-01</p>
+                <span class="text-xs text-slate-500 mt-0.5 block">Katalog Standar BPOM</span>
+              </div>
+              <!-- 3. Nomor Batch -->
+              <div class="p-3.5 rounded-lg bg-[#FAF8F5] border border-[#F1EDE8]">
+                <span class="text-[11px] font-semibold text-slate-400 uppercase block mb-1">Nomor Batch</span>
+                <span id="dispBatchBadge" class="inline-flex items-center px-2 py-0.5 rounded bg-[#FDF6F3] border border-[#E8D2CB] text-[#964334] font-mono text-xs font-bold">
+                  Batch B001
+                </span>
+                <span class="text-xs text-slate-500 mt-1 block">Lot Pabrikan: KF-2023</span>
+              </div>
+              <!-- 4. Satuan Kemasan -->
+              <div class="p-3.5 rounded-lg bg-[#FAF8F5] border border-[#F1EDE8]">
+                <span class="text-[11px] font-semibold text-slate-400 uppercase block mb-1">Satuan Kemasan</span>
+                <p id="dispSatuan" class="text-sm font-bold text-slate-900">Tablet</p>
+                <span class="text-xs text-slate-500 mt-0.5 block">Strip @10 Tablet</span>
+              </div>
+              <!-- 5. Kedaluwarsa/ED -->
+              <div class="p-3.5 rounded-lg bg-red-50/70 border border-red-100">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[11px] font-semibold text-red-600 uppercase block">Kedaluwarsa (ED)</span>
+                  <span class="material-symbols-outlined text-red-600" style="font-size: 16px;">event_busy</span>
+                </div>
+                <p id="dispED" class="text-sm font-bold text-red-700">10/2026</p>
+                <span class="text-xs font-medium text-red-600 mt-0.5 block">Status: Kedaluwarsa</span>
+              </div>
+              <!-- 6. Stok Karantina -->
+              <div class="p-3.5 rounded-lg bg-[#FAF8F5] border border-[#F1EDE8]">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[11px] font-semibold text-slate-400 uppercase block">Stok Karantina</span>
+                  <span class="material-symbols-outlined text-[#964334]" style="font-size: 16px;">inventory_2</span>
+                </div>
+                <p id="dispStokKarantina" class="text-sm font-bold text-slate-900">100 Tablet</p>
+                <span class="text-xs text-slate-500 mt-0.5 block">Rak Karantina K-02</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD B: Rincian Pelaksanaan Pemusnahan -->
+          <div class="bg-white border border-[#ECE7E1] rounded-xl p-6 shadow-xs">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-4 mb-5 border-b border-[#F1EDE8]">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-lg bg-[#FDF6F3] border border-[#E8D2CB] flex items-center justify-center text-[#964334]">
+                  <span class="material-symbols-outlined" style="font-size: 20px;">receipt_long</span>
+                </span>
+                <h3 class="text-sm font-bold text-slate-900">Rincian Pelaksanaan Pemusnahan</h3>
+              </div>
+              <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#FDF6F3] border border-[#E8D2CB] text-[#964334] font-mono text-xs font-bold">
+                # PMS-202611-001
+              </span>
+            </div>
+
+            <div class="space-y-4">
+              <!-- Row 1: Nomor Transaksi & Tanggal -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Nomor Transaksi (Sistem)
+                  </label>
+                  <div class="relative">
+                    <input id="inputNoTransaksi" class="w-full h-11 px-3.5 rounded-lg bg-[#FAF8F5] border border-[#ECE7E1] text-slate-500 font-mono text-xs focus:outline-none cursor-not-allowed" readonly type="text" value="PMS/2026/001"/>
+                    <span class="absolute right-3 top-3 material-symbols-outlined text-slate-400" style="font-size: 18px;">fingerprint</span>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Tanggal Pemusnahan <span class="text-red-500">*</span>
+                  </label>
+                  <div class="relative">
+                    <input id="inputTanggal" class="w-full h-11 px-3.5 rounded-lg bg-white border border-[#ECE7E1] text-slate-800 text-xs focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] focus:outline-none" type="date" value="2026-05-11"/>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 2: Jumlah Interaktif dengan Stepper -->
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <label class="block text-xs font-semibold text-slate-700">
+                    Jumlah yang Dimusnahkan <span class="text-red-500">*</span>
+                  </label>
+                  <button class="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#FDF6F3] border border-[#E8D2CB] text-[#964334] hover:bg-[#F3EFE9] transition-colors cursor-pointer" id="btnMaxAll" type="button">
+                    Musnahkan Semua (100)
+                  </button>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center bg-[#FAF8F5] border border-[#ECE7E1] rounded-lg p-1 w-full max-w-xs">
+                    <button class="w-9 h-9 rounded-md bg-white border border-[#ECE7E1] text-slate-700 hover:bg-[#F3EFE9] flex items-center justify-center transition-colors shadow-xs active:scale-95 cursor-pointer" id="btnMinus" type="button">
+                      <span class="material-symbols-outlined" style="font-size: 18px;">remove</span>
+                    </button>
+                    <input class="w-full text-center bg-transparent border-0 text-sm text-[#964334] font-bold focus:ring-0" id="inputJumlah" max="100" min="1" type="number" value="100"/>
+                    <button class="w-9 h-9 rounded-md bg-white border border-[#ECE7E1] text-slate-700 hover:bg-[#F3EFE9] flex items-center justify-center transition-colors shadow-xs active:scale-95 cursor-pointer" id="btnPlus" type="button">
+                      <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                    </button>
+                  </div>
+                  <span id="labelSatuanInput" class="text-xs text-slate-600 font-semibold">Tablet</span>
+                </div>
+                <p id="hintMaxStok" class="text-[11px] text-slate-500 mt-1.5">
+                  Maksimal pemusnahan sesuai stok karantina (100 Tablet)
+                </p>
+              </div>
+
+              <!-- Row 3: Alasan & Metode -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Alasan Pemusnahan <span class="text-red-500">*</span>
+                  </label>
+                  <select id="selectAlasan" class="w-full h-11 px-3.5 rounded-lg bg-white border border-[#ECE7E1] text-slate-800 text-xs focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] focus:outline-none">
+                    <option selected value="Kedaluwarsa (ED Lewat)">Kedaluwarsa (Expired Date Lewat)</option>
+                    <option value="Kemasan Rusak / Segel Terbuka">Kemasan Rusak / Segel Terbuka</option>
+                    <option value="Obat Rusak / Perubahan Fisik">Obat Rusak / Perubahan Fisik</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Metode Pemusnahan <span class="text-red-500">*</span>
+                  </label>
+                  <select id="selectMetode" class="w-full h-11 px-3.5 rounded-lg bg-white border border-[#ECE7E1] text-slate-800 text-xs focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] focus:outline-none">
+                    <option selected value="Enkapsulasi & Pengenceran">Sesuai prosedur internal (Enkapsulasi / Pengenceran)</option>
+                    <option value="Insinerasi Pihak Ketiga Berizin">Insinerasi Pihak Ketiga Berizin</option>
+                    <option value="Pengembalian ke PBF">Pengembalian ke PBF</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Row 4: Catatan & Saksi -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Catatan Tambahan &amp; Saksi Pelaksanaan
+                </label>
+                <textarea id="inputCatatan" class="w-full p-3.5 rounded-lg bg-white border border-[#ECE7E1] text-slate-800 text-xs focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] focus:outline-none resize-none leading-relaxed" rows="3">Disaksikan oleh apt. Farhan Wicaksono, S.Farm (SIPA: 1984/SIPA/2022) dan Siti Rahma, A.Md.Farm (Tenaga Teknis Kefarmasian). Obat dikeluarkan dari blister kemasan, dihancurkan secara mekanik, dilarutkan ke sistem pengolahan limbah bersertifikat, dan limbah padat dibuang sesuai standar.</textarea>
+                <span class="text-[11px] text-slate-500 mt-1 block">Wajib menyertakan minimal 1 orang Apoteker Penanggung Jawab dan 1 saksi TTK.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD C: Berita Acara & Dokumentasi Fisik -->
+          <div class="bg-white border border-[#ECE7E1] rounded-xl p-6 shadow-xs">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-4 mb-5 border-b border-[#F1EDE8]">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-lg bg-[#FDF6F3] border border-[#E8D2CB] flex items-center justify-center text-[#964334]">
+                  <span class="material-symbols-outlined" style="font-size: 20px;">folder_shared</span>
+                </span>
+                <h3 class="text-sm font-bold text-slate-900">Berita Acara &amp; Dokumentasi Fisik</h3>
+              </div>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#FAF8F5] border border-[#ECE7E1] text-slate-500 text-xs">
+                Maks. 5 MB
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+              <!-- Dropzone Kiri -->
+              <label class="flex flex-col items-center justify-center p-6 rounded-xl bg-[#FAF8F5] border border-dashed border-[#D8CCC4] hover:bg-[#F3EFE9] transition-all cursor-pointer text-center group">
+                <input type="file" class="hidden" accept=".jpg,.png,.pdf" onchange="alert('File dokumentasi berhasil dipilih: ' + this.files[0]?.name)" />
+                <div class="w-12 h-12 rounded-full bg-white border border-[#ECE7E1] group-hover:scale-110 flex items-center justify-center text-[#964334] shadow-xs transition-transform mb-3">
+                  <span class="material-symbols-outlined" style="font-size: 24px;">cloud_upload</span>
+                </div>
+                <p class="text-xs font-semibold text-slate-800 mb-1">Unggah Lampiran Tambahan</p>
+                <p class="text-[11px] text-slate-500 max-w-[210px]">
+                  Klik / seret foto dokumentasi atau scan BA (JPG, PNG, PDF)
+                </p>
+              </label>
+
+              <!-- Preview File Berkas Kanan -->
+              <div class="p-4 rounded-xl bg-white border border-[#ECE7E1] shadow-xs flex flex-col justify-between">
+                <div class="flex items-start gap-3">
+                  <div class="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined" style="font-size: 22px;">picture_as_pdf</span>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center justify-between gap-1">
+                      <p class="text-xs font-bold text-slate-900 truncate">Berita_Acara_Pemusnahan.pdf</p>
+                      <span class="material-symbols-outlined text-slate-400 hover:text-red-600 cursor-pointer transition-colors" style="font-size: 18px;" title="Hapus Dokumen">delete</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-0.5">1.2 MB • Hari ini 09:42 WIB</p>
+                  </div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-[#F1EDE8] flex items-center justify-between">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E8F6ED] text-[#1B633C] text-[11px] font-semibold">
+                    <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">check_circle</span>
+                    Sah &amp; Tervalidasi
+                  </span>
+                  <button class="inline-flex items-center gap-1 text-xs font-semibold text-[#964334] hover:underline cursor-pointer" type="button" onclick="alert('Membuka pratinjau dokumen Berita Acara Pemusnahan...')">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
+                    Pratinjau
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Real-Time Summary & Compliance (4 Cols) -->
+        <div class="lg:col-span-4 space-y-6">
+          <!-- CARD D: Dampak Stok Real-Time -->
+          <div class="bg-white border border-[#ECE7E1] rounded-xl p-6 shadow-xs relative overflow-hidden">
+            <!-- Top Accent Band -->
+            <div class="absolute top-0 left-0 right-0 h-1 bg-[#964334]"></div>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-bold text-slate-900">Dampak Stok Real-Time</h3>
+              <span class="material-symbols-outlined text-[#964334]" style="font-size: 20px;">monitoring</span>
+            </div>
+
+            <!-- Target Info -->
+            <div class="p-3 rounded-lg bg-[#FAF8F5] border border-[#F1EDE8] mb-5 flex items-center justify-between">
+              <div>
+                <p id="sideNamaObat" class="text-xs font-bold text-slate-900">Paracetamol 500 mg</p>
+                <p class="text-[11px] text-slate-500">Karantina K-02</p>
+              </div>
+              <span id="sideBatchBadge" class="px-2 py-0.5 rounded bg-white border border-[#ECE7E1] font-mono text-xs font-bold text-slate-700">
+                Batch B001
+              </span>
+            </div>
+
+            <!-- Stock Mutation Computation -->
+            <div class="space-y-3 pb-5 border-b border-[#F1EDE8]">
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-slate-500">Stok Karantina Awal</span>
+                <span id="sideStokAwal" class="font-semibold text-slate-900">100 Tablet</span>
+              </div>
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-slate-500">Jumlah Dimusnahkan</span>
+                <span class="font-bold text-red-600" id="summaryMusnah">- 100 Tablet</span>
+              </div>
+              <div class="pt-2 flex justify-between items-baseline">
+                <span class="text-xs font-semibold text-slate-800">Sisa Stok Karantina</span>
+                <div class="text-right">
+                  <span class="text-2xl text-[#964334] font-bold" id="summarySisa">0</span>
+                  <span id="sideSatuanSisa" class="text-xs text-slate-500 ml-1">Tablet</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Projected Status Card -->
+            <div class="my-5 p-3.5 rounded-lg bg-[#FAF8F5] border border-[#F1EDE8] flex items-center gap-3">
+              <span class="w-8 h-8 rounded-full bg-white border border-[#ECE7E1] flex items-center justify-center text-red-600 shadow-xs">
+                <span class="material-symbols-outlined" style="font-size: 18px;">inventory</span>
+              </span>
+              <div class="min-w-0 flex-1">
+                <span class="text-[11px] text-slate-400 block">Status Pasca Eksekusi</span>
+                <p class="text-xs font-bold text-red-600 truncate" id="summaryStatus">
+                  Nonaktif / Musnah Sepenuhnya
+                </p>
+              </div>
+            </div>
+
+            <!-- Main CTA Trigger Button -->
+            <button class="w-full py-3.5 px-4 rounded-xl bg-[#964334] hover:bg-[#80382B] text-white text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]" id="btnOpenModal" type="button">
+              <span class="material-symbols-outlined" style="font-size: 18px;">local_fire_department</span>
+              Konfirmasi Pemusnahan
+            </button>
+
+            <!-- Secondary Actions -->
+            <div class="grid grid-cols-2 gap-3 mt-3">
+              <button class="py-2.5 px-3 rounded-lg bg-[#FAF8F5] border border-[#ECE7E1] text-slate-700 hover:bg-[#F3EFE9] text-xs font-semibold transition-colors text-center cursor-pointer" type="button" onclick="alert('Draft berita acara pemusnahan berhasil disimpan sementara.')">
+                Simpan Draft
+              </button>
+              <a href="/pemusnahan" class="py-2.5 px-3 rounded-lg bg-[#FAF8F5] border border-[#ECE7E1] text-slate-500 hover:text-slate-800 hover:bg-[#F3EFE9] text-xs font-semibold transition-colors text-center">
+                Batal
+              </a>
+            </div>
+          </div>
+
+          <!-- CARD E: Kelengkapan Syarat Berita Acara -->
+          <div class="bg-white border border-[#ECE7E1] rounded-xl p-6 shadow-xs">
+            <div class="flex items-center gap-2 mb-4 pb-3 border-b border-[#F1EDE8]">
+              <span class="material-symbols-outlined text-[#964334]" style="font-size: 20px;">fact_check</span>
+              <h4 class="text-xs tracking-wider uppercase text-slate-600 font-bold">
+                Kelengkapan Syarat Berita Acara
+              </h4>
+            </div>
+            <ul class="space-y-3 text-xs text-slate-700">
+              <li class="flex items-start gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-[#E8F6ED] text-[#1B633C] flex items-center justify-center shrink-0 mt-0.5">
+                  <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">check</span>
+                </span>
+                <span class="leading-tight">Kesesuaian nama sediaan, nomor batch, dan tanggal kedaluwarsa fisik.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-[#E8F6ED] text-[#1B633C] flex items-center justify-center shrink-0 mt-0.5">
+                  <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">check</span>
+                </span>
+                <span class="leading-tight">Pemeriksaan fisik dan segregasi oleh Tenaga Teknis Kefarmasian (TTK).</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-[#E8F6ED] text-[#1B633C] flex items-center justify-center shrink-0 mt-0.5">
+                  <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">check</span>
+                </span>
+                <span class="leading-tight">Persetujuan &amp; Tanda tangan resmi Apoteker Penanggung Jawab Apotek (APA).</span>
+              </li>
+            </ul>
+            <div class="mt-4 pt-3 border-t border-[#F1EDE8] flex items-center gap-2 text-slate-400 text-[11px]">
+              <span class="material-symbols-outlined" style="font-size: 16px;">gavel</span>
+              <span>Permenkes RI No. 73 Tahun 2016</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTEGRATED CONFIRMATION MODAL (POP-UP PERINGATAN SEBELUM MUSNAHKAN) -->
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4" id="modalConfirm">
+      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+        <!-- Top Warning Accent -->
+        <div class="absolute top-0 left-0 right-0 h-1.5 bg-red-600 rounded-t-2xl"></div>
+        <!-- Close Button (X) -->
+        <button class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors cursor-pointer" id="btnCloseModal" type="button">
+          <span class="material-symbols-outlined" style="font-size: 20px;">close</span>
+        </button>
+        <!-- Warning Icon in Soft Badge -->
+        <div class="mx-auto w-14 h-14 rounded-full bg-red-50 flex items-center justify-center text-red-600 mb-4 mt-2">
+          <span class="material-symbols-outlined" style="font-size: 32px;">warning</span>
+        </div>
+        <!-- Modal Content -->
+        <div class="text-center">
+          <h3 class="text-lg font-bold text-slate-900">Konfirmasi Pemusnahan</h3>
+          <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+            Apakah Anda yakin ingin mengeksekusi pemusnahan ini? Tindakan ini akan menghapus stok secara permanen dari inventaris aktif, dicatat dalam log audit, dan tidak dapat dibatalkan.
+          </p>
+        </div>
+        <!-- Alert Scope Box -->
+        <div class="mt-5 p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/70 text-left flex items-start gap-2.5">
+          <span class="material-symbols-outlined text-amber-600 shrink-0 mt-0.5" style="font-size: 18px;">warning_amber</span>
+          <div class="text-xs text-slate-700 leading-snug">
+            <strong class="font-semibold block text-slate-900 mb-0.5">Target Pemusnahan:</strong>
+            <span id="modalTargetText">Paracetamol 500 mg (Batch B001)</span> - <span class="font-bold text-red-600" id="modalJumlahText">100 Tablet</span> akan dimusnahkan permanen.
+          </div>
+        </div>
+        <!-- Modal Actions -->
+        <div class="grid grid-cols-2 gap-3 mt-6">
+          <button class="w-full py-2.5 px-4 rounded-xl bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer" id="btnCancelModal" type="button">
+            <span class="material-symbols-outlined" style="font-size: 18px;">close</span>
+            Batal
+          </button>
+          <button class="w-full py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-md transition-colors flex items-center justify-center gap-1.5 cursor-pointer" id="btnExecuteDestroy" type="button">
+            <span class="material-symbols-outlined" style="font-size: 18px;">delete_forever</span>
+            Ya, Musnahkan
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Ambil parameter URL dari tabel halaman sebelumnya (jika ada)
+    const params = new URLSearchParams(window.location.search);
+    const paramObat = params.get('obat') || 'Paracetamol 500 mg';
+    const paramKode = params.get('kode') || 'MED-PCM-01';
+    const paramBatch = params.get('batch') || 'B001';
+    const paramED = params.get('ed') || '10/2026';
+    const MAX_STOCK = parseInt(params.get('stok'), 10) || 100;
+    const paramSatuan = params.get('satuan') || 'Tablet';
+
+    // Set tampilan dinamis sesuai obat yang diklik di Halaman 1
+    document.getElementById('dispNamaObat').textContent = paramObat;
+    document.getElementById('dispKodeObat').textContent = paramKode;
+    document.getElementById('dispBatchBadge').textContent = `Batch ${paramBatch}`;
+    document.getElementById('dispSatuan').textContent = paramSatuan;
+    document.getElementById('dispED').textContent = paramED;
+    document.getElementById('dispStokKarantina').textContent = `${MAX_STOCK} ${paramSatuan}`;
+
+    document.getElementById('sideNamaObat').textContent = paramObat;
+    document.getElementById('sideBatchBadge').textContent = `Batch ${paramBatch}`;
+    document.getElementById('sideStokAwal').textContent = `${MAX_STOCK} ${paramSatuan}`;
+    document.getElementById('sideSatuanSisa').textContent = paramSatuan;
+    document.getElementById('labelSatuanInput').textContent = paramSatuan;
+    document.getElementById('hintMaxStok').textContent = `Maksimal pemusnahan sesuai stok karantina (${MAX_STOCK} ${paramSatuan})`;
+    document.getElementById('btnMaxAll').textContent = `Musnahkan Semua (${MAX_STOCK})`;
+    document.getElementById('modalTargetText').textContent = `${paramObat} (Batch ${paramBatch})`;
+
+    const inputJumlah = document.getElementById('inputJumlah');
+    inputJumlah.max = MAX_STOCK;
+    inputJumlah.value = MAX_STOCK;
+
+    const btnMinus = document.getElementById('btnMinus');
+    const btnPlus = document.getElementById('btnPlus');
+    const btnMaxAll = document.getElementById('btnMaxAll');
+
+    const summaryMusnah = document.getElementById('summaryMusnah');
+    const summarySisa = document.getElementById('summarySisa');
+    const summaryStatus = document.getElementById('summaryStatus');
+
+    const modalConfirm = document.getElementById('modalConfirm');
+    const btnOpenModal = document.getElementById('btnOpenModal');
+    const btnCloseModal = document.getElementById('btnCloseModal');
+    const btnCancelModal = document.getElementById('btnCancelModal');
+    const btnExecuteDestroy = document.getElementById('btnExecuteDestroy');
+    const modalJumlahText = document.getElementById('modalJumlahText');
+
+    function updateStockMetrics() {
+      let val = parseInt(inputJumlah.value, 10);
+      if (isNaN(val) || val < 1) val = 1;
+      if (val > MAX_STOCK) val = MAX_STOCK;
+      inputJumlah.value = val;
+
+      const sisa = MAX_STOCK - val;
+      summaryMusnah.textContent = `- ${val} ${paramSatuan}`;
+      summarySisa.textContent = sisa;
+      modalJumlahText.textContent = `${val} ${paramSatuan}`;
+
+      if (sisa === 0) {
+        summaryStatus.textContent = 'Nonaktif / Musnah Sepenuhnya';
+        summaryStatus.className = 'text-xs font-bold text-red-600 truncate';
+      } else {
+        summaryStatus.textContent = `Karantina Parsial (Sisa ${sisa} ${paramSatuan})`;
+        summaryStatus.className = 'text-xs font-bold text-amber-600 truncate';
+      }
+    }
+
+    btnMinus.addEventListener('click', () => {
+      let cur = parseInt(inputJumlah.value, 10) || 1;
+      if (cur > 1) {
+        inputJumlah.value = cur - 1;
+        updateStockMetrics();
+      }
+    });
+
+    btnPlus.addEventListener('click', () => {
+      let cur = parseInt(inputJumlah.value, 10) || 0;
+      if (cur < MAX_STOCK) {
+        inputJumlah.value = cur + 1;
+        updateStockMetrics();
+      }
+    });
+
+    btnMaxAll.addEventListener('click', () => {
+      inputJumlah.value = MAX_STOCK;
+      updateStockMetrics();
+    });
+
+    inputJumlah.addEventListener('input', updateStockMetrics);
+    inputJumlah.addEventListener('change', updateStockMetrics);
+
+    // Modal open / close handlers
+    function openModal() {
+      modalConfirm.classList.remove('hidden');
+      modalConfirm.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modalConfirm.classList.add('hidden');
+      modalConfirm.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+
+    btnOpenModal.addEventListener('click', openModal);
+    btnCloseModal.addEventListener('click', closeModal);
+    btnCancelModal.addEventListener('click', closeModal);
+
+    modalConfirm.addEventListener('click', (e) => {
+      if (e.target === modalConfirm) {
+        closeModal();
+      }
+    });
+
+    // Saat "Ya, Musnahkan" diklik -> Arahkan ke Halaman 3 (Detail Pemusnahan) membawa data isian
+    btnExecuteDestroy.addEventListener('click', () => {
+      const jumlahVal = inputJumlah.value;
+      const sisaVal = MAX_STOCK - parseInt(jumlahVal, 10);
+      const tglVal = document.getElementById('inputTanggal').value;
+      const alasanVal = document.getElementById('selectAlasan').value;
+      const metodeVal = document.getElementById('selectMetode').value;
+      const catatanVal = document.getElementById('inputCatatan').value;
+
+      const query = new URLSearchParams({
+        obat: paramObat,
+        kode: paramKode,
+        batch: paramBatch,
+        ed: paramED,
+        stokAwal: MAX_STOCK,
+        jumlah: jumlahVal,
+        sisa: sisaVal,
+        satuan: paramSatuan,
+        tanggal: tglVal,
+        alasan: alasanVal,
+        metode: metodeVal,
+        catatan: catatanVal
+      });
+
+      window.location.href = `/pemusnahan/detail?${query.toString()}`;
+    });
+
+    updateStockMetrics();
+  </script>
+</main>
+{{ end }}

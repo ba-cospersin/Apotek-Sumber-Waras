@@ -1,0 +1,647 @@
+{{ define "content" }}
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0" rel="stylesheet" />
+
+<main class="flex-1 overflow-y-auto px-6 py-5 bg-[#F8F6F2] text-stone-800 space-y-4 w-full" data-purpose="content-view">
+  <div class="flex flex-col w-full space-y-4">
+    <!-- Top Breadcrumb & Page Title -->
+    <div>
+      <nav aria-label="Breadcrumb" class="flex items-center space-x-2 text-stone-400 font-semibold text-xs mb-1">
+        <a class="hover:text-stone-700 transition-colors" href="/">Beranda</a>
+        <span>›</span>
+        <a class="hover:text-stone-700 transition-colors" href="/pengembalian">Pengembalian ke PBF</a>
+        <span>›</span>
+        <span class="text-[#964334]">Buat Retur Baru</span>
+      </nav>
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h1 class="text-xl font-bold text-stone-900 tracking-tight">Formulir Retur Barang ke PBF</h1>
+          <p class="text-xs text-stone-500 mt-0.5">Isi formulir pengembalian sediaan farmasi rusak, mendekati masa kedaluwarsa, atau tidak sesuai faktur pesanan ke distributor.</p>
+        </div>
+        <div class="inline-flex items-center space-x-2 bg-white border border-[#ECE7E1] px-3 py-1.5 rounded-xl text-stone-600 text-xs font-semibold shrink-0">
+          <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+          <span>Mode Draft: CDOB Terintegrasi</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Flow Container -->
+    <div class="space-y-4">
+      <!-- Section A: Informasi Retur -->
+      <div class="bg-white border border-[#ECE7E1] rounded-2xl p-5 shadow-2xs">
+        <div class="flex items-center space-x-3 mb-4">
+          <div class="w-7 h-7 rounded-full bg-[#FDF6F3] border border-[#E8D2CB] text-[#964334] text-xs font-bold flex items-center justify-center shrink-0">
+            A
+          </div>
+          <div>
+            <h2 class="text-sm font-bold text-stone-800">Informasi Retur</h2>
+            <p class="text-xs text-stone-400">Tentukan distributor tujuan dan tanggal pembuatan berita acara retur</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-stone-700 mb-1.5">
+              Pilih PBF Tujuan Retur <span class="text-rose-500">*</span>
+            </label>
+            <div class="relative">
+              <select class="w-full h-10 px-3.5 pr-9 bg-[#FAF8F5] border border-[#ECE7E1] rounded-xl text-xs font-medium text-stone-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] transition-all appearance-none cursor-pointer" id="pbfSelect">
+                <option selected value="PT Kimia Farma Trading &amp; Distribution (Semarang Barat - PIC: Budi Santoso)">
+                  PT Kimia Farma Trading &amp; Distribution (Semarang Barat - PIC: Budi Santoso)
+                </option>
+                <option value="PT Enseval Putera Megatrading Tbk (DC Kudus)">PT Enseval Putera Megatrading Tbk (DC Kudus)</option>
+                <option value="PT Mensa Bina Sukses (Cabang Surakarta)">PT Mensa Bina Sukses (Cabang Surakarta)</option>
+                <option value="PT Anugrah Argon Medica (Cabang Semarang)">PT Anugrah Argon Medica (Cabang Semarang)</option>
+              </select>
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-stone-400">
+                <span class="material-symbols-outlined" style="font-size: 18px;">keyboard_arrow_down</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-stone-700 mb-1.5">
+              Tanggal Pengembalian <span class="text-rose-500">*</span>
+            </label>
+            <div class="relative">
+              <input class="w-full h-10 px-3.5 bg-[#FAF8F5] border border-[#ECE7E1] rounded-xl text-xs font-medium text-stone-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] transition-all" id="tglRetur" type="date" value="2026-12-05"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section B: Tabel Item Obat untuk Diretur -->
+      <div class="bg-white border border-[#ECE7E1] rounded-2xl p-5 shadow-2xs">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-7 h-7 rounded-full bg-[#FDF6F3] border border-[#E8D2CB] text-[#964334] text-xs font-bold flex items-center justify-center shrink-0">
+              B
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-stone-800">Tabel Item Obat untuk Diretur</h2>
+              <p class="text-xs text-stone-400">Pilih sediaan farmasi dari stok terdaftar yang akan ditarik dan dikembalikan</p>
+            </div>
+          </div>
+          <button class="inline-flex items-center justify-center space-x-1.5 px-3.5 py-2 bg-[#964334] hover:bg-[#7F3629] text-white rounded-xl text-xs font-semibold shadow-2xs transition-all cursor-pointer shrink-0" id="btnOpenPilihObat" type="button">
+            <span class="material-symbols-outlined" style="font-size: 17px;">add</span>
+            <span>Tambah Obat dari Stok</span>
+          </button>
+        </div>
+
+        <!-- Item Table -->
+        <div class="overflow-x-auto rounded-xl border border-[#ECE7E1]">
+          <table class="w-full text-left border-collapse" id="tableItemRetur">
+            <thead>
+              <tr class="bg-[#FAF8F5] border-b border-[#ECE7E1] text-[11px] font-bold text-stone-500 uppercase tracking-wider">
+                <th class="py-2.5 px-4">Nama Obat</th>
+                <th class="py-2.5 px-3">Nomor Batch</th>
+                <th class="py-2.5 px-3">Tgl Kedaluwarsa</th>
+                <th class="py-2.5 px-3 text-center">Jumlah Retur</th>
+                <th class="py-2.5 px-3 text-right">Harga Beli (Satuan)</th>
+                <th class="py-2.5 px-4 text-right">Subtotal</th>
+                <th class="py-2.5 px-3 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#F1EDE8] text-xs text-stone-700" id="returTableBody">
+              <!-- Row 1 -->
+              <tr class="hover:bg-[#FAF8F5] transition-colors" data-harga="65000" data-id="item-1">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-stone-900">Amoxicillin Trihydrate 500 mg</div>
+                  <div class="text-[11px] text-stone-400 mt-0.5">Kapsul • Pabrik: PT Kimia Farma • SKU: MED-AMX-12</div>
+                </td>
+                <td class="py-3 px-3">
+                  <span class="font-code-batch font-mono text-[11px] bg-stone-100 text-stone-700 px-2 py-0.5 rounded-md font-semibold">AMX240801</span>
+                </td>
+                <td class="py-3 px-3">
+                  <span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-semibold">
+                    <span class="material-symbols-outlined" style="font-size: 13px;">error</span>
+                    <span>18 Juni 2026 (&lt; 2 Bln)</span>
+                  </span>
+                </td>
+                <td class="py-3 px-3 text-center">
+                  <div class="inline-flex items-center space-x-1.5">
+                    <input class="input-qty w-16 h-8 text-center text-xs font-bold bg-[#FAF8F5] border border-[#ECE7E1] rounded-lg focus:bg-white focus:ring-1 focus:ring-[#964334] focus:border-[#964334]" max="45" min="1" type="number" value="10"/>
+                    <span class="text-[11px] text-stone-500 font-medium">Box (100 Kapsul)</span>
+                  </div>
+                </td>
+                <td class="py-3 px-3 text-right font-medium text-stone-600">
+                  Rp 65.000
+                </td>
+                <td class="py-3 px-4 text-right font-bold text-[#964334] row-subtotal">
+                  Rp 650.000
+                </td>
+                <td class="py-3 px-3 text-center">
+                  <button class="btn-delete-row w-7 h-7 rounded-lg text-rose-500 hover:bg-rose-50 hover:text-rose-700 inline-flex items-center justify-center transition-colors cursor-pointer" title="Hapus obat ini" type="button">
+                    <span class="material-symbols-outlined" style="font-size: 17px;">delete</span>
+                  </button>
+                </td>
+              </tr>
+
+              <!-- Row 2 -->
+              <tr class="hover:bg-[#FAF8F5] transition-colors" data-harga="18500" data-id="item-2">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-stone-900">Paracetamol Sirup 120mg/5ml (Botol 60ml)</div>
+                  <div class="text-[11px] text-stone-400 mt-0.5">Sirup Anak • Pabrik: PT Kimia Farma • SKU: MED-PCT-06</div>
+                </td>
+                <td class="py-3 px-3">
+                  <span class="font-code-batch font-mono text-[11px] bg-stone-100 text-stone-700 px-2 py-0.5 rounded-md font-semibold">PCT250114</span>
+                </td>
+                <td class="py-3 px-3">
+                  <span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-semibold">
+                    <span class="material-symbols-outlined" style="font-size: 13px;">error</span>
+                    <span>30 Juli 2026 (Segel Rusak)</span>
+                  </span>
+                </td>
+                <td class="py-3 px-3 text-center">
+                  <div class="inline-flex items-center space-x-1.5">
+                    <input class="input-qty w-16 h-8 text-center text-xs font-bold bg-[#FAF8F5] border border-[#ECE7E1] rounded-lg focus:bg-white focus:ring-1 focus:ring-[#964334] focus:border-[#964334]" max="28" min="1" type="number" value="15"/>
+                    <span class="text-[11px] text-stone-500 font-medium">Botol</span>
+                  </div>
+                </td>
+                <td class="py-3 px-3 text-right font-medium text-stone-600">
+                  Rp 18.500
+                </td>
+                <td class="py-3 px-4 text-right font-bold text-[#964334] row-subtotal">
+                  Rp 277.500
+                </td>
+                <td class="py-3 px-3 text-center">
+                  <button class="btn-delete-row w-7 h-7 rounded-lg text-rose-500 hover:bg-rose-50 hover:text-rose-700 inline-flex items-center justify-center transition-colors cursor-pointer" title="Hapus obat ini" type="button">
+                    <span class="material-symbols-outlined" style="font-size: 17px;">delete</span>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section C: Alasan Pengembalian & Kalkulasi Valuasi -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+        <!-- Left Column: Reason -->
+        <div class="lg:col-span-8 bg-white border border-[#ECE7E1] rounded-2xl p-5 shadow-2xs flex flex-col justify-between">
+          <div>
+            <div class="flex items-center space-x-3 mb-3">
+              <div class="w-7 h-7 rounded-full bg-[#FDF6F3] border border-[#E8D2CB] text-[#964334] text-xs font-bold flex items-center justify-center shrink-0">
+                C
+              </div>
+              <h2 class="text-sm font-bold text-stone-800">
+                Alasan Pengembalian (Wajib Diisi) <span class="text-rose-500">*</span>
+              </h2>
+            </div>
+            <textarea class="w-full p-3.5 bg-[#FAF8F5] border border-[#ECE7E1] rounded-xl text-xs text-stone-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#964334]/20 focus:border-[#964334] transition-all resize-none leading-relaxed" id="alasanRetur" rows="3">Sediaan mendekati tanggal kedaluwarsa (&lt; 3 bulan sesuai kesepakatan retur PBF) dan terdapat 15 botol sirup paracetamol dengan kemasan sekunder basah akibat kebocoran transit kurir. Memohon penerbitan Credit Note (CN) atau tukar guling batch baru.</textarea>
+          </div>
+          <div class="flex items-center space-x-1.5 mt-2.5 text-stone-400 text-[11px]">
+            <span class="material-symbols-outlined" style="font-size: 15px;">info</span>
+            <span>Catatan alasan ini akan dicetak otomatis pada Surat Jalan Retur &amp; Berita Acara CDOB Apotek.</span>
+          </div>
+        </div>
+
+        <!-- Right Column: Valuation Summary -->
+        <div class="lg:col-span-4 bg-white border border-[#ECE7E1] rounded-2xl p-5 shadow-2xs flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-2.5 border-b border-[#F1EDE8]">
+              <h3 class="text-sm font-bold text-stone-800">Ringkasan Klaim Retur</h3>
+              <span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 text-[10px] font-bold tracking-wide uppercase border border-amber-200">Draft Valuasi</span>
+            </div>
+            <div class="space-y-2 py-3 text-xs">
+              <div class="flex justify-between items-center text-stone-500">
+                <span>Distributor Penerima:</span>
+                <span class="font-bold text-stone-800 text-right truncate max-w-[170px]" id="summaryPbfName">PT Kimia Farma T&amp;D</span>
+              </div>
+              <div class="flex justify-between items-center text-stone-500">
+                <span>Total Item Obat:</span>
+                <span class="font-bold text-stone-800" id="summaryTotalItems">2 Sediaan (25 Unit Fisik)</span>
+              </div>
+            </div>
+          </div>
+          <div class="pt-2.5 border-t border-[#F1EDE8]">
+            <div class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Total Nilai Retur (Estimasi CN):</div>
+            <div class="text-2xl font-bold text-[#964334] mt-0.5 tracking-tight" id="summaryTotalValuasi">
+              Rp 927.500
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Actions Card -->
+      <div class="bg-white border border-[#ECE7E1] rounded-2xl p-4 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3">
+        <div class="flex items-center space-x-3 text-stone-600">
+          <div class="w-9 h-9 rounded-xl bg-[#FDF6F3] border border-[#E8D2CB] flex items-center justify-center text-[#964334] shrink-0">
+            <span class="material-symbols-outlined" style="font-size: 20px;">verified_user</span>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-stone-800">Validasi Pemotongan Kartu Stok Otomatis</div>
+            <p class="text-[11px] text-stone-400">Stok akan dialihkan ke status 'Karantina Retur PBF' setelah konfirmasi pengembalian disimpan.</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2.5 w-full md:w-auto justify-end">
+          <a href="/pengembalian" class="px-4 py-2 rounded-xl border border-[#ECE7E1] bg-[#FAF8F5] hover:bg-[#F3EFE9] text-stone-700 text-xs font-semibold transition-colors">
+            ✕ Batal
+          </a>
+          <button class="px-5 py-2 rounded-xl bg-[#964334] hover:bg-[#7F3629] text-white text-xs font-semibold shadow-2xs transition-all flex items-center space-x-1.5 cursor-pointer" id="btnOpenKonfirmasi" type="button">
+            <span>✓</span>
+            <span>Konfirmasi Pengembalian</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 1: Pilih Obat dari Persediaan Aktif -->
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/45 backdrop-blur-xs hidden transition-opacity" id="modalPilihObat">
+      <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl border border-[#ECE7E1] overflow-hidden flex flex-col max-h-[85vh]">
+        <!-- Header -->
+        <div class="px-5 py-4 border-b border-[#ECE7E1] flex items-start justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-[#FDF6F3] border border-[#E8D2CB] text-[#964334] flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined" style="font-size: 20px;">inventory_2</span>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-stone-900">Pilih Obat dari Persediaan Aktif</h3>
+              <p class="text-[11px] text-stone-400">Pilih sediaan farmasi yang akan diajukan retur ke distributor PBF</p>
+            </div>
+          </div>
+          <button class="w-8 h-8 rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-700 flex items-center justify-center transition-colors cursor-pointer" id="btnCloseModalPilih" type="button">
+            <span class="material-symbols-outlined" style="font-size: 18px;">close</span>
+          </button>
+        </div>
+
+        <!-- Search & Status Bar -->
+        <div class="px-5 py-3 bg-[#FAF8F5] border-b border-[#ECE7E1] flex items-center justify-between gap-3">
+          <div class="relative flex-1">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400">
+              <span class="material-symbols-outlined" style="font-size: 17px;">search</span>
+            </span>
+            <input class="w-full pl-9 pr-4 py-1.5 bg-white border border-[#ECE7E1] rounded-xl text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-[#964334] focus:border-[#964334]" id="modalSearchObat" placeholder="Ketik nama sediaan, pabrik, atau nomor batch..." type="text"/>
+          </div>
+          <div class="inline-flex items-center space-x-1.5 px-3 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-full text-[11px] font-semibold shrink-0">
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+            <span>315 Obat Siap Retur</span>
+          </div>
+        </div>
+
+        <!-- Table Content -->
+        <div class="p-5 overflow-y-auto flex-1">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="text-stone-400 uppercase tracking-wider border-b border-[#ECE7E1] text-[10px] font-bold">
+                <th class="pb-2.5">Kode Obat</th>
+                <th class="pb-2.5">Nama Obat &amp; Sediaan</th>
+                <th class="pb-2.5">No. Batch</th>
+                <th class="pb-2.5">Tgl Kedaluwarsa</th>
+                <th class="pb-2.5 text-center">Sisa Stok</th>
+                <th class="pb-2.5 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#F1EDE8]" id="modalObatList">
+              <!-- Modal Row 1 -->
+              <tr class="modal-obat-row hover:bg-[#FAF8F5] transition-colors">
+                <td class="py-3 font-mono text-[11px] text-stone-500">MED-AMX-12</td>
+                <td class="py-3 pr-2">
+                  <div class="font-bold text-stone-900">Amoxicillin Trihydrate 500 mg</div>
+                  <div class="text-[10px] text-stone-400">Kapsul • PT Kimia Farma</div>
+                </td>
+                <td class="py-3">
+                  <span class="font-mono bg-stone-100 text-stone-700 px-2 py-0.5 rounded text-[11px] font-semibold">AMX240801</span>
+                </td>
+                <td class="py-3">
+                  <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-semibold">
+                    <span class="material-symbols-outlined" style="font-size: 11px;">error</span>
+                    <span>18 Jun 2026 (&lt; 2 Bln)</span>
+                  </span>
+                </td>
+                <td class="py-3 text-center">
+                  <div class="font-bold text-stone-800">45 Box</div>
+                  <div class="text-[10px] text-stone-400">450 Kapsul</div>
+                </td>
+                <td class="py-3 text-right">
+                  <button class="btn-select-obat px-3 py-1 rounded-lg border border-[#964334] text-[#964334] hover:bg-[#964334] hover:text-white font-semibold transition-colors cursor-pointer" data-batch="AMX240801" data-exp="18 Juni 2026 (&lt; 2 Bln)" data-harga="65000" data-max="45" data-nama="Amoxicillin Trihydrate 500 mg" data-satuan="Box (100 Kapsul)" data-sub="Kapsul • Pabrik: PT Kimia Farma • SKU: MED-AMX-12" type="button">
+                    Pilih
+                  </button>
+                </td>
+              </tr>
+
+              <!-- Modal Row 2 -->
+              <tr class="modal-obat-row hover:bg-[#FAF8F5] transition-colors">
+                <td class="py-3 font-mono text-[11px] text-stone-500">MED-PCT-06</td>
+                <td class="py-3 pr-2">
+                  <div class="font-bold text-stone-900">Paracetamol Sirup 120mg/5ml</div>
+                  <div class="text-[10px] text-stone-400">Botol 60ml • PT Kimia Farma</div>
+                </td>
+                <td class="py-3">
+                  <span class="font-mono bg-stone-100 text-stone-700 px-2 py-0.5 rounded text-[11px] font-semibold">PCT250114</span>
+                </td>
+                <td class="py-3">
+                  <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-semibold">
+                    <span class="material-symbols-outlined" style="font-size: 11px;">warning</span>
+                    <span>30 Jul 2026 (Segel Bocor)</span>
+                  </span>
+                </td>
+                <td class="py-3 text-center">
+                  <div class="font-bold text-stone-800">28 Botol</div>
+                  <div class="text-[10px] text-stone-400">Sediaan Cair</div>
+                </td>
+                <td class="py-3 text-right">
+                  <button class="btn-select-obat px-3 py-1 rounded-lg border border-[#964334] text-[#964334] hover:bg-[#964334] hover:text-white font-semibold transition-colors cursor-pointer" data-batch="PCT250114" data-exp="30 Juli 2026 (Segel Rusak)" data-harga="18500" data-max="28" data-nama="Paracetamol Sirup 120mg/5ml (Botol 60ml)" data-satuan="Botol" data-sub="Sirup Anak • Pabrik: PT Kimia Farma • SKU: MED-PCT-06" type="button">
+                    Pilih
+                  </button>
+                </td>
+              </tr>
+
+              <!-- Modal Row 3 -->
+              <tr class="modal-obat-row hover:bg-[#FAF8F5] transition-colors">
+                <td class="py-3 font-mono text-[11px] text-stone-500">MED-CTZ-08</td>
+                <td class="py-3 pr-2">
+                  <div class="font-bold text-stone-900">Cetirizine HCl 10 mg</div>
+                  <div class="text-[10px] text-stone-400">Tablet Salut • PT Enseval</div>
+                </td>
+                <td class="py-3">
+                  <span class="font-mono bg-stone-100 text-stone-700 px-2 py-0.5 rounded text-[11px] font-semibold">CTZ241109</span>
+                </td>
+                <td class="py-3">
+                  <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-semibold">
+                    <span class="material-symbols-outlined" style="font-size: 11px;">error</span>
+                    <span>15 Agu 2026 (&lt; 3 Bulan)</span>
+                  </span>
+                </td>
+                <td class="py-3 text-center">
+                  <div class="font-bold text-stone-800">32 Strip</div>
+                  <div class="text-[10px] text-stone-400">320 Tablet</div>
+                </td>
+                <td class="py-3 text-right">
+                  <button class="btn-select-obat px-3 py-1 rounded-lg border border-[#964334] text-[#964334] hover:bg-[#964334] hover:text-white font-semibold transition-colors cursor-pointer" data-batch="CTZ241109" data-exp="15 Agu 2026 (&lt; 3 Bulan)" data-harga="22000" data-max="32" data-nama="Cetirizine HCl 10 mg" data-satuan="Strip" data-sub="Tablet Salut • Pabrik: PT Enseval • SKU: MED-CTZ-08" type="button">
+                    Pilih
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-5 py-3 bg-[#FAF8F5] border-t border-[#ECE7E1] flex items-center justify-between">
+          <div class="flex items-center space-x-2 text-xs text-stone-500">
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+            <span id="modalObatCounter">Menampilkan <strong class="text-stone-800 font-semibold">3</strong> dari <strong class="text-stone-800 font-semibold">328</strong> sediaan persediaan aktif apotek</span>
+          </div>
+          <button class="px-4 py-1.5 rounded-xl border border-[#ECE7E1] bg-white hover:bg-stone-100 text-stone-700 text-xs font-semibold transition-colors cursor-pointer" id="btnCancelModalPilih" type="button">
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 2: Konfirmasi Pengembalian Barang -->
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/45 backdrop-blur-xs hidden transition-opacity" id="modalKonfirmasiRetur">
+      <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 text-center relative border border-[#ECE7E1]">
+        <button class="absolute top-4 right-4 w-8 h-8 rounded-full hover:bg-stone-100 text-stone-400 hover:text-stone-700 flex items-center justify-center transition-colors cursor-pointer" id="btnCloseModalKonfirmasi" type="button">
+          <span class="material-symbols-outlined" style="font-size: 18px;">close</span>
+        </button>
+        <!-- Alert Icon Ring -->
+        <div class="mx-auto w-14 h-14 rounded-full bg-orange-50 border-4 border-orange-100/70 flex items-center justify-center text-[#964334] mb-3.5">
+          <span class="material-symbols-outlined" style="font-size: 28px;">priority_high</span>
+        </div>
+        <h3 class="text-base font-bold text-stone-900 mb-1.5">Konfirmasi Pengembalian Barang</h3>
+        <p class="text-xs text-stone-500 leading-relaxed max-w-sm mx-auto mb-4">
+          Apakah Anda yakin ingin memproses retur ini? Menyetujui tindakan ini akan memotong stok persediaan aktif secara otomatis dari sistem dan tidak dapat dibatalkan.
+        </p>
+
+        <!-- Summary Pill Box -->
+        <div class="bg-rose-50/60 border border-rose-200/80 rounded-2xl p-3.5 text-left mb-5">
+          <div class="flex items-start space-x-2">
+            <span class="material-symbols-outlined text-rose-500 shrink-0 mt-0.5" style="font-size: 17px;">error</span>
+            <div class="text-xs">
+              <div class="font-bold text-stone-800" id="dialogPbfName">PBF Tujuan: PT Kimia Farma Trading &amp; Distribution</div>
+              <div class="text-stone-600 mt-0.5" id="dialogSummaryText">
+                Total Retur: <strong class="text-stone-800">2 Sediaan (25 Unit Fisik)</strong> • Estimasi Valuasi: <strong class="text-[#964334]">Rp 927.500</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-2 gap-3">
+          <button class="w-full py-2.5 rounded-xl border border-[#ECE7E1] bg-[#FAF8F5] hover:bg-stone-100 text-stone-700 text-xs font-semibold transition-colors cursor-pointer" id="btnCancelKonfirmasi" type="button">
+            ✕ Batal
+          </button>
+          <button class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shadow-sm transition-all flex items-center justify-center space-x-1.5 cursor-pointer" id="btnSubmitRetur" type="button">
+            <span>✓</span>
+            <span>Ya, Konfirmasi Retur</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+        const modalPilihObat = document.getElementById('modalPilihObat');
+        const modalKonfirmasiRetur = document.getElementById('modalKonfirmasiRetur');
+        const btnOpenPilihObat = document.getElementById('btnOpenPilihObat');
+        const btnCloseModalPilih = document.getElementById('btnCloseModalPilih');
+        const btnCancelModalPilih = document.getElementById('btnCancelModalPilih');
+        const modalSearchObat = document.getElementById('modalSearchObat');
+        const btnOpenKonfirmasi = document.getElementById('btnOpenKonfirmasi');
+        const btnCloseModalKonfirmasi = document.getElementById('btnCloseModalKonfirmasi');
+        const btnCancelKonfirmasi = document.getElementById('btnCancelKonfirmasi');
+        const btnSubmitRetur = document.getElementById('btnSubmitRetur');
+
+        const pbfSelect = document.getElementById('pbfSelect');
+        const summaryPbfName = document.getElementById('summaryPbfName');
+        const summaryTotalItems = document.getElementById('summaryTotalItems');
+        const summaryTotalValuasi = document.getElementById('summaryTotalValuasi');
+        const dialogPbfName = document.getElementById('dialogPbfName');
+        const dialogSummaryText = document.getElementById('dialogSummaryText');
+        const returTableBody = document.getElementById('returTableBody');
+
+        // Sync PBF Selector
+        pbfSelect.addEventListener('change', () => {
+          const val = pbfSelect.value;
+          const shortName = val.includes('Kimia Farma') ? 'PT Kimia Farma T&D' : val.split('(')[0].trim();
+          summaryPbfName.innerText = shortName;
+          dialogPbfName.innerText = `PBF Tujuan: ${val.split('(')[0].trim()}`;
+        });
+
+        // Open / Close Modal 1
+        btnOpenPilihObat.addEventListener('click', () => {
+          modalSearchObat.value = '';
+          filterModalObat();
+          modalPilihObat.classList.remove('hidden');
+        });
+        btnCloseModalPilih.addEventListener('click', () => modalPilihObat.classList.add('hidden'));
+        btnCancelModalPilih.addEventListener('click', () => modalPilihObat.classList.add('hidden'));
+
+        // Live Search di Modal 1
+        function filterModalObat() {
+          const kw = (modalSearchObat.value || '').toLowerCase().trim();
+          const modalRows = document.querySelectorAll('.modal-obat-row');
+          let shown = 0;
+          modalRows.forEach(r => {
+            if (!kw || r.innerText.toLowerCase().includes(kw)) {
+              r.style.display = '';
+              shown++;
+            } else {
+              r.style.display = 'none';
+            }
+          });
+          document.getElementById('modalObatCounter').innerHTML = `Menampilkan <strong class="text-stone-800 font-semibold">${shown}</strong> dari <strong class="text-stone-800 font-semibold">328</strong> sediaan persediaan aktif apotek`;
+        }
+        modalSearchObat.addEventListener('input', filterModalObat);
+
+        // Open / Close Modal 2
+        btnOpenKonfirmasi.addEventListener('click', () => {
+          if (returTableBody.querySelectorAll('tr').length === 0) {
+            alert('Pilih minimal 1 item obat terlebih dahulu sebelum melakukan konfirmasi retur.');
+            return;
+          }
+          updateCalculations();
+          modalKonfirmasiRetur.classList.remove('hidden');
+        });
+        btnCloseModalKonfirmasi.addEventListener('click', () => modalKonfirmasiRetur.classList.add('hidden'));
+        btnCancelKonfirmasi.addEventListener('click', () => modalKonfirmasiRetur.classList.add('hidden'));
+
+        // Format Rupiah
+        function formatRupiah(amount) {
+          return 'Rp ' + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        // Dynamic Calculation
+        function updateCalculations() {
+          const rows = returTableBody.querySelectorAll('tr');
+          let totalItemsCount = rows.length;
+          let totalQty = 0;
+          let grandTotal = 0;
+
+          rows.forEach(row => {
+            const harga = parseInt(row.getAttribute('data-harga') || 0, 10);
+            const input = row.querySelector('.input-qty');
+            const qty = parseInt(input ? input.value : 0, 10) || 0;
+            const subtotal = harga * qty;
+
+            const subtotalEl = row.querySelector('.row-subtotal');
+            if (subtotalEl) {
+              subtotalEl.innerText = formatRupiah(subtotal);
+            }
+
+            totalQty += qty;
+            grandTotal += subtotal;
+          });
+
+          summaryTotalItems.innerText = `${totalItemsCount} Sediaan (${totalQty} Unit Fisik)`;
+          summaryTotalValuasi.innerText = formatRupiah(grandTotal);
+          dialogSummaryText.innerHTML = `Total Retur: <strong class="text-stone-800">${totalItemsCount} Sediaan (${totalQty} Unit Fisik)</strong> • Estimasi Valuasi: <strong class="text-[#964334]">${formatRupiah(grandTotal)}</strong>`;
+        }
+
+        // Delegate Qty changes and Row removal
+        returTableBody.addEventListener('input', (e) => {
+          if (e.target.classList.contains('input-qty')) {
+            updateCalculations();
+          }
+        });
+
+        returTableBody.addEventListener('click', (e) => {
+          const btnDelete = e.target.closest('.btn-delete-row');
+          if (btnDelete) {
+            const row = btnDelete.closest('tr');
+            row.remove();
+            updateCalculations();
+          }
+        });
+
+        // Add item from Modal 1
+        document.querySelectorAll('.btn-select-obat').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const nama = btn.getAttribute('data-nama');
+            const sub = btn.getAttribute('data-sub');
+            const batch = btn.getAttribute('data-batch');
+            const exp = btn.getAttribute('data-exp');
+            const satuan = btn.getAttribute('data-satuan');
+            const harga = parseInt(btn.getAttribute('data-harga'), 10);
+            const max = btn.getAttribute('data-max');
+
+            let existingRow = null;
+            returTableBody.querySelectorAll('tr').forEach(r => {
+              const batchEl = r.querySelector('.font-code-batch');
+              if (batchEl && batchEl.innerText.trim() === batch) {
+                existingRow = r;
+              }
+            });
+
+            if (existingRow) {
+              const input = existingRow.querySelector('.input-qty');
+              input.value = parseInt(input.value || 1, 10) + 1;
+            } else {
+              const tr = document.createElement('tr');
+              tr.className = 'hover:bg-[#FAF8F5] transition-colors';
+              tr.setAttribute('data-harga', harga);
+              tr.innerHTML = `
+                <td class="py-3 px-4">
+                  <div class="font-bold text-stone-900">${nama}</div>
+                  <div class="text-[11px] text-stone-400 mt-0.5">${sub}</div>
+                </td>
+                <td class="py-3 px-3">
+                  <span class="font-code-batch font-mono text-[11px] bg-stone-100 text-stone-700 px-2 py-0.5 rounded-md font-semibold">${batch}</span>
+                </td>
+                <td class="py-3 px-3">
+                  <span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-semibold">
+                    <span class="material-symbols-outlined" style="font-size: 13px;">error</span>
+                    <span>${exp}</span>
+                  </span>
+                </td>
+                <td class="py-3 px-3 text-center">
+                  <div class="inline-flex items-center space-x-1.5">
+                    <input type="number" min="1" max="${max}" value="5" class="input-qty w-16 h-8 text-center text-xs font-bold bg-[#FAF8F5] border border-[#ECE7E1] rounded-lg focus:bg-white focus:ring-1 focus:ring-[#964334] focus:border-[#964334]">
+                    <span class="text-[11px] text-stone-500 font-medium">${satuan}</span>
+                  </div>
+                </td>
+                <td class="py-3 px-3 text-right font-medium text-stone-600">
+                  ${formatRupiah(harga)}
+                </td>
+                <td class="py-3 px-4 text-right font-bold text-[#964334] row-subtotal">
+                  ${formatRupiah(harga * 5)}
+                </td>
+                <td class="py-3 px-3 text-center">
+                  <button type="button" class="btn-delete-row w-7 h-7 rounded-lg text-rose-500 hover:bg-rose-50 hover:text-rose-700 inline-flex items-center justify-center transition-colors" title="Hapus obat ini">
+                    <span class="material-symbols-outlined" style="font-size: 17px;">delete</span>
+                  </button>
+                </td>
+              `;
+              returTableBody.appendChild(tr);
+            }
+
+            modalPilihObat.classList.add('hidden');
+            updateCalculations();
+          });
+        });
+
+        // Submit Action in Modal 2 -> Redirect ke Halaman 3 (/pengembalian/detail)
+        btnSubmitRetur.addEventListener('click', () => {
+          btnSubmitRetur.disabled = true;
+          btnSubmitRetur.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-1.5 h-3.5 w-3.5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span>Memproses Berita Acara...</span>
+          `;
+
+          const pbfClean = pbfSelect.value.split('(')[0].trim();
+          const totalText = summaryTotalValuasi.innerText;
+          const itemsText = summaryTotalItems.innerText;
+          const alasanText = document.getElementById('alasanRetur').value;
+
+          setTimeout(() => {
+            const params = new URLSearchParams({
+              no: 'RTR/2026/005',
+              pbf: pbfClean,
+              total: totalText,
+              items: itemsText,
+              alasan: alasanText,
+              new: '1'
+            });
+            window.location.href = '/pengembalian/detail?' + params.toString();
+          }, 600);
+        });
+
+        // Initial compute
+        updateCalculations();
+      })();
+    </script>
+  </div>
+</main>
+{{ end }}

@@ -1,0 +1,343 @@
+{{ define "content" }}
+<main class="flex-1 overflow-y-auto px-6 py-5 bg-[#F8F6F2] text-stone-800 space-y-4 w-full" data-purpose="content-view">
+  <div class="w-full space-y-4 pb-6">
+    <!-- Success Notification Banner (Muncul otomatis jika baru dibuat dari Form Retur) -->
+    <section id="successReturBanner" class="bg-[#EFFBF6] border border-[#BCE8D5] rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3" data-purpose="status-banner">
+      <div class="flex items-center gap-3">
+        <div class="w-7 h-7 rounded-full bg-emerald-500/15 text-emerald-600 flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4 stroke-current fill-none stroke-[2.5]" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-xs font-bold text-emerald-950">Berhasil! Transaksi retur berhasil dicatat dan stok telah disesuaikan.</h2>
+          <p class="text-[11px] text-emerald-800/80 mt-0.5">Nomor Transaksi <strong id="bannerNoRetur">RTR/2026/005</strong> resmi diterbitkan. Kartu persediaan aktif otomatis dipindahkan ke status Karantina Retur PBF.</p>
+        </div>
+      </div>
+      <div class="shrink-0 bg-white border border-[#D5EFE3] text-emerald-700 px-3 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 shadow-2xs self-start sm:self-center">
+        <svg class="w-3.5 h-3.5 stroke-current fill-none stroke-[2]" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <rect height="11" rx="2" ry="2" width="18" x="3" y="11"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <span>Audit CDOB Terverifikasi</span>
+      </div>
+    </section>
+
+    <!-- Breadcrumbs and Title Area -->
+    <section class="space-y-1.5" data-purpose="page-title-section">
+      <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs font-semibold text-stone-400">
+        <a class="hover:text-stone-600 transition-colors" href="/">Beranda</a>
+        <span>›</span>
+        <a class="hover:text-stone-600 transition-colors" href="/pengembalian">Pengembalian ke PBF</a>
+        <span>›</span>
+        <span class="text-[#964334]" id="breadcrumbNoRetur">Detail Pengembalian RTR/2026/005</span>
+      </nav>
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <h1 class="text-xl font-bold text-stone-900 tracking-tight" id="pageTitleNoRetur">Detail Pengembalian - RTR/2026/005</h1>
+          <span id="statusBadgeDetail" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FFF5EC] border border-[#FED7AA] text-[#C2410C] text-[11px] font-bold">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#F97316]"></span>
+            Menunggu Penjemputan Kurir
+          </span>
+        </div>
+        <div class="px-3 py-1 bg-[#EAE6DF] text-stone-600 text-[10px] font-bold tracking-wider rounded-lg uppercase">
+          Mode Baca / Arsip Transaksi Sah
+        </div>
+      </div>
+    </section>
+
+    <!-- Card A - Informasi Tujuan Retur -->
+    <section class="bg-white rounded-2xl border border-[#ECE7E1] p-5 shadow-2xs space-y-3.5" data-purpose="card-a-info-tujuan">
+      <div class="flex items-center gap-2.5">
+        <span class="w-6 h-6 rounded-full bg-[#FDF6F3] border border-[#E8D2CB] text-[#964334] font-bold text-xs flex items-center justify-center shrink-0">A</span>
+        <div>
+          <h2 class="text-sm font-bold text-stone-800">Informasi Tujuan Retur</h2>
+          <p class="text-xs text-stone-400">Distributor penyalur resmi, jadwal pengembalian, dan apoteker penanggung jawab</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-[#FAF8F5] border border-[#ECE7E1] rounded-xl p-3.5">
+          <p class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Nama PBF Tujuan (Distributor)</p>
+          <p class="text-xs font-bold text-[#964334] mt-1 leading-snug" id="detailPbfFull">PT Kimia Farma Trading &amp; Distribution</p>
+        </div>
+        <div class="bg-[#FAF8F5] border border-[#ECE7E1] rounded-xl p-3.5">
+          <p class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Tanggal Pengembalian</p>
+          <p class="text-xs font-bold text-stone-800 mt-1 leading-snug" id="detailTanggal">05 Desember 2026 (14:30 WIB)</p>
+        </div>
+        <div class="bg-[#FAF8F5] border border-[#ECE7E1] rounded-xl p-3.5">
+          <p class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Apoteker Pengelola Apotek (APA)</p>
+          <p class="text-xs font-bold text-stone-800 mt-1 leading-snug">apt. Farhan Wicaksono, S.Farm</p>
+        </div>
+        <div class="bg-[#FAF8F5] border border-[#ECE7E1] rounded-xl p-3.5">
+          <p class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">No. SIPA &amp; Lokasi Distribusi</p>
+          <p class="text-xs font-bold text-stone-800 mt-1 leading-snug">1984/SIPA/2022 • Cabang Semarang Barat</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Card B - Daftar Barang Retur -->
+    <section class="bg-white rounded-2xl border border-[#ECE7E1] shadow-2xs overflow-hidden" data-purpose="card-b-daftar-barang">
+      <div class="px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#F1EDE8]">
+        <div class="flex items-center gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-[#FDF6F3] border border-[#E8D2CB] text-[#964334] font-bold text-xs flex items-center justify-center shrink-0">B</span>
+          <div>
+            <h2 class="text-sm font-bold text-stone-800">Daftar Barang Retur</h2>
+            <p class="text-xs text-stone-400">Rincian sediaan farmasi yang ditarik dari rak persediaan beserta nomor batch pabrikan</p>
+          </div>
+        </div>
+        <span id="badgeTotalSediaan" class="px-3 py-1 bg-[#FAF8F5] border border-[#ECE7E1] rounded-full text-xs font-semibold text-stone-700 self-start sm:self-center">
+          Total: 2 Sediaan (25 Unit Fisik)
+        </span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-[#ECE7E1] bg-[#FAF8F5] text-[10px] font-bold uppercase tracking-wider text-stone-500">
+              <th class="py-2.5 px-5">No</th>
+              <th class="py-2.5 px-4">Nama Obat &amp; Deskripsi Sediaan</th>
+              <th class="py-2.5 px-4">Nomor Batch</th>
+              <th class="py-2.5 px-4">Tgl Kedaluwarsa</th>
+              <th class="py-2.5 px-4">Jumlah Retur</th>
+              <th class="py-2.5 px-4">Harga Beli Satuan</th>
+              <th class="py-2.5 px-5 text-right">Subtotal Retur</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#F1EDE8] text-xs">
+            <!-- Row 1 -->
+            <tr class="hover:bg-[#FAF8F5] transition-colors">
+              <td class="py-3 px-5 text-stone-400 font-semibold align-middle">01</td>
+              <td class="py-3 px-4 align-middle">
+                <p class="font-bold text-stone-900">Amoxicillin Trihydrate 500 mg</p>
+                <p class="text-[11px] text-stone-400 mt-0.5">Kapsul • Pabrik: PT Kimia Farma • SKU: MED-AMX-12</p>
+              </td>
+              <td class="py-3 px-4 align-middle">
+                <span class="font-mono text-[11px] font-bold bg-stone-100 text-stone-700 px-2 py-0.5 rounded">
+                  AMX240801
+                </span>
+              </td>
+              <td class="py-3 px-4 align-middle">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-red-200 bg-red-50 text-red-600 font-semibold text-[11px]">
+                  <svg class="w-3 h-3 stroke-current fill-none stroke-[2]" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  18 Juni 2026 (&lt; 2 Bln)
+                </span>
+              </td>
+              <td class="py-3 px-4 align-middle">
+                <p class="font-bold text-stone-800">10 Box</p>
+                <p class="text-[10px] text-stone-400">(100 kapsul / Box)</p>
+              </td>
+              <td class="py-3 px-4 font-medium text-stone-600 align-middle">
+                Rp 65.000
+              </td>
+              <td class="py-3 px-5 text-right font-bold text-[#964334] align-middle">
+                Rp 650.000
+              </td>
+            </tr>
+
+            <!-- Row 2 -->
+            <tr class="hover:bg-[#FAF8F5] transition-colors">
+              <td class="py-3 px-5 text-stone-400 font-semibold align-middle">02</td>
+              <td class="py-3 px-4 align-middle">
+                <p class="font-bold text-stone-900">Paracetamol Sirup 120mg/5ml (Botol 60ml)</p>
+                <p class="text-[11px] text-stone-400 mt-0.5">Sirup Anak • Pabrik: PT Kimia Farma • SKU: MED-PCT-06</p>
+              </td>
+              <td class="py-3 px-4 align-middle">
+                <span class="font-mono text-[11px] font-bold bg-stone-100 text-stone-700 px-2 py-0.5 rounded">
+                  PCT250114
+                </span>
+              </td>
+              <td class="py-3 px-4 align-middle">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-red-200 bg-red-50 text-red-600 font-semibold text-[11px]">
+                  <svg class="w-3 h-3 stroke-current fill-none stroke-[2]" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" x2="12" y1="8" y2="12"></line>
+                    <line x1="12" x2="12.01" y1="16" y2="16"></line>
+                  </svg>
+                  30 Juli 2026 (Segel Rusak)
+                </span>
+              </td>
+              <td class="py-3 px-4 align-middle">
+                <p class="font-bold text-stone-800">15 Botol</p>
+                <p class="text-[10px] text-stone-400">(Netto 60 ml)</p>
+              </td>
+              <td class="py-3 px-4 font-medium text-stone-600 align-middle">
+                Rp 18.500
+              </td>
+              <td class="py-3 px-5 text-right font-bold text-[#964334] align-middle">
+                Rp 277.500
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Card C - Alasan Pengembalian & Kalkulasi Valuasi -->
+    <section class="bg-white rounded-2xl border border-[#ECE7E1] p-5 shadow-2xs space-y-3.5" data-purpose="card-c-alasan-valuasi">
+      <div class="flex items-center gap-2.5">
+        <span class="w-6 h-6 rounded-full bg-[#FDF6F3] border border-[#E8D2CB] text-[#964334] font-bold text-xs flex items-center justify-center shrink-0">C</span>
+        <div>
+          <h2 class="text-sm font-bold text-stone-800">Alasan Pengembalian &amp; Kalkulasi Valuasi</h2>
+          <p class="text-xs text-stone-400">Dokumen resmi berita acara retur distributor bersanding dengan ringkasan klaim ganti rugi</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <!-- Left Column: Berita Acara -->
+        <div class="lg:col-span-8 bg-[#FAF8F5] border border-[#ECE7E1] rounded-xl p-4 flex flex-col justify-between space-y-3">
+          <div class="space-y-2">
+            <div class="flex items-center gap-2 text-stone-500 font-bold text-[10px] uppercase tracking-wider">
+              <svg class="w-3.5 h-3.5 text-stone-400 stroke-current fill-none stroke-[2]" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <span>Keterangan Alasan Retur Terinput (Berita Acara CDOB Apotek):</span>
+            </div>
+            <p id="detailAlasanText" class="text-xs leading-relaxed text-stone-700 italic font-medium px-1">
+              “Sediaan mendekati tanggal kedaluwarsa (&lt; 3 bulan sesuai kesepakatan retur PBF) dan terdapat 15 botol sirup paracetamol dengan kemasan sekunder basah akibat kebocoran transit kurir ekspedisi. Memohon penerbitan Credit Note (CN) atau tukar guling batch baru sesuai SOP CDOB Apotek Sumber Waras.”
+            </p>
+          </div>
+          <div class="flex items-center gap-1.5 text-stone-400 text-[11px] pt-2 border-t border-[#ECE7E1]">
+            <svg class="w-3.5 h-3.5 stroke-current fill-none stroke-[2] shrink-0" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" x2="12" y1="16" y2="12"></line>
+              <line x1="12" x2="12.01" y1="8" y2="8"></line>
+            </svg>
+            <span>Catatan alasan ini telah dicetak otomatis pada Surat Jalan Retur &amp; Dokumen Faktur Pengganti.</span>
+          </div>
+        </div>
+
+        <!-- Right Column: Summary Claim Card -->
+        <div class="lg:col-span-4 bg-white border border-[#ECE7E1] rounded-xl p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between border-b border-[#F1EDE8] pb-2.5 mb-2.5">
+              <h3 class="text-xs font-bold text-stone-800 uppercase tracking-wider">Ringkasan Klaim Retur</h3>
+              <span class="px-2 py-0.5 rounded-full bg-[#FFF5EC] border border-[#FED7AA] text-[#C2410C] font-bold text-[10px]">
+                Klaim Terbuka
+              </span>
+            </div>
+            <div class="space-y-1.5 text-xs">
+              <div class="flex justify-between items-center text-stone-500">
+                <span>PBF Penerima:</span>
+                <span class="font-bold text-stone-800 text-right" id="detailPbfShort">PT Kimia Farma T&amp;D</span>
+              </div>
+              <div class="flex justify-between items-center text-stone-500">
+                <span>Total Kuantitas Obat:</span>
+                <span class="font-bold text-stone-800" id="detailTotalItems">2 Sediaan (25 Unit Fisik)</span>
+              </div>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-[#F1EDE8] mt-3">
+            <div class="flex items-end justify-between gap-2">
+              <div>
+                <p class="text-xs font-bold text-stone-800 leading-tight">Total Nilai Retur</p>
+                <p class="text-[10px] text-stone-400 mt-0.5">Estimasi Penggantian (CN)</p>
+              </div>
+              <p class="text-xl font-bold text-[#964334] tracking-tight" id="detailTotalValuasi">Rp 927.500</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom Action Bar -->
+    <footer class="bg-white border border-[#ECE7E1] rounded-2xl px-5 py-3.5 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3" data-purpose="bottom-action-bar">
+      <div class="flex items-center gap-2 text-stone-600 text-xs">
+        <svg class="w-4 h-4 text-stone-400 stroke-current fill-none stroke-[2] shrink-0" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <rect height="11" rx="2" ry="2" width="18" x="3" y="11"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <p class="leading-relaxed">
+          <span class="font-bold text-stone-800" id="footerLockId">ID Transaksi Terkunci: RTR/2026/005</span>
+          <span class="text-stone-400 mx-1">•</span>
+          <span>Diverifikasi Sistem SIM Apotek</span>
+          <span class="text-stone-400 mx-1">•</span>
+          <span>Operator: <strong class="font-semibold text-stone-800">apt. Farhan Wicaksono, S.Farm</strong></span>
+        </p>
+      </div>
+      <div class="flex items-center gap-2.5 shrink-0 w-full sm:w-auto justify-end">
+        <a href="/pengembalian" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-[#ECE7E1] bg-[#FAF8F5] hover:bg-[#F3EFE9] text-stone-700 font-semibold text-xs transition-colors">
+          <svg class="w-3.5 h-3.5 stroke-current fill-none stroke-[2.2]" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <line x1="19" x2="5" y1="12" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span>Kembali ke Daftar</span>
+        </a>
+        <button class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#964334] hover:bg-[#7F3629] text-white font-semibold text-xs shadow-2xs transition-all cursor-pointer" onclick="window.print()" type="button">
+          <svg class="w-3.5 h-3.5 stroke-current fill-none stroke-[2.2]" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect height="8" width="12" x="6" y="14"></rect>
+          </svg>
+          <span>Cetak Surat Retur (PDF)</span>
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Script Sinkronisasi Data dari Halaman 1 atau Halaman 2 -->
+  <script>
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      const isNew = params.get('new') === '1';
+      const noRetur = params.get('no');
+      const pbf = params.get('pbf');
+      const tanggal = params.get('tanggal');
+      const status = params.get('status');
+      const total = params.get('total');
+      const items = params.get('items');
+      const alasan = params.get('alasan');
+
+      // Tampilkan banner sukses hanya jika berasal dari submit Form Retur baru (?new=1)
+      const banner = document.getElementById('successReturBanner');
+      if (!isNew && noRetur) {
+        banner.classList.add('hidden');
+      }
+
+      if (noRetur) {
+        document.getElementById('bannerNoRetur').innerText = noRetur;
+        document.getElementById('breadcrumbNoRetur').innerText = 'Detail Pengembalian ' + noRetur;
+        document.getElementById('pageTitleNoRetur').innerText = 'Detail Pengembalian - ' + noRetur;
+        document.getElementById('footerLockId').innerText = 'ID Transaksi Terkunci: ' + noRetur;
+      }
+
+      if (pbf) {
+        document.getElementById('detailPbfFull').innerText = pbf;
+        document.getElementById('detailPbfShort').innerText = pbf.includes('Kimia Farma') ? 'PT Kimia Farma T&D' : pbf;
+      }
+
+      if (tanggal) {
+        document.getElementById('detailTanggal').innerText = tanggal;
+      }
+
+      if (total) {
+        document.getElementById('detailTotalValuasi').innerText = total;
+      }
+
+      if (items) {
+        document.getElementById('detailTotalItems').innerText = items;
+        document.getElementById('badgeTotalSediaan').innerText = 'Total: ' + items;
+      }
+
+      if (alasan) {
+        document.getElementById('detailAlasanText').innerText = '“' + alasan + '”';
+      }
+
+      if (status) {
+        const badge = document.getElementById('statusBadgeDetail');
+        if (status === 'Selesai') {
+          badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold';
+          badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Selesai (CN / Tukar Barang Diterima)';
+        } else if (status === 'Draft') {
+          badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-stone-100 border border-stone-300 text-stone-600 text-[11px] font-bold';
+          badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-stone-400"></span> Draft Belum Dikirim';
+        }
+      }
+    })();
+  </script>
+</main>
+{{ end }}

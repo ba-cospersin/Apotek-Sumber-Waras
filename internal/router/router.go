@@ -183,12 +183,12 @@ func New(db *sql.DB) *http.ServeMux {
 		}
 	})
 
-	mux.HandleFunc("/pengembalian/pbf", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/pengembalian/pengembalian", func(w http.ResponseWriter, r *http.Request) {
 		tmpl, err := template.ParseFiles(
 			"web/templates/layouts/base.html",
 			"web/templates/partials/sidebar.html",
 			"web/templates/partials/header.html",
-			"web/templates/pengembalian/pbf.html",
+			"web/templates/pengembalian/pengembalian.html",
 		)
 
 		if err != nil {
@@ -202,6 +202,38 @@ func New(db *sql.DB) *http.ServeMux {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 
+	})
+
+	mux.HandleFunc("/pengembalian/formpengembalian", func(w http.ResponseWriter, r *http.Request) {
+		tmpl, err := template.ParseFiles(
+			"web/templates/layouts/base.html",
+			"web/templates/partials/sidebar.html",
+			"web/templates/pengembalian/formpengembalian.html",
+		)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if err := tmpl.ExecuteTemplate(w, "base.html", nil); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	})
+
+	mux.HandleFunc("/pengembalian/detailpengembalian", func(w http.ResponseWriter, r *http.Request) {
+		tmpl, err := template.ParseFiles(
+			"web/templates/layouts/base.html",
+			"web/templates/partials/sidebar.html",
+			"web/templates/pengembalian/detailpengembalian.html",
+		)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if err := tmpl.ExecuteTemplate(w, "base.html", nil); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	})
 
 	mux.HandleFunc("/persediaan/stock", func(w http.ResponseWriter, r *http.Request) {
@@ -380,5 +412,35 @@ func New(db *sql.DB) *http.ServeMux {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	})
 
+	mux.HandleFunc("/pemusnahan/formpemusnahan", func(w http.ResponseWriter, r *http.Request) {
+		tmpl, err := template.ParseFiles(
+			"web/templates/layouts/base.html",
+			"web/templates/partials/sidebar.html",
+			"web/templates/pemusnahan/formpemusnahan.html",
+		)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if err := tmpl.ExecuteTemplate(w, "base.html", nil); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	})
+
+	mux.HandleFunc("/pemusnahan/detail", func(w http.ResponseWriter, r *http.Request) {
+		tmpl, err := template.ParseFiles(
+			"web/templates/layouts/base.html",
+			"web/templates/partials/sidebar.html",
+			"web/templates/pemusnahan/detailpemusnahan.html",
+		)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if err := tmpl.ExecuteTemplate(w, "base.html", nil); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	})
 	return mux
 }
