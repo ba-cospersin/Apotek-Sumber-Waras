@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="/static/css/layout.css">
     {{if .PageCSS}}<link rel="stylesheet" href="{{.PageCSS}}">{{end}}
 </head>
-<body data-receipt-url="{{index .Routes "struk_penjualan"}}">
+<body data-page="{{.ActivePage}}" data-receipt-url="{{index .Routes "struk_penjualan"}}">
     <div class="app-shell">
         {{template "sidebar" .}}
         <div class="app-main">

@@ -84,9 +84,10 @@
     transition: background .16s ease, color .16s ease;
 }
 
-.nav-link:hover {
-    background: #fff1ed;
-    color: var(--primary-dark);
+.nav-link:hover,
+.nav-link:active {
+    background: var(--primary);
+    color: #fff;
 }
 
 .nav-link.is-active {
@@ -450,5 +451,168 @@
 
     .page-content {
         overflow: hidden;
+    }
+}
+
+/* Sinkronisasi shell bersama dengan frame Figma Apotek Sumber Waras. */
+.brand-logo {
+    display: block;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.nav-icon {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    color: currentColor;
+}
+
+.nav-icon svg,
+.topbar-icon svg,
+.topbar-date svg,
+.mobile-menu-button svg,
+.fefo-icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.nav-link {
+    min-height: 40px;
+    gap: 12px;
+    padding: 9px 12px;
+    font-size: 13px;
+    line-height: 20px;
+}
+
+.nav-link.is-active {
+    min-height: 40px;
+    padding: 9px 12px;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 600;
+}
+
+.topbar {
+    padding-right: 24px;
+    padding-left: 24px;
+}
+
+.topbar-right {
+    gap: 14px;
+}
+
+.topbar-date {
+    gap: 7px;
+    min-height: 32px;
+    padding: 6px 12px;
+    font-size: 11px;
+}
+
+.topbar-date svg {
+    width: 15px;
+    height: 15px;
+    color: #a65b4c;
+}
+
+.topbar-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+}
+
+.topbar-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.notification-icon i {
+    top: 4px;
+    right: 4px;
+}
+
+.help-icon {
+    border: 0;
+}
+
+.help-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.user-profile {
+    gap: 8px;
+    padding-left: 12px;
+    border-left: 1px solid var(--border);
+}
+
+.avatar {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    border: 1px solid #f2d8d1;
+    border-radius: 50%;
+    color: #a94f3d;
+    background: #fff0ed;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.user-meta strong {
+    max-width: 190px;
+    color: #30231f;
+    font-size: 11px;
+    line-height: 15px;
+}
+
+.user-meta small {
+    color: #856d66;
+    font-size: 10px;
+    line-height: 13px;
+}
+
+.role-badge {
+    padding: 3px 7px;
+    border: 0;
+    border-radius: 5px;
+    color: #a85240;
+    background: #ffe4dc;
+    font-size: 9px;
+    line-height: 12px;
+}
+
+.fefo-icon {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    padding: 7px;
+}
+
+@media (max-width: 1050px) {
+    .topbar {
+        padding-right: 20px;
+        padding-left: 20px;
+    }
+}
+
+@media (max-width: 760px) {
+    .topbar {
+        padding-right: 14px;
+        padding-left: 14px;
+    }
+    .mobile-menu-button svg {
+        width: 22px;
+        height: 22px;
     }
 }

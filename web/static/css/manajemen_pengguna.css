@@ -1,94 +1,11 @@
-.users-page,
-body:has(.users-page) {
-    font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif;
-}
+/* Manajemen Pengguna — Figma */
+.users-page{gap:20px}.users-page,.users-page *{font-family:'Plus Jakarta Sans','Poppins',sans-serif}.users-page .page-heading h1{font-size:24px}.users-panel{padding:20px!important;border-radius:14px!important}.users-toolbar{display:grid;grid-template-columns:minmax(260px,1fr) 170px auto;gap:12px;align-items:center;padding-bottom:18px}.users-toolbar .search-box{max-width:535px;min-height:40px}.users-toolbar .control{min-height:40px;font-size:12px}.users-toolbar .btn{min-height:40px;min-width:183px;justify-self:end;border-radius:9px;box-shadow:0 3px 9px rgba(224,125,107,.18)}.users-table-wrap{border:0;border-radius:0}.users-table{min-width:830px}.users-table th{padding:13px 12px;background:#fff0eb;color:#6d554e;font-size:10px;text-transform:uppercase}.users-table td{padding:13px 12px;font-size:11px}.user-name-cell{display:flex;align-items:center;gap:12px;min-width:260px}.user-initial{display:grid;place-items:center;width:36px;height:36px;flex:0 0 36px;border-radius:50%;background:#ffe8e4;color:#a44d3d;font-size:11px;font-weight:700}.user-initial.peach{background:#ffede6;color:#68463d}.user-initial.muted{background:#eee5e2;color:#95837e}.user-name-cell strong{font-size:12px}.user-name-cell small{font-size:10px}.user-role{display:inline-flex;padding:4px 10px;border-radius:999px;background:#f9e5df;color:#745249;font-size:10px;font-weight:700}.user-role.owner{background:#ffe0b9;color:#79512b}.user-role.cashier{background:#f7e5e1;color:#805b53}.user-role.warehouse{background:#ffe7e2;color:#9b4f43}.status-toggle{display:inline-flex;align-items:center;gap:8px;color:#a44d3d;font-size:11px;white-space:nowrap;cursor:pointer}.status-toggle input{position:absolute;opacity:0;pointer-events:none}.status-toggle span{position:relative;width:36px;height:20px;border-radius:999px;background:#e9e2df;transition:background .15s}.status-toggle span:after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.12);transition:transform .15s}.status-toggle input:checked+span{background:#ff9783}.status-toggle input:checked+span:after{transform:translateX(16px)}.status-toggle.inactive{color:#978680}.users-note{padding:12px 4px;color:#806960;background:#fff9f7;border-top:1px solid #f3e6e2;font-size:11px}.users-page .master-pagination{padding-top:14px}
+@media(max-width:760px){.users-toolbar{grid-template-columns:1fr 1fr}.users-toolbar .search-box{grid-column:1/-1;max-width:none}.users-toolbar .btn{grid-column:1/-1;justify-self:stretch}.users-page .master-pagination{align-items:flex-start;flex-direction:column}}
 
-.users-page .page-heading {
-    align-items: center;
-}
-
-.users-page .data-table th {
-    font-family: 'Plus Jakarta Sans', 'Poppins', sans-serif;
-    font-size: 11px;
-    letter-spacing: .24px;
-}
-
-.users-page .data-table td strong {
-    font-size: 14px;
-    line-height: 19px;
-}
-
-.users-page .data-table td small {
-    font-size: 12px;
-    line-height: 16px;
-}
-
-.person-cell {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-width: 210px;
-}
-
-.person-avatar {
-    display: grid;
-    place-items: center;
-    width: 36px;
-    height: 36px;
-    flex: 0 0 36px;
-    border-radius: 50%;
-    background: rgba(255, 154, 134, .2);
-    color: #964737;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.person-avatar.coral {
-    background: #fff0eb;
-    color: #ac5948;
-}
-
-.person-avatar.green {
-    background: #e4f5eb;
-    color: #2e9e5b;
-}
-
-.person-avatar.muted {
-    background: #efefef;
-    color: #888;
-}
-
-.role-chip {
-    display: inline-flex;
-    padding: 5px 9px;
-    border-radius: 999px;
-    font-size: 10px;
-    line-height: 14px;
-    font-weight: 700;
-    letter-spacing: .25px;
-}
-
-.role-chip.owner {
-    background: #ffe8dd;
-    color: #a64d39;
-}
-
-.role-chip.cashier {
-    background: #edf4ff;
-    color: #5273a6;
-}
-
-.role-chip.warehouse {
-    background: #e5f5ec;
-    color: #2e8a54;
-}
-
-.users-page .data-table {
-    min-width: 920px;
-}
-
-@media (max-width: 600px) {
-    .users-page .page-heading {
-        align-items: flex-start;
-    }
-}
+/* Pagination mengikuti tampilan Data Master */
+.master-pagination { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:15px 0 0; color:#8a7770; font-size:11px; }
+.master-pagination strong { color:#42312b; }
+.master-pagination>div { display:flex; align-items:center; gap:6px; }
+.master-pagination button { min-width:32px; height:32px; color:#59453e; background:#fff; border:1px solid #f0dfda; border-radius:8px; }
+.master-pagination button.current { color:#fff; background:#ff927d; border-color:#ff927d; }
+.master-pagination button:disabled { color:#c8b9b4; }

@@ -1,27 +1,83 @@
 {{define "page-content"}}
 <section class="module-page cashier-page">
-  <div class="page-heading"><div><span class="eyebrow">TRANSAKSI</span><h1>Kasir / Penjualan</h1><p>Pilih obat, satuan, dan jumlah. Stok diambil otomatis berdasarkan FEFO.</p></div><span class="soft-tag"><i></i> Mode Demo</span></div>
-  <div class="cashier-layout">
-    <section class="panel catalog-panel">
-      <div class="section-title"><div><h2>Pilih Obat</h2><p>Daftar obat dengan stok yang boleh dijual</p></div><span class="count-tag">12 produk</span></div>
-      <div class="toolbar"><label class="search-box"><span>⌕</span><input type="search" placeholder="Cari nama / kode obat..." data-filter-input="medicine-list"></label><select class="control" data-filter-select="medicine-list"><option value="">Semua kategori</option><option>Tablet</option><option>Kapsul</option><option>Sirup</option></select></div>
-      <div class="medicine-list" id="medicine-list">
-        <article class="medicine-card" data-search="paracetamol 500mg tablet med-pcm-01"><div class="medicine-symbol coral">✚</div><div class="medicine-info"><strong>Paracetamol 500mg</strong><small>Tablet · MED-PCM-01</small><small class="stock-note">Stok boleh dijual: 120 strip</small><span class="fefo-note">FEFO: Batch B24-098 · ED 18 Des 2026</span></div><div class="medicine-buy"><strong>Rp5.000</strong><button type="button" class="btn btn-primary btn-sm" data-add-cart data-name="Paracetamol 500mg" data-price="5000" data-batch="B24-098">Tambah</button></div></article>
-        <article class="medicine-card" data-search="vitamin c 500mg tablet med-vit-02"><div class="medicine-symbol green">✚</div><div class="medicine-info"><strong>Vitamin C 500mg</strong><small>Tablet · MED-VIT-02</small><small class="stock-note">Stok boleh dijual: 86 tablet</small><span class="fefo-note">FEFO: B24-041 (6) · B24-055 (4)</span></div><div class="medicine-buy"><strong>Rp1.500</strong><button type="button" class="btn btn-primary btn-sm" data-add-cart data-name="Vitamin C 500mg" data-price="1500" data-batch="B24-041">Tambah</button></div></article>
-        <article class="medicine-card" data-search="amoxicillin 500mg kapsul med-amx-03"><div class="medicine-symbol amber">✚</div><div class="medicine-info"><strong>Amoxicillin 500mg</strong><small>Kapsul · MED-AMX-03</small><small class="stock-note">Stok boleh dijual: 42 strip</small><span class="fefo-note">FEFO: Batch B24-098 · ED 18 Des 2026</span></div><div class="medicine-buy"><strong>Rp12.000</strong><button type="button" class="btn btn-primary btn-sm" data-add-cart data-name="Amoxicillin 500mg" data-price="12000" data-batch="B24-098">Tambah</button></div></article>
-        <article class="medicine-card" data-search="cetirizine 10mg tablet med-ctz-04"><div class="medicine-symbol blue">✚</div><div class="medicine-info"><strong>Cetirizine 10mg</strong><small>Tablet · MED-CTZ-04</small><small class="stock-note">Stok boleh dijual: 64 tablet</small><span class="fefo-note">FEFO: Batch CT-409 · ED 30 Nov 2026</span></div><div class="medicine-buy"><strong>Rp2.000</strong><button type="button" class="btn btn-primary btn-sm" data-add-cart data-name="Cetirizine 10mg" data-price="2000" data-batch="CT-409">Tambah</button></div></article>
-        <article class="medicine-card" data-search="antasida doen suspensi 60ml med-ant-05"><div class="medicine-symbol peach">✚</div><div class="medicine-info"><strong>Antasida Doen Suspensi 60ml</strong><small>Suspensi · MED-ANT-05</small><small class="stock-note">Stok boleh dijual: 18 botol</small><span class="fefo-note">FEFO: Batch AT-221 · ED 15 Des 2026</span></div><div class="medicine-buy"><strong>Rp8.500</strong><button type="button" class="btn btn-primary btn-sm" data-add-cart data-name="Antasida Doen Suspensi 60ml" data-price="8500" data-batch="AT-221">Tambah</button></div></article>
+  <div class="page-heading">
+    <div><h1>Kasir / Penjualan</h1><p>Pilih obat, satuan, dan jumlah. Stok diambil otomatis berdasarkan FEFO.</p></div>
+  </div>
+
+  <div class="cashier-workspace">
+    <section class="panel product-panel" aria-labelledby="medicine-title">
+      <div class="cashier-panel-heading">
+        <div class="cashier-panel-title"><span class="panel-symbol coral-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4h10v16H7zM10 8h4M12 6v4"/></svg></span><h2 id="medicine-title">Pencarian Obat</h2></div>
+        <label class="search-box cashier-search"><span aria-hidden="true">⌕</span><input type="search" placeholder="Cari nama / kode obat..." data-filter-input="medicine-table"></label>
       </div>
+      <div class="cashier-table-wrap">
+        <table class="cashier-product-table" id="medicine-table">
+          <thead><tr><th>Kode</th><th>Nama Obat</th><th>Satuan</th><th>Harga</th><th>Stok Dapat Dijual</th><th>Jumlah</th><th></th></tr></thead>
+          <tbody>
+            <tr data-search="obt-001 paracetamol 500mg kimia farma tablet strip" data-status="tersedia">
+              <td class="product-code">OBT-<br>001</td><td><strong>Paracetamol 500mg</strong><small>Kimia Farma · Sirup &amp; Tablet</small></td>
+              <td><select class="unit-select" aria-label="Satuan Paracetamol"><option>Strip</option><option>Tablet</option><option>Box</option></select></td><td class="price-cell">Rp5.000</td>
+              <td><span class="stock-chip available">180 Strip</span></td><td><div class="qty-stepper"><button type="button" data-product-step="-1" aria-label="Kurangi jumlah">−</button><input type="number" min="0" value="1" aria-label="Jumlah Paracetamol" data-product-qty="paracetamol"><button type="button" data-product-step="1" aria-label="Tambah jumlah">+</button></div></td>
+              <td><button type="button" class="btn btn-primary btn-sm add-product" data-add-cart data-name="Paracetamol 500mg" data-price="5000" data-batch="B24-098" data-unit="Strip" data-qty-source="paracetamol">Tambah</button></td>
+            </tr>
+            <tr data-search="obt-014 vitamin c 500mg ipi tablet multivitamin" data-status="tersedia">
+              <td class="product-code">OBT-<br>014</td><td><strong>Vitamin C 500mg</strong><small>IPI · Multivitamin</small></td>
+              <td><select class="unit-select" aria-label="Satuan Vitamin C"><option>Tablet</option><option>Strip</option><option>Botol</option></select></td><td class="price-cell">Rp1.000</td>
+              <td><span class="stock-chip available">350 Tablet</span></td><td><div class="qty-stepper"><button type="button" data-product-step="-1" aria-label="Kurangi jumlah">−</button><input type="number" min="0" value="1" aria-label="Jumlah Vitamin C" data-product-qty="vitamin"><button type="button" data-product-step="1" aria-label="Tambah jumlah">+</button></div></td>
+              <td><button type="button" class="btn btn-primary btn-sm add-product" data-add-cart data-name="Vitamin C 500mg" data-price="1000" data-batch="B24-041 (6 tablet), B24-055 (4 tablet)" data-unit="Tablet" data-qty-source="vitamin">Tambah</button></td>
+            </tr>
+            <tr data-search="obt-004 amoxicillin 500mg bernofarm kapsul antibiotik" data-status="tersedia">
+              <td class="product-code">OBT-<br>004</td><td><strong>Amoxicillin 500mg</strong><small>Bernofarm · Antibiotik Keras</small></td>
+              <td><select class="unit-select" aria-label="Satuan Amoxicillin"><option>Strip</option><option>Kapsul</option><option>Box</option></select></td><td class="price-cell">Rp12.000</td>
+              <td><span class="stock-chip available">42 Strip</span><small class="stock-warning">Sebagian batch mendekati ED, tidak dihitung</small></td><td><div class="qty-stepper"><button type="button" data-product-step="-1" aria-label="Kurangi jumlah">−</button><input type="number" min="0" value="1" aria-label="Jumlah Amoxicillin" data-product-qty="amoxicillin"><button type="button" data-product-step="1" aria-label="Tambah jumlah">+</button></div></td>
+              <td><button type="button" class="btn btn-primary btn-sm add-product" data-add-cart data-name="Amoxicillin 500mg" data-price="12000" data-batch="B24-098" data-unit="Strip" data-qty-source="amoxicillin">Tambah</button></td>
+            </tr>
+            <tr class="stock-unavailable" data-search="obt-008 antasida doen suspensi 60ml lambung" data-status="habis">
+              <td class="product-code">OBT-<br>008</td><td><strong>Antasida Doen</strong><small>Suspensi 60 ml · Lambung</small></td>
+              <td><select class="unit-select" aria-label="Satuan Antasida" disabled><option>Botol</option></select></td><td class="price-cell">Rp7.500</td><td><span class="stock-chip unavailable">Stok tidak cukup</span></td>
+              <td><div class="qty-stepper disabled"><button type="button" disabled>−</button><input type="number" value="0" disabled><button type="button" disabled>+</button></div></td><td><button type="button" class="btn btn-primary btn-sm add-product" disabled>Tambah</button></td>
+            </tr>
+            <tr data-search="obt-022 cetirizine 10mg kalbe antihistamin" data-status="tersedia">
+              <td class="product-code">OBT-<br>022</td><td><strong>Cetirizine 10mg</strong><small>Kalbe · Antihistamin</small></td>
+              <td><select class="unit-select" aria-label="Satuan Cetirizine"><option>Strip</option><option>Tablet</option></select></td><td class="price-cell">Rp6.500</td>
+              <td><span class="stock-chip available">40 Strip</span></td><td><div class="qty-stepper"><button type="button" data-product-step="-1" aria-label="Kurangi jumlah">−</button><input type="number" min="0" value="1" aria-label="Jumlah Cetirizine" data-product-qty="cetirizine"><button type="button" data-product-step="1" aria-label="Tambah jumlah">+</button></div></td>
+              <td><button type="button" class="btn btn-primary btn-sm add-product" data-add-cart data-name="Cetirizine 10mg" data-price="6500" data-batch="CT-409" data-unit="Strip" data-qty-source="cetirizine">Tambah</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="cashier-footnote"><span aria-hidden="true">♧</span> Stok dapat dijual tidak termasuk batch diblokir atau yang sudah memasuki batas 1 bulan sebelum kedaluwarsa.</p>
     </section>
-    <aside class="panel cart-panel">
-      <div class="section-title"><div><h2>Keranjang</h2><p>Transaksi baru · TRX-DRAFT</p></div><span class="cart-count" id="cart-count">0 item</span></div>
-      <div class="cart-items" id="cart-items"><div class="empty-state"><span>▤</span><strong>Keranjang masih kosong</strong><small>Pilih obat dari daftar untuk memulai transaksi.</small></div></div>
-      <div class="cart-calculation"><div><span>Subtotal</span><strong id="subtotal">Rp0</strong></div><div><span>Diskon</span><strong>Rp0</strong></div><div class="grand-total"><span>Total Tagihan</span><strong id="grand-total">Rp0</strong></div></div>
-      <div class="payment-form"><label for="payment-method">Metode Pembayaran</label><select id="payment-method" class="control"><option>Tunai</option><option>Transfer / QRIS (manual)</option></select><label for="amount-paid">Jumlah Bayar (Rp)</label><input id="amount-paid" class="control" type="number" min="0" placeholder="Masukkan jumlah pembayaran" value="0"><div class="change-row"><span id="payment-message">Masukkan pembayaran untuk menghitung kembalian.</span><strong id="change-value">Rp0</strong></div></div>
-      <button class="btn btn-primary btn-block" id="checkout-button" type="button">Proses &amp; Cetak Struk <span>→</span></button>
-      <small class="form-footnote">Simulasi antarmuka. Stok dan transaksi belum disimpan.</small>
+
+    <aside class="panel sales-cart-panel" aria-labelledby="cart-title">
+      <div class="cashier-panel-heading cart-heading"><div class="cashier-panel-title"><span class="panel-symbol cart-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 4h2l2.2 11.2h10.9l2-8H6M9 19h.01M17 19h.01M10 9l2 2 3-3"/></svg></span><h2 id="cart-title">Keranjang Penjualan</h2></div><span class="count-tag" id="cart-count">3 Item</span></div>
+      <div class="cart-table-wrap"><table class="cart-table"><thead><tr><th>Item</th><th>Satuan</th><th>Qty</th><th>Harga</th><th>Subtotal</th><th></th></tr></thead><tbody id="cart-items"></tbody></table><div class="cart-empty" id="cart-empty" hidden><span class="empty-cart-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 4h2l2.2 11.2h10.9l2-8H6M9 19h.01M17 19h.01"/></svg></span><strong>Keranjang masih kosong</strong><small>Pilih obat dari daftar untuk memulai transaksi.</small></div></div>
+      <div class="cart-total"><span>TOTAL TAGIHAN</span><strong id="grand-total">Rp32.000</strong></div>
+      <div class="payment-area">
+        <strong class="payment-label">Metode Pembayaran</strong>
+        <div class="payment-switch" role="group" aria-label="Metode pembayaran"><button class="is-active" type="button" data-payment-method="Tunai"><span>▣</span> Tunai</button><button type="button" data-payment-method="Nontunai"><span>▦</span> Nontunai (QRIS/Debit)</button></div>
+        <label class="payment-label" for="amount-paid">Jumlah Bayar (Rp)</label>
+        <div class="money-input"><span>Rp</span><input id="amount-paid" type="number" min="0" value="50000" aria-label="Jumlah bayar"></div>
+        <div class="change-banner"><span><b aria-hidden="true">◉</b> Kembalian</span><strong id="change-value">Rp18.000</strong></div>
+        <div class="payment-warning" id="payment-message"><span aria-hidden="true">ⓘ</span>Pastikan nominal uang tunai yang diterima pas atau melebihi tagihan sebelum mencetak.</div>
+      </div>
+      <button class="btn btn-primary btn-block checkout-button" id="checkout-button" type="button"><span aria-hidden="true">▣</span> PROSES &amp; CETAK STRUK</button>
+      <button class="clear-cart-button" id="clear-cart" type="button">♧ Kosongkan Keranjang</button>
     </aside>
   </div>
-  <section class="panel cashier-history"><div class="section-title"><div><h2>{{if eq .User.Role "OWNER"}}Penjualan Terbaru{{else}}Penjualan Milik Saya{{end}}</h2><p>{{if eq .User.Role "OWNER"}}Ringkasan transaksi seluruh kasir.{{else}}Riwayat transaksi yang dilakukan oleh akun ini.{{end}}</p></div><span class="count-tag">Hari ini</span></div><div class="table-wrap"><table class="data-table"><thead><tr><th>No. Transaksi</th><th>Waktu</th><th>Obat</th><th>Total</th><th>Kasir</th><th>Aksi</th></tr></thead><tbody><tr><td class="mono">TRX-20261107-0042</td><td>10:42</td><td>3 jenis obat</td><td><strong>Rp28.000</strong></td><td>Budi</td><td><a class="btn btn-outline btn-xs" href="{{index .Routes "struk_penjualan"}}">Lihat Struk</a></td></tr><tr><td class="mono">TRX-20261107-0041</td><td>09:58</td><td>2 jenis obat</td><td><strong>Rp82.000</strong></td><td>Budi</td><td><a class="btn btn-outline btn-xs" href="{{index .Routes "struk_penjualan"}}">Lihat Struk</a></td></tr></tbody></table></div></section>
+
+  <dialog class="receipt-dialog" id="receipt-dialog" aria-labelledby="receipt-dialog-title">
+    <article class="receipt-modal-card">
+      <header class="receipt-modal-heading"><h2 id="receipt-dialog-title">Struk Penjualan</h2><button type="button" class="dialog-close" aria-label="Tutup" data-close-dialog>×</button></header>
+      <div class="receipt-modal-body">
+        <div class="receipt-modal-brand"><img src="/static/img/logo.svg" alt="" width="30" height="30"><strong>APOTEK SUMBER WARAS</strong><small>Sistem Stok Apotek</small></div>
+        <div class="receipt-modal-meta"><span>No. Transaksi</span><strong>TRX-20261107-0042</strong><span>Waktu</span><strong>7 Nov 2026, 10:42</strong><span>Kasir</span><strong>{{.User.Nama}}</strong></div>
+        <div class="receipt-modal-lines" id="receipt-lines"></div>
+        <div class="receipt-modal-total"><span>Total</span><strong id="receipt-total">Rp32.000</strong></div>
+        <p class="receipt-modal-thanks">Terima kasih telah berbelanja di Apotek Sumber Waras.</p>
+      </div>
+      <footer class="receipt-modal-actions"><button type="button" class="btn btn-ghost" data-close-dialog>Tutup</button><button type="button" class="btn btn-primary" data-print>▣ Cetak Struk</button></footer>
+    </article>
+  </dialog>
 </section>
 {{end}}

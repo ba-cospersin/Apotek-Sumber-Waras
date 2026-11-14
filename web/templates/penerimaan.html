@@ -1,17 +1,42 @@
 {{define "page-content"}}
 <section class="module-page receiving-page">
-  <div class="page-heading"><div><span class="eyebrow">PERSEDIAAN MASUK</span><h1>Penerimaan Barang dari PBF</h1><p>Catat faktur dan setiap lapisan penerimaan berdasarkan batch.</p></div><span class="soft-tag"><i></i> Mode Demo</span></div>
-  <form class="panel form-panel" data-demo-form data-success="Simulasi penerimaan berhasil divalidasi. Data belum disimpan.">
-    <div class="section-title"><div><h2>Informasi Faktur</h2><p>Identitas pemasok dan dokumen penerimaan</p></div><span class="step-tag">01 · Faktur</span></div>
-    <div class="form-grid three-col"><label class="field"><span>PBF (Pedagang Besar Farmasi) <b>*</b></span><select class="control" required><option value="">-- Pilih PBF --</option><option>PT Anugrah Pharmindo Lestari</option><option>Kimia Farma</option><option>Bernofarm</option><option>Combiphar</option></select></label><label class="field"><span>No. Faktur <b>*</b></span><input class="control" required value="FAK-KF-20261107-089"></label><label class="field"><span>Tanggal Faktur <b>*</b></span><input class="control" type="date" value="2026-11-07" required></label><label class="field"><span>Tanggal Penerimaan <b>*</b></span><input class="control" type="date" value="2026-11-07" required></label><label class="field"><span>Petugas Penerima</span><input class="control" value="Siti (Asisten Apoteker)" readonly></label><label class="field"><span>Catatan Faktur</span><input class="control" placeholder="Catatan tambahan (opsional)"></label></div>
-    <div class="section-title section-title-spaced"><div><h2>Daftar Obat Diterima</h2><p>Setiap baris menjadi lapisan penerimaan pada batch fisik terkait.</p></div><button type="button" class="btn btn-outline btn-sm" data-add-row="receiving-table">＋ Tambah Baris</button></div>
-    <div class="table-wrap"><table class="data-table" id="receiving-table"><thead><tr><th>Obat</th><th>No. Batch</th><th>Tanggal ED</th><th>Jumlah</th><th>Satuan</th><th>Harga Beli / Satuan</th><th></th></tr></thead><tbody>
-      <tr><td><select class="control"><option>Paracetamol 500mg</option><option>Amoxicillin 500mg</option><option>Vitamin C 500mg</option></select></td><td><input class="control" value="PCM-2411"></td><td><input class="control" type="date" value="2026-12-18"></td><td><input class="control" type="number" value="120" min="1"></td><td><select class="control"><option>Strip</option><option>Box</option><option>Tablet</option></select></td><td><input class="control" type="number" value="3500"></td><td><button class="icon-button danger-text" type="button" data-remove-row aria-label="Hapus baris">×</button></td></tr>
-      <tr><td><select class="control"><option>Amoxicillin 500mg</option><option>Paracetamol 500mg</option><option>Vitamin C 500mg</option></select></td><td><input class="control" value="AMX-2409"></td><td><input class="control" type="date" value="2026-12-22"></td><td><input class="control" type="number" value="80" min="1"></td><td><select class="control"><option>Strip</option><option>Box</option><option>Kapsul</option></select></td><td><input class="control" type="number" value="9000"></td><td><button class="icon-button danger-text" type="button" data-remove-row aria-label="Hapus baris">×</button></td></tr>
-    </tbody></table></div>
-    <div class="form-summary"><div><span>Total Faktur (estimasi)</span><strong>Rp4.850.000</strong></div><div><span>Jumlah baris penerimaan</span><strong id="receiving-row-count">2 baris</strong></div><div><span>Batch terdekat didahulukan</span><strong class="positive">FEFO Aktif</strong></div></div>
-    <div class="form-actions"><button type="reset" class="btn btn-ghost">Bersihkan Form</button><button type="submit" class="btn btn-primary">Validasi Penerimaan</button></div>
+  <div class="page-heading"><div><h1>Penerimaan Barang dari PBF</h1><p>Catat faktur dan setiap lapisan penerimaan berdasarkan batch.</p></div></div>
+  <form id="receiving-form" class="receiving-form" data-demo-form data-success="Penerimaan demo berhasil divalidasi. Data belum disimpan.">
+    <section class="panel receiving-invoice-panel">
+      <div class="section-title receiving-title"><div><span class="section-icon">▤</span><div><h2>Informasi Faktur</h2><p>Masukkan data faktur dari PBF.</p></div></div></div>
+      <div class="receiving-invoice-grid">
+        <label class="field"><span>PBF</span><select class="control" required><option>PT Anugrah Pharmindo Lestari</option><option>PT Kimia Farma Trading &amp; Distribution</option><option>PT Bernofarm</option></select></label>
+        <label class="field"><span>No. Invoice</span><input class="control" value="INV-2026-11-089" required></label>
+        <label class="field"><span>Tanggal Invoice</span><input class="control" type="date" value="2026-11-07" required></label>
+        <label class="field"><span>Tanggal Penerimaan</span><input class="control" type="date" value="2026-11-07" required></label>
+        <label class="field"><span>Total Invoice (Rp)</span><input class="control" type="number" min="0" value="4850000" required></label>
+      </div>
+    </section>
+
+    <section class="panel receiving-items-panel">
+      <div class="section-title receiving-title"><div><span class="section-icon">▦</span><div><h2>Item Diterima</h2><p>Setiap baris dicatat sebagai lapisan penerimaan pada batch fisik terkait.</p></div></div><span class="count-tag" id="receiving-row-count" data-count-unit="Item">3 Item</span></div>
+      <div class="table-wrap receiving-table-wrap">
+        <table class="data-table receiving-table" id="receiving-table">
+          <thead><tr><th>Obat</th><th>No. Batch</th><th>Tanggal ED</th><th>Qty</th><th>Satuan</th><th>Harga / Satuan</th><th>Total (Satuan Dasar)</th><th>Harga per Satuan Dasar</th><th>Aksi</th></tr></thead>
+          <tbody>
+            <tr><td><select class="control"><option>Paracetamol 500mg</option><option>Amoxicillin 500mg</option><option>Vitamin C 500mg</option></select></td><td><input class="control" value="B24-098"></td><td><input class="control" type="date" value="2027-12-18"></td><td><input class="control receiving-qty" type="number" value="100" min="1"></td><td><select class="control"><option>Strip</option><option>Box</option><option>Tablet</option></select></td><td><input class="control receiving-price" type="number" value="4500" min="0"></td><td><strong class="receiving-base-total">1.000 Tablet</strong></td><td><strong class="receiving-base-price">Rp450</strong></td><td><button class="icon-button danger-text" type="button" data-remove-row aria-label="Hapus baris">×</button></td></tr>
+            <tr><td><select class="control"><option>Amoxicillin 500mg</option><option>Paracetamol 500mg</option><option>Vitamin C 500mg</option></select></td><td><input class="control" value="B24-112"></td><td><input class="control" type="date" value="2027-12-15"></td><td><input class="control receiving-qty" type="number" value="50" min="1"></td><td><select class="control"><option>Strip</option><option>Box</option><option>Kapsul</option></select></td><td><input class="control receiving-price" type="number" value="9500" min="0"></td><td><strong class="receiving-base-total">500 Kapsul</strong></td><td><strong class="receiving-base-price">Rp950</strong></td><td><button class="icon-button danger-text" type="button" data-remove-row aria-label="Hapus baris">×</button></td></tr>
+            <tr><td><select class="control"><option>Vitamin C 500mg</option><option>Paracetamol 500mg</option><option>Amoxicillin 500mg</option></select></td><td><input class="control" value="B24-041"></td><td><input class="control" type="date" value="2027-08-22"></td><td><input class="control receiving-qty" type="number" value="30" min="1"></td><td><select class="control"><option>Botol</option><option>Strip</option><option>Tablet</option></select></td><td><input class="control receiving-price" type="number" value="12000" min="0"></td><td><strong class="receiving-base-total">900 Tablet</strong></td><td><strong class="receiving-base-price">Rp400</strong></td><td><button class="icon-button danger-text" type="button" data-remove-row aria-label="Hapus baris">×</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="receiving-add-row"><button type="button" class="btn btn-outline btn-sm" data-add-row="receiving-table">＋ Tambah Baris</button></div>
+      <div class="receiving-footer"><div><small>Total nilai item (estimasi)</small><strong id="receiving-total-display">Rp1.070.000</strong></div><button class="btn btn-primary" type="submit">Simpan Penerimaan</button></div>
+    </section>
   </form>
-  <section class="panel info-panel"><div class="info-icon">ⓘ</div><div><strong>Catatan pencatatan batch</strong><p>Batch fisik yang sama dapat memiliki beberapa lapisan penerimaan. Setiap lapisan menyimpan faktur, jumlah, harga beli, dan waktu penerimaan masing-masing.</p></div></section>
+
+  <section class="panel receiving-history-panel">
+    <div class="section-title receiving-title"><div><span class="section-icon">◷</span><div><h2>Riwayat Penerimaan</h2><p>Daftar penerimaan barang yang telah dicatat.</p></div></div><span class="muted">3 penerimaan terakhir</span></div>
+    <div class="table-wrap"><table class="data-table receiving-history-table"><thead><tr><th>No. Invoice</th><th>Tanggal</th><th>PBF</th><th>Jumlah Item</th><th>Total Invoice</th><th>Status</th><th>Aksi</th></tr></thead><tbody>
+      <tr><td class="mono">INV-2026-11-089</td><td>7 Nov 2026</td><td>PT Anugrah Pharmindo Lestari</td><td>3 item</td><td><strong>Rp4.850.000</strong></td><td><span class="status-pill safe">Tersimpan</span></td><td><button class="btn btn-outline btn-xs" type="button" data-toast="Detail invoice dibuka (demo).">Detail</button></td></tr>
+      <tr><td class="mono">INV-2026-11-076</td><td>5 Nov 2026</td><td>PT Kimia Farma Trading &amp; Distribution</td><td>2 item</td><td><strong>Rp2.150.000</strong></td><td><span class="status-pill safe">Tersimpan</span></td><td><button class="btn btn-outline btn-xs" type="button" data-toast="Detail invoice dibuka (demo).">Detail</button></td></tr>
+      <tr><td class="mono">INV-2026-11-051</td><td>2 Nov 2026</td><td>PT Bernofarm</td><td>4 item</td><td><strong>Rp3.675.000</strong></td><td><span class="status-pill safe">Tersimpan</span></td><td><button class="btn btn-outline btn-xs" type="button" data-toast="Detail invoice dibuka (demo).">Detail</button></td></tr>
+    </tbody></table></div>
+  </section>
 </section>
 {{end}}

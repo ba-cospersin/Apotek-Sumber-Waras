@@ -1,22 +1,71 @@
 {{define "page-content"}}
 <section class="module-page returns-page">
-  <div class="page-heading"><div><span class="eyebrow">PENGEMBALIAN OBAT</span><h1>Retur Konsumen</h1><p>Retur harus merujuk pada transaksi penjualan yang berhasil.</p></div><span class="soft-tag"><i></i> Mode Demo</span></div>
-  {{if or (eq .User.Role "OWNER") (eq .User.Role "KASIR")}}
-  <div class="workflow-steps"><span class="step active"><b>1</b> Cari Transaksi</span><span class="step active"><b>2</b> Detail Pengembalian</span><span class="step"><b>3</b> Pemeriksaan Kelayakan</span></div>
-  <form class="panel form-panel" data-demo-form data-success="Pengajuan retur demo berhasil dibuat. Belum ada data yang disimpan.">
-    <div class="section-title"><div><h2>Informasi Transaksi Asal</h2><p>Gunakan nomor transaksi penjualan yang berhasil.</p></div><span class="step-tag">Kasir / Owner</span></div>
-    <div class="form-grid two-col"><label class="field"><span>No. Transaksi <b>*</b></span><div class="input-action"><input class="control" required value="TRX-20261107-0042" placeholder="Contoh: TRX-20261107-0042"><button type="button" class="btn btn-outline" data-toast="Transaksi TRX-20261107-0042 ditemukan (data demo).">Cari</button></div></label><label class="field"><span>Tanggal Transaksi</span><input class="control" value="07/11/2026" readonly></label><label class="field"><span>Kasir</span><input class="control" value="Budi" readonly></label><label class="field"><span>Total Transaksi</span><input class="control" value="Rp145.000" readonly></label></div>
-    <div class="section-title section-title-spaced"><div><h2>Obat pada Transaksi</h2><p>Pilih item serta alokasi batch yang akan dikembalikan.</p></div></div>
-    <div class="return-items"><label class="choice-card"><input type="checkbox" checked><span class="choice-content"><strong>Paracetamol 500mg</strong><small>Kimia Farma · Strip · Batch PCM-2411</small></span><span class="choice-qty">Terjual 2 strip</span></label><label class="choice-card"><input type="checkbox"><span class="choice-content"><strong>Vitamin C 500mg</strong><small>IPI · Tablet · Batch B24-041</small></span><span class="choice-qty">Terjual 10 tablet</span></label><label class="choice-card"><input type="checkbox"><span class="choice-content"><strong>Amoxicillin 500mg</strong><small>Bernofarm · Strip · Batch B24-098</small></span><span class="choice-qty">Terjual 1 strip</span></label></div>
-    <div class="section-title section-title-spaced"><div><h2>Detail Pengembalian</h2><p>Isi alasan dan kondisi obat yang diterima.</p></div><span class="step-tag">02 · Pengajuan</span></div>
-    <div class="form-grid two-col"><label class="field"><span>Jumlah Dikembalikan <b>*</b></span><input class="control" type="number" min="1" value="1" required></label><label class="field"><span>Jenis Pengembalian</span><select class="control"><option>Salah membeli atau perubahan resep</option><option>Produk rusak</option><option>Keluhan kualitas</option><option>Lainnya</option></select></label><label class="field"><span>Kondisi Obat</span><select class="control"><option>Utuh</option><option>Kemasan rusak</option><option>Segel terbuka</option><option>Diduga terkontaminasi</option></select></label><label class="field"><span>Nilai Refund (estimasi)</span><input class="control" value="Rp5.000" readonly></label><label class="field full-span"><span>Alasan Pengembalian <b>*</b></span><textarea class="control" rows="3" required placeholder="Jelaskan alasan konsumen mengembalikan obat...">Kemasan tersegel baik, konsumen salah membeli varian.</textarea></label></div>
-    <div class="info-panel"><span class="info-icon">ⓘ</span><div><strong>Status kelayakan: Menunggu pemeriksaan</strong><p>Obat yang dikembalikan tidak otomatis masuk stok boleh dijual. Petugas Gudang atau Owner harus meninjau kondisi obat terlebih dahulu.</p></div></div>
-    <div class="form-actions"><button type="reset" class="btn btn-ghost">Reset</button><button type="submit" class="btn btn-primary">Ajukan Retur</button></div>
+  <div class="page-heading"><div><h1>Retur Konsumen</h1><p>Retur harus merujuk pada transaksi penjualan yang berhasil.</p></div></div>
+
+  <section class="panel return-transaction">
+    <div class="section-title return-section-heading"><div><span class="section-icon">▣</span><h2>Cari Transaksi Asal</h2></div></div>
+    <div class="return-transaction-fields">
+      <label class="field"><span>No. Transaksi</span><input class="control" id="return-transaction-id" value="TRX-20261107-0042" placeholder="Masukkan nomor transaksi"></label>
+      <label class="field"><span>Tanggal Transaksi</span><input class="control" id="return-transaction-date" value="07/11/2026" readonly></label>
+      <button class="btn btn-primary" type="button" id="find-return-transaction"><span aria-hidden="true">⌕</span> Cari</button>
+    </div>
+    <div class="verified-transaction" id="verified-return-transaction">
+      <span class="verified-mark">✓</span>
+      <div class="verified-main"><small>TRANSAKSI TERVERIFIKASI</small><strong id="verified-transaction-id">TRX-20261107-0042</strong></div>
+      <div><small>Waktu Transaksi</small><strong>7 Nov 2026 14:32</strong></div>
+      <div><small>Petugas Kasir</small><strong>Budi</strong></div>
+      <div class="verified-total"><small>Total Nilai Struk</small><strong>Rp32.000</strong></div>
+    </div>
+    <div class="return-search-error" id="return-search-error" hidden>Transaksi tidak ditemukan. Periksa kembali nomor transaksi dan pastikan transaksi sudah berhasil.</div>
+  </section>
+
+  <form id="return-form" class="return-form" data-demo-form data-success="Retur demo berhasil divalidasi. Data belum disimpan.">
+    <section class="panel return-items-panel">
+      <div class="section-title return-section-heading"><div><span class="section-icon">▣</span><div><h2>Pilih Obat &amp; Batch yang Dikembalikan</h2><p>Centang item yang dikembalikan dan sesuaikan kuantitas retur.</p></div></div><span class="count-tag">3 Item Terdaftar</span></div>
+      <div class="table-wrap return-table-wrap">
+        <table class="data-table return-items-table">
+          <thead><tr><th>Pilih</th><th>Obat</th><th>No. Batch</th><th>Tgl Kedaluwarsa</th><th>Qty Dibeli</th><th>Sudah Diretur</th><th>Sisa Bisa Diretur</th><th>Harga Jual</th><th>Qty Retur</th></tr></thead>
+          <tbody>
+            <tr data-return-item data-price="5000" data-unit="Strip" data-max="2">
+              <td><input class="return-check" type="checkbox" checked aria-label="Pilih Paracetamol"></td>
+              <td><strong>Paracetamol 500mg</strong><small>Kimia Farma · Strip</small></td><td><span class="batch-chip">B24-098</span></td><td>18 Des 2027</td><td>2 Strip</td><td>0 Strip</td><td class="return-remaining">2 Strip</td><td>Rp5.000</td>
+              <td><div class="return-qty-control"><button type="button" data-qty-change="-1" aria-label="Kurangi">−</button><input type="number" min="0" max="2" value="2" data-return-qty aria-label="Qty retur Paracetamol"><button type="button" data-qty-change="1" aria-label="Tambah">+</button></div></td>
+            </tr>
+            <tr data-return-item data-price="1000" data-unit="Tablet" data-max="10">
+              <td><input class="return-check" type="checkbox" aria-label="Pilih Vitamin C"></td>
+              <td><strong>Vitamin C 500mg</strong><small>IPI · Tablet</small></td><td><span class="batch-chip">B24-041</span></td><td>22 Agu 2027</td><td>10 Tablet</td><td>0 Tablet</td><td class="return-remaining">10 Tablet</td><td>Rp1.000</td>
+              <td><input class="return-qty-input" type="number" min="0" max="10" value="0" data-return-qty aria-label="Qty retur Vitamin C" disabled></td>
+            </tr>
+            <tr data-return-item data-price="12000" data-unit="Strip" data-max="1">
+              <td><input class="return-check" type="checkbox" aria-label="Pilih Amoxicillin"></td>
+              <td><strong>Amoxicillin 500mg</strong><small>Bernofarm · Strip</small></td><td><span class="batch-chip">B24-098</span></td><td>05 Mei 2027</td><td>1 Strip</td><td>0 Strip</td><td class="return-remaining">1 Strip</td><td>Rp12.000</td>
+              <td><input class="return-qty-input" type="number" min="0" max="1" value="0" data-return-qty aria-label="Qty retur Amoxicillin" disabled></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="return-validation" id="return-qty-validation" hidden>Jumlah retur tidak boleh melebihi sisa kuantitas yang dapat diretur.</p>
+    </section>
+
+    <section class="panel return-detail-panel">
+      <div class="section-title return-section-heading"><div><span class="section-icon">▤</span><h2>Detail Pengembalian</h2></div></div>
+      <div class="return-detail-grid">
+        <label class="field"><span>Jenis Pengembalian</span><select class="control" name="return_type"><option>Salah membeli atau perubahan resep</option><option>Obat rusak</option><option>Keluhan kualitas</option><option>Lainnya</option></select></label>
+        <label class="field"><span>Kondisi Obat</span><select class="control" name="condition"><option>Utuh</option><option>Kemasan rusak</option><option>Segel terbuka</option><option>Diduga terkontaminasi</option></select></label>
+        <div class="field return-eligibility"><span>Status Kelayakan</span><div class="eligibility-pill">◷ Menunggu Pemeriksaan</div><small><i class="dot dot-green"></i> Layak Jual <i class="dot dot-red"></i> Tidak Layak Jual</small></div>
+        <label class="field return-reason"><span>Alasan Pengembalian</span><textarea class="control" rows="3" name="reason" required>Pasien meminta penyesuaian resep dokter terbaru, kemasan strip Paracetamol masih dalam blister tertutup rapat dan segel utuh.</textarea></label>
+        <div class="refund-summary"><div><small>TOTAL NILAI REFUND</small><strong id="return-refund-total">Rp10.000</strong><p>Berdasarkan harga jual saat transaksi asal (<span id="return-refund-qty">2</span> × Rp5.000)</p></div><button class="btn btn-primary" type="submit">✓ Simpan Retur</button></div>
+      </div>
+    </section>
   </form>
-  <section class="panel"><div class="section-title"><div><h2>Riwayat Pengajuan Retur</h2><p>Retur yang dicatat berdasarkan transaksi asal.</p></div><span class="count-tag">3 pengajuan</span></div><div class="table-wrap"><table class="data-table"><thead><tr><th>No. Retur</th><th>Transaksi Asal</th><th>Obat</th><th>Kondisi</th><th>Status</th><th>Aksi</th></tr></thead><tbody><tr><td class="mono">RET-0042</td><td>TRX-0042</td><td>Paracetamol 500mg</td><td>Utuh</td><td><span class="status-pill warning">Menunggu pemeriksaan</span></td><td><button class="btn btn-outline btn-xs" type="button" data-toast="Detail pengajuan retur dibuka (demo).">Detail</button></td></tr><tr><td class="mono">RET-0041</td><td>TRX-0039</td><td>Antasida Doen</td><td>Segel rusak</td><td><span class="status-pill danger">Tidak layak</span></td><td><button class="btn btn-outline btn-xs" type="button" data-toast="Riwayat retur dibuka (demo).">Detail</button></td></tr></tbody></table></div></section>
-  {{end}}
-  {{if or (eq .User.Role "OWNER") (eq .User.Role "GUDANG")}}
-  <section class="panel"><div class="section-title"><div><h2>Peninjauan Kelayakan Obat Retur</h2><p>Periksa kondisi fisik dan tentukan apakah obat boleh dikembalikan ke stok jual.</p></div><span class="step-tag">Gudang / Owner</span></div><div class="table-wrap"><table class="data-table"><thead><tr><th>No. Retur</th><th>Obat / Batch Asal</th><th>Kondisi Dilaporkan</th><th>Jumlah</th><th>Status Kelayakan</th><th>Aksi</th></tr></thead><tbody><tr><td class="mono">RET-0042</td><td><strong>Paracetamol 500mg</strong><small>PCM-2411 · TRX-0042</small></td><td>Utuh, segel baik</td><td>1 strip</td><td><span class="status-pill warning">Menunggu pemeriksaan</span></td><td><button class="btn btn-outline btn-xs" type="button" data-toast="Form peninjauan RET-0042 dibuka (demo).">Tinjau</button></td></tr><tr><td class="mono">RET-0041</td><td><strong>Antasida Doen 60ml</strong><small>AT-991 · TRX-0039</small></td><td>Segel rusak</td><td>1 botol</td><td><span class="status-pill danger">Tidak layak</span></td><td><button class="btn btn-outline btn-xs" type="button" data-toast="Detail keputusan retur RET-0041 (demo).">Detail</button></td></tr></tbody></table></div></section>
-  {{end}}
+
+  <section class="panel return-history-panel">
+    <div class="section-title return-section-heading"><div><span class="section-icon">◷</span><div><h2>Riwayat Retur</h2><p>Daftar transaksi pengembalian obat dari konsumen yang telah diproses.</p></div></div><span class="muted">Menampilkan 3 entri terakhir</span></div>
+    <div class="table-wrap"><table class="data-table return-history-table"><thead><tr><th>ID Retur</th><th>Tanggal</th><th>Obat</th><th>Batch</th><th>Jumlah</th><th>Jenis</th><th>Status Kelayakan</th><th>Nilai Refund</th></tr></thead><tbody>
+      <tr><td class="mono">RET-20261106-0012</td><td>6 Nov 2026, 11:15</td><td>Antasida Doen 60ml</td><td><span class="batch-chip">B24-012</span></td><td>1 Botol</td><td>Salah membeli atau perubahan resep</td><td><span class="status-pill safe">✓ Layak Jual</span></td><td><strong>Rp7.500</strong></td></tr>
+      <tr><td class="mono">RET-20261105-0009</td><td>5 Nov 2026, 16:40</td><td>Amoxicillin 500mg</td><td><span class="batch-chip">B24-088</span></td><td>2 Strip</td><td>Obat rusak atau dugaan kualitas</td><td><span class="status-pill danger">× Tidak Layak Jual</span></td><td><strong>Rp24.000</strong></td></tr>
+      <tr><td class="mono">RET-20261104-0004</td><td>4 Nov 2026, 09:20</td><td>Cetirizine 10mg</td><td><span class="batch-chip">B24-033</span></td><td>1 Strip</td><td>Kesalahan penyerahan obat</td><td><span class="status-pill safe">✓ Layak Jual</span></td><td><strong>Rp6.500</strong></td></tr>
+    </tbody></table></div>
+  </section>
 </section>
 {{end}}

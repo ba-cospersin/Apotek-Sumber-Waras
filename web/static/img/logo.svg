@@ -1,1 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Logo Apotek Sumber Waras"><rect width="64" height="64" rx="18" fill="#fff0eb"/><path d="M25 10h14v15h15v14H39v15H25V39H10V25h15z" fill="#a94f3d"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Logo Apotek Sumber Waras">
+  <rect x="1" y="1" width="62" height="62" rx="17" fill="#FFF0ED"/>
+  <path d="M21 21h22l-2.4 29H23.4L21 21Z" fill="none" stroke="#A94F3D" stroke-width="3.2" stroke-linejoin="round"/>
+  <path d="M25 21v-5.5c0-2 1.6-3.5 3.5-3.5h7c1.9 0 3.5 1.5 3.5 3.5V21" fill="none" stroke="#A94F3D" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M30 29h4v5h5v4h-5v5h-4v-5h-5v-4h5z" fill="#A94F3D"/>
+</svg>
