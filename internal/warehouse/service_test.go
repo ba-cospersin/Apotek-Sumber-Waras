@@ -35,12 +35,16 @@ func inputValid() PenerimaanInput {
 }
 
 func TestValidasiPenerimaan_Valid(t *testing.T) {
-	noFaktur, _, items, err := serviceUji().validasiPenerimaan(inputValid())
+	fk, err := serviceUji().validasiPenerimaan(inputValid())
 	if err != nil {
 		t.Fatalf("seharusnya valid, tapi error: %v", err)
 	}
-	if noFaktur != "FK-001" || len(items) != 1 {
-		t.Fatalf("hasil tidak sesuai: %q, %d item", noFaktur, len(items))
+	if fk.noFaktur != "FK-001" || len(fk.items) != 1 {
+		t.Fatalf("hasil tidak sesuai: %q, %d item", fk.noFaktur, len(fk.items))
+	}
+	// tgl_terima kosong -> memakai waktu sekarang (7 Nov 2026).
+	if fk.tglTerima.Format(layoutTanggal) != "2026-11-07" {
+		t.Fatalf("tgl_terima bawaan salah: %v", fk.tglTerima)
 	}
 }
 
@@ -58,7 +62,8 @@ func TestValidasiPenerimaan_Tolak(t *testing.T) {
 		{"unit_id negatif", func(in *PenerimaanInput) { in.Items[0].UnitID = -1 }},
 		{"no batch kosong", func(in *PenerimaanInput) { in.Items[0].NoBatch = "" }},
 		{"kedaluwarsa salah format", func(in *PenerimaanInput) { in.Items[0].TglKadaluarsa = "besok" }},
-		{"sudah kedaluwarsa", func(in *PenerimaanInput) { in.Items[0].TglKadaluarsa = "2026-11-07" }},
+		{"tgl terima salah format", func(in *PenerimaanInput) { in.TglTerima = "kemarin" }},
+		{"tgl terima masa depan", func(in *PenerimaanInput) { in.TglTerima = "2026-11-08" }},
 		{"qty nol", func(in *PenerimaanInput) { in.Items[0].Qty = 0 }},
 		{"qty negatif", func(in *PenerimaanInput) { in.Items[0].Qty = -5 }},
 		{"harga negatif", func(in *PenerimaanInput) { in.Items[0].HargaBeli = -1 }},
@@ -69,7 +74,7 @@ func TestValidasiPenerimaan_Tolak(t *testing.T) {
 			in := inputValid()
 			k.ubah(&in)
 
-			_, _, _, err := serviceUji().validasiPenerimaan(in)
+			_, err := serviceUji().validasiPenerimaan(in)
 			if !errors.Is(err, ErrValidasi) {
 				t.Fatalf("seharusnya ErrValidasi, dapat: %v", err)
 			}
@@ -138,5 +143,80 @@ func TestSiapkanFilter_Tolak(t *testing.T) {
 				t.Fatalf("seharusnya ErrValidasi, dapat: %v", err)
 			}
 		})
+	}
+}
+
+// Obat yang sudah kedaluwarsa HARUS lolos validasi: dicatat dulu,
+// lalu ditindaklanjuti lewat RETUR_PBF.
+func TestValidasiPenerimaan_KedaluwarsaDiterima(t *testing.T) {
+	in := inputValid()
+	in.Items[0].TglKadaluarsa = "2025-01-01"
+
+	if _, err := serviceUji().validasiPenerimaan(in); err != nil {
+		t.Fatalf("obat kedaluwarsa seharusnya diterima, dapat: %v", err)
+	}
+}
+
+func TestValidasiPenerimaan_TglTerima(t *testing.T) {
+	in := inputValid()
+	in.TglTerima = "2026-11-05"
+
+	fk, err := serviceUji().validasiPenerimaan(in)
+	if err != nil {
+		t.Fatalf("seharusnya valid: %v", err)
+	}
+	if fk.tglTerima.Format(layoutTanggal) != "2026-11-05" {
+		t.Fatalf("tgl_terima salah: %v", fk.tglTerima)
+	}
+	// Jam memakai waktu saat ini (10:00 pada serviceUji).
+	if fk.tglTerima.Hour() != 10 {
+		t.Fatalf("jam seharusnya mengikuti waktu sekarang, dapat %d", fk.tglTerima.Hour())
+	}
+}
+
+func TestStatusJual(t *testing.T) {
+	hariIni := time.Date(2026, 11, 7, 0, 0, 0, 0, time.Local)
+	tgl := func(s string) time.Time {
+		x, _ := time.ParseInLocation(layoutTanggal, s, time.Local)
+		return x
+	}
+
+	kasus := []struct {
+		nama, status, kadaluarsa, harapan string
+	}{
+		{"jauh", statusBatchAktif, "2028-01-01", statusJualBoleh},
+		{"tepat 1 bulan + 1 hari", statusBatchAktif, "2026-12-08", statusJualBoleh},
+		{"tepat 1 bulan (tidak boleh)", statusBatchAktif, "2026-12-07", statusJualMendekati},
+		{"kurang dari 1 bulan", statusBatchAktif, "2026-11-27", statusJualMendekati},
+		{"hari ini", statusBatchAktif, "2026-11-07", statusJualKedaluwarsa},
+		{"sudah lewat", statusBatchAktif, "2026-01-01", statusJualKedaluwarsa},
+		{"diblokir menang atas ED jauh", statusBatchDiblokir, "2028-01-01", statusJualDiblokir},
+		{"diblokir menang atas kedaluwarsa", statusBatchDiblokir, "2026-01-01", statusJualDiblokir},
+	}
+	for _, k := range kasus {
+		t.Run(k.nama, func(t *testing.T) {
+			if got := statusJual(k.status, tgl(k.kadaluarsa), hariIni); got != k.harapan {
+				t.Fatalf("dapat %s, seharusnya %s", got, k.harapan)
+			}
+		})
+	}
+}
+
+func TestTambahSatuBulan(t *testing.T) {
+	tgl := func(s string) time.Time {
+		x, _ := time.ParseInLocation(layoutTanggal, s, time.Local)
+		return x
+	}
+	kasus := map[string]string{
+		"2026-11-07": "2026-12-07",
+		"2026-12-15": "2027-01-15", // pindah tahun
+		"2026-01-31": "2026-02-28", // tanggal tujuan tidak ada
+		"2028-01-31": "2028-02-29", // tahun kabisat
+		"2026-03-31": "2026-04-30",
+	}
+	for masuk, harapan := range kasus {
+		if got := tambahSatuBulan(tgl(masuk)).Format(layoutTanggal); got != harapan {
+			t.Fatalf("%s + 1 bulan: dapat %s, seharusnya %s", masuk, got, harapan)
+		}
 	}
 }

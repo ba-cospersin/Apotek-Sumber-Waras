@@ -23,11 +23,11 @@ func NewHandler(svc *Service) *Handler {
 }
 
 // RegisterRoutes mendaftarkan semua route modul gudang ke router.
-// Semua route wajib login dan hanya boleh diakses role GUDANG.
+// Semua route wajib login dan hanya boleh diakses role GUDANG dan OWNER.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux, auth *middleware.Auth) {
 	gudang := func(next http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(
-			middleware.RequireRole(model.RoleWarehouse)(next),
+			middleware.RequireRole(model.RoleWarehouse, model.RoleOwner)(next),
 		)
 	}
 
@@ -140,7 +140,6 @@ func writeServiceError(w http.ResponseWriter, err error) {
 		writeError(w, http.StatusBadRequest, err.Error())
 
 	case errors.Is(err, ErrFakturDuplikat),
-		errors.Is(err, ErrBatchDiblokir),
 		errors.Is(err, ErrKedaluwarsaBeda):
 		writeError(w, http.StatusConflict, err.Error())
 

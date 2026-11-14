@@ -29,6 +29,14 @@ type itemTerima struct {
 	hargaBeli     float64
 }
 
+// fakturTerima adalah seluruh input penerimaan yang sudah divalidasi.
+type fakturTerima struct {
+	noFaktur  string
+	tglFaktur time.Time
+	tglTerima time.Time
+	items     []itemTerima
+}
+
 // CatatPenerimaan mencatat satu faktur PBF beserta semua itemnya.
 //
 // Semuanya berjalan dalam SATU transaksi: jika satu item gagal,
@@ -42,10 +50,12 @@ func (s *Service) CatatPenerimaan(
 		return nil, fmt.Errorf("user tidak dikenali")
 	}
 
-	noFaktur, tglFaktur, items, err := s.validasiPenerimaan(in)
+	fk, err := s.validasiPenerimaan(in)
 	if err != nil {
 		return nil, err
 	}
+	noFaktur, tglFaktur, tglTerima, items := fk.noFaktur, fk.tglFaktur, fk.tglTerima, fk.items
+	hariIni := s.hariIni()
 
 	var hasil *Penerimaan
 
@@ -114,6 +124,13 @@ func (s *Service) CatatPenerimaan(
 				return err
 			}
 
+			// Batch yang diblokir tetap boleh menerima lapisan baru: stoknya
+			// tercatat (tidak bisa dijual) lalu ditindaklanjuti lewat RETUR_PBF.
+			statusBatch := statusBatchAktif
+			if batch != nil {
+				statusBatch = batch.Status
+			}
+
 			var batchID int64
 			switch {
 			case batch == nil:
@@ -121,9 +138,6 @@ func (s *Service) CatatPenerimaan(
 				if err != nil {
 					return err
 				}
-
-			case batch.Status == statusBatchDiblokir:
-				return fmt.Errorf("item %d (batch %s): %w", nomor, it.noBatch, ErrBatchDiblokir)
 
 			case batch.TglKadaluarsa.Format(layoutTanggal) != it.tglKadaluarsa.Format(layoutTanggal):
 				return fmt.Errorf(
@@ -139,7 +153,7 @@ func (s *Service) CatatPenerimaan(
 			}
 
 			// 4. Tambah lapisan penerimaan baru (inilah yang menambah stok).
-			receiptID, err := tx.InsertReceipt(ctx, batchID, purchaseID, qtyDasar, hargaPerDasar)
+			receiptID, err := tx.InsertReceipt(ctx, batchID, purchaseID, qtyDasar, hargaPerDasar, tglTerima)
 			if err != nil {
 				return err
 			}
@@ -153,6 +167,7 @@ func (s *Service) CatatPenerimaan(
 				TglKadaluarsa:     it.tglKadaluarsa.Format(layoutTanggal),
 				QtyDasar:          qtyDasar,
 				HargaBeliPerDasar: hargaPerDasar,
+				StatusJual:        statusJual(statusBatch, it.tglKadaluarsa, hariIni),
 			})
 		}
 
@@ -166,6 +181,7 @@ func (s *Service) CatatPenerimaan(
 			SupplierID: in.SupplierID,
 			NoFaktur:   noFaktur,
 			TglFaktur:  tglFaktur.Format(layoutTanggal),
+			TglTerima:  tglTerima.Format(layoutTanggal),
 			Total:      total,
 			Items:      hasilItems,
 		}
@@ -181,31 +197,47 @@ func (s *Service) CatatPenerimaan(
 // validasiPenerimaan memeriksa input tanpa menyentuh database.
 func (s *Service) validasiPenerimaan(
 	in PenerimaanInput,
-) (string, time.Time, []itemTerima, error) {
+) (*fakturTerima, error) {
 	hariIni := s.hariIni()
 
 	if in.SupplierID <= 0 {
-		return "", time.Time{}, nil, validasi("supplier_id wajib diisi")
+		return nil, validasi("supplier_id wajib diisi")
 	}
 
 	noFaktur := strings.TrimSpace(in.NoFaktur)
 	if noFaktur == "" {
-		return "", time.Time{}, nil, validasi("no_faktur wajib diisi")
+		return nil, validasi("no_faktur wajib diisi")
 	}
 	if len(noFaktur) > 100 {
-		return "", time.Time{}, nil, validasi("no_faktur maksimal 100 karakter")
+		return nil, validasi("no_faktur maksimal 100 karakter")
 	}
 
 	tglFaktur, err := time.ParseInLocation(layoutTanggal, strings.TrimSpace(in.TglFaktur), time.Local)
 	if err != nil {
-		return "", time.Time{}, nil, validasi("tgl_faktur harus berformat YYYY-MM-DD")
+		return nil, validasi("tgl_faktur harus berformat YYYY-MM-DD")
 	}
 	if tglFaktur.After(hariIni) {
-		return "", time.Time{}, nil, validasi("tgl_faktur tidak boleh di masa depan")
+		return nil, validasi("tgl_faktur tidak boleh di masa depan")
+	}
+
+	// Tanggal penerimaan fisik. Kosong = sekarang. Jika diisi, jamnya memakai
+	// waktu saat ini supaya urutan beberapa penerimaan pada tanggal yang sama
+	// tetap sesuai urutan pencatatan (dipakai sebagai urutan kedua FEFO).
+	tglTerima := s.now()
+	if t := strings.TrimSpace(in.TglTerima); t != "" {
+		tgl, err := time.ParseInLocation(layoutTanggal, t, time.Local)
+		if err != nil {
+			return nil, validasi("tgl_terima harus berformat YYYY-MM-DD")
+		}
+		if tgl.After(hariIni) {
+			return nil, validasi("tgl_terima tidak boleh di masa depan")
+		}
+		n := s.now()
+		tglTerima = time.Date(tgl.Year(), tgl.Month(), tgl.Day(), n.Hour(), n.Minute(), n.Second(), 0, time.Local)
 	}
 
 	if len(in.Items) == 0 {
-		return "", time.Time{}, nil, validasi("items minimal berisi satu obat")
+		return nil, validasi("items minimal berisi satu obat")
 	}
 
 	items := make([]itemTerima, 0, len(in.Items))
@@ -213,33 +245,29 @@ func (s *Service) validasiPenerimaan(
 		nomor := i + 1
 
 		if it.MedicineID <= 0 {
-			return "", time.Time{}, nil, validasi("item %d: medicine_id wajib diisi", nomor)
+			return nil, validasi("item %d: medicine_id wajib diisi", nomor)
 		}
 		if it.UnitID < 0 {
-			return "", time.Time{}, nil, validasi("item %d: unit_id tidak valid", nomor)
+			return nil, validasi("item %d: unit_id tidak valid", nomor)
 		}
 
 		noBatch := strings.TrimSpace(it.NoBatch)
 		if noBatch == "" {
-			return "", time.Time{}, nil, validasi("item %d: no_batch wajib diisi", nomor)
+			return nil, validasi("item %d: no_batch wajib diisi", nomor)
 		}
 		if len(noBatch) > 100 {
-			return "", time.Time{}, nil, validasi("item %d: no_batch maksimal 100 karakter", nomor)
+			return nil, validasi("item %d: no_batch maksimal 100 karakter", nomor)
 		}
 
 		kadaluarsa, err := time.ParseInLocation(layoutTanggal, strings.TrimSpace(it.TglKadaluarsa), time.Local)
 		if err != nil {
-			return "", time.Time{}, nil, validasi("item %d: tgl_kadaluarsa harus berformat YYYY-MM-DD", nomor)
+			return nil, validasi("item %d: tgl_kadaluarsa harus berformat YYYY-MM-DD", nomor)
 		}
-		if !kadaluarsa.After(hariIni) {
-			return "", time.Time{}, nil, validasi("item %d: obat sudah kedaluwarsa, tidak bisa diterima", nomor)
-		}
-
 		if it.Qty <= 0 {
-			return "", time.Time{}, nil, validasi("item %d: qty harus lebih dari 0", nomor)
+			return nil, validasi("item %d: qty harus lebih dari 0", nomor)
 		}
 		if it.HargaBeli < 0 {
-			return "", time.Time{}, nil, validasi("item %d: harga_beli tidak boleh negatif", nomor)
+			return nil, validasi("item %d: harga_beli tidak boleh negatif", nomor)
 		}
 
 		items = append(items, itemTerima{
@@ -252,7 +280,12 @@ func (s *Service) validasiPenerimaan(
 		})
 	}
 
-	return noFaktur, tglFaktur, items, nil
+	return &fakturTerima{
+		noFaktur:  noFaktur,
+		tglFaktur: tglFaktur,
+		tglTerima: tglTerima,
+		items:     items,
+	}, nil
 }
 
 // hariIni mengembalikan tanggal hari ini (jam 00:00, zona waktu lokal).
@@ -372,4 +405,42 @@ func siapkanFilter(f FilterPenerimaan) (QueryPenerimaan, int, int, error) {
 		Offset:     (page - 1) * perPage,
 	}
 	return q, page, perPage, nil
+}
+
+// ---------- Status jual ----------
+
+// Status jual stok yang baru diterima.
+const (
+	statusJualBoleh       = "BOLEH_DIJUAL"
+	statusJualMendekati   = "MENDEKATI_KEDALUWARSA"
+	statusJualKedaluwarsa = "KEDALUWARSA"
+	statusJualDiblokir    = "DIBLOKIR"
+)
+
+// statusJual menentukan apakah stok boleh dijual pada hari ini, menurut
+// aturan rancangan: batch diblokir tidak boleh dijual, dan obat hanya boleh
+// dijual jika kedaluwarsanya LEBIH dari satu bulan setelah hari ini.
+func statusJual(statusBatch string, kadaluarsa, hariIni time.Time) string {
+	switch {
+	case statusBatch == statusBatchDiblokir:
+		return statusJualDiblokir
+	case !kadaluarsa.After(hariIni):
+		return statusJualKedaluwarsa
+	case !kadaluarsa.After(tambahSatuBulan(hariIni)):
+		return statusJualMendekati
+	default:
+		return statusJualBoleh
+	}
+}
+
+// tambahSatuBulan menambah satu bulan kalender. Jika tanggal tujuan tidak ada
+// (misalnya 31 Januari + 1 bulan), dipakai hari terakhir bulan tujuan.
+func tambahSatuBulan(t time.Time) time.Time {
+	y, m, d := t.Date()
+	m++
+	akhir := time.Date(y, m+1, 0, 0, 0, 0, 0, t.Location()).Day()
+	if d > akhir {
+		d = akhir
+	}
+	return time.Date(y, m, d, 0, 0, 0, 0, t.Location())
 }

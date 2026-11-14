@@ -22,7 +22,6 @@ var (
 
 	// Error konflik dengan data yang sudah ada -> HTTP 409.
 	ErrFakturDuplikat  = errors.New("nomor faktur sudah pernah dicatat untuk PBF ini")
-	ErrBatchDiblokir   = errors.New("batch sedang diblokir dan tidak bisa menerima stok")
 	ErrKedaluwarsaBeda = errors.New("tanggal kedaluwarsa berbeda dengan batch yang sudah tercatat")
 )
 
@@ -52,6 +51,7 @@ type PenerimaanInput struct {
 	SupplierID int64                 `json:"supplier_id"`
 	NoFaktur   string                `json:"no_faktur"`
 	TglFaktur  string                `json:"tgl_faktur"` // YYYY-MM-DD
+	TglTerima  string                `json:"tgl_terima"` // YYYY-MM-DD, opsional (kosong = hari ini)
 	Items      []ItemPenerimaanInput `json:"items"`
 }
 
@@ -67,6 +67,11 @@ type ItemPenerimaan struct {
 	TglKadaluarsa     string  `json:"tgl_kadaluarsa"`
 	QtyDasar          float64 `json:"qty_dasar"`
 	HargaBeliPerDasar float64 `json:"harga_beli_per_dasar"`
+
+	// StatusJual memberi tahu apakah stok yang baru diterima boleh dijual:
+	// BOLEH_DIJUAL, MENDEKATI_KEDALUWARSA, KEDALUWARSA, atau DIBLOKIR.
+	// Selain BOLEH_DIJUAL, stok tetap tercatat dan perlu ditindaklanjuti.
+	StatusJual string `json:"status_jual"`
 }
 
 // Penerimaan adalah hasil pencatatan satu faktur.
@@ -75,6 +80,7 @@ type Penerimaan struct {
 	SupplierID int64            `json:"supplier_id"`
 	NoFaktur   string           `json:"no_faktur"`
 	TglFaktur  string           `json:"tgl_faktur"`
+	TglTerima  string           `json:"tgl_terima"`
 	Total      float64          `json:"total"`
 	Items      []ItemPenerimaan `json:"items"`
 }

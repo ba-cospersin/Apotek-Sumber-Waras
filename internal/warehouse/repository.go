@@ -194,13 +194,15 @@ func (t *TxRepository) InsertReceipt(
 	ctx context.Context,
 	batchID, purchaseID int64,
 	qtyDasar, hargaBeliPerDasar float64,
+	tanggalTerima time.Time,
 ) (int64, error) {
 	res, err := t.tx.ExecContext(
 		ctx,
 		`INSERT INTO batch_receipts
-		   (batch_id, purchase_id, qty_diterima, qty_sisa, harga_beli_per_dasar)
-		 VALUES (?, ?, ?, ?, ?)`,
+		   (batch_id, purchase_id, qty_diterima, qty_sisa, harga_beli_per_dasar, tanggal_terima)
+		 VALUES (?, ?, ?, ?, ?, ?)`,
 		batchID, purchaseID, qtyDasar, qtyDasar, hargaBeliPerDasar,
+		tanggalTerima.Format("2006-01-02 15:04:05"),
 	)
 	if err != nil {
 		return 0, fmt.Errorf("gagal menyimpan penerimaan batch: %w", err)
