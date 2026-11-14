@@ -39,3 +39,21 @@ type Alokasi struct {
 	QtyDasar          float64
 	HargaBeliPerDasar float64
 }
+
+// SatuanJual adalah satu satuan jual obat beserta konversi dan harganya.
+type SatuanJual struct {
+	ID                int64   `json:"id"`
+	Nama              string  `json:"nama"`
+	IsiPerSatuanDasar float64 `json:"isi_per_satuan_dasar"`
+	HargaJual         float64 `json:"harga_jual"` // per satuan jual ini
+}
+
+// Obat adalah hasil pencarian untuk kasir.
+type Obat struct {
+	ID           int64        `json:"id"`
+	Kode         string       `json:"kode"`
+	Nama         string       `json:"nama"`
+	SatuanDasar  string       `json:"satuan_dasar"`
+	StokTersedia float64      `json:"stok_tersedia"` // satuan dasar, hanya yang boleh dijual
+	Satuan       []SatuanJual `json:"satuan"`
+}
