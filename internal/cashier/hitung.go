@@ -23,8 +23,7 @@ type HasilItem struct {
 	Subtotal          float64 // HargaJual satuan x qtyInput
 }
 
-// HitungItem mengonversi jumlah dari satuan pilihan ke satuan dasar
-// dan menghitung subtotalnya.
+// HitungItem mengonversi jumlah dari satuan pilihan ke satuan dasar dan menghitung subtotalnya.
 func HitungItem(u SatuanJual, qtyInput float64) (HasilItem, error) {
 	qtyInput = bulatkan(qtyInput, 3)
 	if qtyInput <= 0 {

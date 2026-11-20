@@ -17,14 +17,12 @@ var (
 	ErrTidakDitemukan = errors.New("data tidak ditemukan")
 )
 
-// validasi membuat error validasi dengan pesan yang bisa
-// langsung ditampilkan ke pengguna.
+// validasi membuat error validasi dengan pesan yang bisa langsung ditampilkan ke pengguna.
 func validasi(format string, args ...any) error {
 	return fmt.Errorf("%w: %s", ErrValidasi, fmt.Sprintf(format, args...))
 }
 
-// Lapisan adalah satu lapisan penerimaan yang SUDAH lolos syarat jual
-// (tidak diblokir, belum mendekati kedaluwarsa). Penyaringan dilakukan di SQL.
+// Lapisan adalah satu lapisan penerimaan yang SUDAH lolos syarat jual (tidak diblokir, belum mendekati kedaluwarsa).
 type Lapisan struct {
 	ReceiptID         int64
 	TglKadaluarsa     time.Time
@@ -85,4 +83,30 @@ type HasilTransaksi struct {
 	Total       float64 `json:"total"`
 	JumlahBayar float64 `json:"jumlah_bayar"`
 	Kembalian   float64 `json:"kembalian"`
+}
+
+// StrukItem adalah satu baris pada struk.
+type StrukItem struct {
+	NamaObat    string  `json:"nama_obat"`
+	NamaSatuan  string  `json:"nama_satuan"`
+	Qty         float64 `json:"qty"`          // dalam satuan yang dibeli
+	HargaSatuan float64 `json:"harga_satuan"` // per satuan yang dibeli
+	Subtotal    float64 `json:"subtotal"`
+
+	// Diisi repository, dipakai service untuk menghitung Subtotal dan HargaSatuan. 
+	// Tidak ikut dikirim sebagai JSON.
+	qtyDasar   float64
+	hargaDasar float64
+}
+
+// Struk adalah data untuk menampilkan dan mencetak struk penjualan.
+type Struk struct {
+	SaleID      int64       `json:"sale_id"`
+	Tanggal     time.Time   `json:"tanggal"`
+	Kasir       string      `json:"kasir"`
+	MetodeBayar string      `json:"metode_bayar"`
+	Items       []StrukItem `json:"items"`
+	Total       float64     `json:"total"`
+	JumlahBayar float64     `json:"jumlah_bayar"`
+	Kembalian   float64     `json:"kembalian"`
 }

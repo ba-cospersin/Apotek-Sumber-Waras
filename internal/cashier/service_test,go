@@ -53,3 +53,24 @@ func TestCariObat_KataKunciTerlaluPendek(t *testing.T) {
 		t.Fatalf("seharusnya ErrValidasi, dapat %v", err)
 	}
 }
+
+func TestLengkapiStruk_SeedPenjualan1(t *testing.T) {
+	// Sama dengan seed penjualan #1: 11 strip (110 tablet) @ Rp900 per tablet.
+	st := &Struk{
+		Total:       99000,
+		JumlahBayar: 100000,
+		Items: []StrukItem{
+			{NamaObat: "Paracetamol", NamaSatuan: "strip", Qty: 11, qtyDasar: 110, hargaDasar: 900},
+		},
+	}
+
+	lengkapiStruk(st)
+
+	it := st.Items[0]
+	if it.Subtotal != 99000 || it.HargaSatuan != 9000 {
+		t.Fatalf("baris struk tidak sesuai: %+v", it)
+	}
+	if st.Kembalian != 1000 {
+		t.Fatalf("kembalian %v, seharusnya 1000", st.Kembalian)
+	}
+}

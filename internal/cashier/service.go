@@ -14,9 +14,8 @@ const (
 	maxItemTransaksi = 100
 )
 
-// Stok adalah kebutuhan kasir terhadap persediaan. Implementasinya ada di
-// stok_kasir.go (StokKasir). Semua fungsi menerima koneksi (q) supaya bisa
-// berjalan di dalam transaksi penjualan.
+// Stok adalah kebutuhan kasir terhadap persediaan. Implementasinya ada di stok_kasir.go (StokKasir). 
+// Semua fungsi menerima koneksi (q) supaya bisa berjalan di dalam transaksi penjualan.
 type Stok interface {
 	StokTersedia(ctx context.Context, q DBTX, medicineID int64, hariIni time.Time) (float64, error)
 	// LapisanTersedia hanya mengembalikan lapisan yang boleh dijual
@@ -43,8 +42,7 @@ func (s *Service) hariIni() time.Time {
 	return time.Date(n.Year(), n.Month(), n.Day(), 0, 0, 0, 0, n.Location())
 }
 
-// CariObat mencari obat untuk kasir, lengkap dengan satuan jual dan
-// stok yang boleh dijual.
+// CariObat mencari obat untuk kasir, lengkap dengan satuan jual dan stok yang boleh dijual.
 func (s *Service) CariObat(ctx context.Context, kata string) ([]Obat, error) {
 	kata = strings.TrimSpace(kata)
 	if len([]rune(kata)) < 2 {
@@ -199,4 +197,30 @@ func (s *Service) Jual(
 		return nil, err
 	}
 	return hasil, nil
+}
+
+// Struk mengambil data struk untuk satu penjualan.
+func (s *Service) Struk(ctx context.Context, saleID int64) (*Struk, error) {
+	if saleID <= 0 {
+		return nil, validasi("id penjualan tidak valid")
+	}
+	st, err := s.repo.AmbilStruk(ctx, saleID)
+	if err != nil {
+		return nil, err
+	}
+	lengkapiStruk(st)
+	return st, nil
+}
+
+// lengkapiStruk menghitung subtotal, harga satuan, dan kembalian.
+func lengkapiStruk(st *Struk) {
+	for i := range st.Items {
+		it := &st.Items[i]
+		it.Subtotal = bulatkan(it.qtyDasar*it.hargaDasar, 2)
+		if it.Qty > 0 {
+			it.HargaSatuan = bulatkan(it.Subtotal/it.Qty, 2)
+		}
+	}
+	// Kembalian tidak disimpan di database, selalu dihitung ulang.
+	st.Kembalian = bulatkan(st.JumlahBayar-st.Total, 2)
 }

@@ -199,3 +199,50 @@ func (t *TxRepository) InsertSaleItemBatch(
 	}
 	return res.LastInsertId()
 }
+
+// AmbilStruk mengambil data penjualan beserta rinciannya.
+// Mengembalikan ErrTidakDitemukan jika penjualan tidak ada.
+func (r *Repository) AmbilStruk(ctx context.Context, saleID int64) (*Struk, error) {
+	var st Struk
+	err := r.db.QueryRowContext(ctx,
+		`SELECT s.id, s.tanggal, s.total, s.metode_bayar, s.jumlah_bayar, u.nama
+		   FROM sales s
+		   JOIN users u ON u.id = s.user_id
+		  WHERE s.id = ?`,
+		saleID,
+	).Scan(&st.SaleID, &st.Tanggal, &st.Total, &st.MetodeBayar, &st.JumlahBayar, &st.Kasir)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrTidakDitemukan
+	}
+	if err != nil {
+		return nil, fmt.Errorf("gagal mengambil penjualan: %w", err)
+	}
+
+	rows, err := r.db.QueryContext(ctx,
+		`SELECT m.nama, u.nama_satuan, si.qty_input, si.qty_dasar, si.harga_jual_snapshot
+		   FROM sale_items si
+		   JOIN medicine_units u ON u.id = si.unit_id
+		   JOIN medicines m ON m.id = u.medicine_id
+		  WHERE si.sale_id = ?
+		  ORDER BY si.id`,
+		saleID,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("gagal mengambil rincian penjualan: %w", err)
+	}
+	defer rows.Close()
+
+	st.Items = make([]StrukItem, 0)
+	for rows.Next() {
+		var it StrukItem
+		if err := rows.Scan(&it.NamaObat, &it.NamaSatuan, &it.Qty, &it.qtyDasar, &it.hargaDasar); err != nil {
+			return nil, fmt.Errorf("gagal membaca rincian penjualan: %w", err)
+		}
+		st.Items = append(st.Items, it)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("gagal membaca rincian penjualan: %w", err)
+	}
+	return &st, nil
+}

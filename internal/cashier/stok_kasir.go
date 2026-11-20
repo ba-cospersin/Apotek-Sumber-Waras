@@ -35,9 +35,8 @@ func (StokKasir) StokTersedia(
 	return bulatkan(total, 3), nil
 }
 
-// LapisanTersedia mengembalikan lapisan yang boleh dijual untuk satu obat,
-// terurut FEFO. Jika kunci = true, baris dikunci (FOR UPDATE) sampai transaksi
-// selesai, jadi harus dipanggil di dalam transaksi.
+// LapisanTersedia mengembalikan lapisan yang boleh dijual untuk satu obat, terurut FEFO. 
+// Jika kunci = true, baris dikunci (FOR UPDATE) sampai transaksi selesai.
 func (StokKasir) LapisanTersedia(
 	ctx context.Context, q DBTX, medicineID int64, hariIni time.Time, kunci bool,
 ) ([]Lapisan, error) {
@@ -77,7 +76,7 @@ func (StokKasir) LapisanTersedia(
 }
 
 // KurangiStok mengurangi qty_sisa pada satu lapisan penerimaan.
-// Pengurangan bersifat atomik: baris hanya berubah jika qty_sisa >= qty,
+// Baris hanya berubah jika qty_sisa >= qty,
 // jadi stok tidak pernah menjadi negatif walau ada bug di tempat lain.
 func (StokKasir) KurangiStok(ctx context.Context, q DBTX, receiptID int64, qty float64) error {
 	qty = bulatkan(qty, 3)
@@ -104,9 +103,8 @@ func (StokKasir) KurangiStok(ctx context.Context, q DBTX, receiptID int64, qty f
 	return nil
 }
 
-// TambahStok menambah qty_sisa pada satu lapisan penerimaan, untuk retur
-// konsumen yang dinyatakan LAYAK_JUAL. Batas jumlahnya dijaga oleh validasi
-// retur kumulatif di service (langkah 9), bukan di sini.
+// TambahStok menambah qty_sisa pada satu lapisan penerimaan, 
+// untuk retur konsumen yang dinyatakan LAYAK_JUAL. 
 func (StokKasir) TambahStok(ctx context.Context, q DBTX, receiptID int64, qty float64) error {
 	qty = bulatkan(qty, 3)
 	if qty <= 0 {
