@@ -3,37 +3,24 @@ package middleware
 import (
 	"net/http"
 	"strings"
+
+	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/model"
 )
 
-const (
-	RoleOwner     = "OWNER"
-	RoleCashier   = "KASIR"
-	RoleWarehouse = "GUDANG"
-)
+// RequireRole membatasi akses berdasarkan role.
+func RequireRole(
+	allowedRoles ...string,
+) func(http.Handler) http.Handler {
 
-// normalizeRole menyeragamkan penulisan role.
-func normalizeRole(role string) string {
-	return strings.ToUpper(strings.TrimSpace(role))
-}
-
-// isValidRole memeriksa apakah role terdaftar di sistem.
-func isValidRole(role string) bool {
-	switch normalizeRole(role) {
-	case RoleOwner, RoleCashier, RoleWarehouse:
-		return true
-	default:
-		return false
-	}
-}
-
-// RequireRole membatasi akses berdasarkan satu atau beberapa role.
-func RequireRole(allowedRoles ...string) func(http.Handler) http.Handler {
 	allowed := make(map[string]bool)
 
 	for _, role := range allowedRoles {
-		role = normalizeRole(role)
+		role = strings.ToUpper(strings.TrimSpace(role))
 
-		if isValidRole(role) {
+		switch role {
+		case model.RoleOwner,
+			model.RoleCashier,
+			model.RoleWarehouse:
 			allowed[role] = true
 		}
 	}
@@ -44,6 +31,7 @@ func RequireRole(allowedRoles ...string) func(http.Handler) http.Handler {
 			r *http.Request,
 		) {
 			user, ok := CurrentUser(r)
+
 			if !ok {
 				http.Error(
 					w,

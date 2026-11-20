@@ -2,154 +2,129 @@ package middleware
 
 import (
 	"context"
-	"fmt"
+	"errors"
+	"log"
 	"net/http"
-	"strconv"
 	"strings"
 
-	"github.com/gorilla/sessions"
+	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/model"
 )
 
-const (
-	sessionName   = "apotek_sumber_waras"
-	sessionMaxAge = 8 * 60 * 60 // 8 jam
-	loginPath     = "/login"
-)
+const SessionCookieName = "session"
 
-// AuthUser menyimpan identitas pengguna yang sudah login.
-type AuthUser struct {
-	ID   int64
-	Role string
+// SessionValidator merupakan kontrak untuk memeriksa session.
+// Implementasinya akan dibuat oleh Backend Owner
+// melalui repository autentikasi.
+type SessionValidator interface {
+	ValidateAndTouch(
+		ctx context.Context,
+		token string,
+	) (model.User, error)
 }
 
-// Key khusus untuk menyimpan user pada request context.
-type authUserContextKey struct{}
+type userContextKey struct{}
 
-// Auth mengelola session dan autentikasi pengguna.
+// Auth mengelola pemeriksaan session pengguna.
 type Auth struct {
-	store *sessions.CookieStore
+	Sessions     SessionValidator
+	CookieSecure bool
 }
 
-// NewAuth membuat session store menggunakan secret key.
-func NewAuth(secret string) (*Auth, error) {
-	secret = strings.TrimSpace(secret)
-
-	if len([]byte(secret)) < 32 {
-		return nil, fmt.Errorf(
-			"SESSION_KEY harus memiliki minimal 32 byte",
-		)
-	}
-
-	store := sessions.NewCookieStore([]byte(secret))
-
-	store.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   sessionMaxAge,
-		HttpOnly: true,
-		Secure:   false, // Untuk localhost. Aktifkan true saat menggunakan HTTPS.
-		SameSite: http.SameSiteLaxMode,
-	}
-
+func NewAuth(
+	sessions SessionValidator,
+	cookieSecure bool,
+) *Auth {
 	return &Auth{
-		store: store,
-	}, nil
+		Sessions:     sessions,
+		CookieSecure: cookieSecure,
+	}
 }
 
-// SetUserSession dipanggil setelah username dan password berhasil diverifikasi.
-func (a *Auth) SetUserSession(
+// SetSessionCookie digunakan setelah login berhasil.
+func (a *Auth) SetSessionCookie(
 	w http.ResponseWriter,
-	r *http.Request,
-	userID int64,
-	role string,
-) error {
-	if userID <= 0 {
-		return fmt.Errorf("ID pengguna tidak valid")
-	}
-
-	role = normalizeRole(role)
-
-	if !isValidRole(role) {
-		return fmt.Errorf("role pengguna tidak valid")
-	}
-
-	session, err := a.store.Get(r, sessionName)
-	if err != nil {
-		return fmt.Errorf("gagal mengambil session: %w", err)
-	}
-
-	session.Values["user_id"] = strconv.FormatInt(userID, 10)
-	session.Values["role"] = role
-
-	if err := session.Save(r, w); err != nil {
-		return fmt.Errorf("gagal menyimpan session: %w", err)
-	}
-
-	return nil
+	token string,
+) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     SessionCookieName,
+		Value:    token,
+		Path:     "/",
+		MaxAge:   8 * 60 * 60,
+		HttpOnly: true,
+		Secure:   a.CookieSecure,
+		SameSite: http.SameSiteLaxMode,
+	})
 }
 
-// ClearUserSession menghapus session ketika pengguna logout.
-func (a *Auth) ClearUserSession(
-	w http.ResponseWriter,
-	r *http.Request,
-) error {
-	session, err := a.store.Get(r, sessionName)
-	if err != nil {
-		return fmt.Errorf("gagal mengambil session: %w", err)
-	}
-
-	session.Values = make(map[interface{}]interface{})
-
-	session.Options = &sessions.Options{
+// ClearSessionCookie digunakan saat logout
+// atau ketika session sudah tidak valid.
+func (a *Auth) ClearSessionCookie(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     SessionCookieName,
+		Value:    "",
 		Path:     "/",
 		MaxAge:   -1,
 		HttpOnly: true,
-		Secure:   false,
+		Secure:   a.CookieSecure,
 		SameSite: http.SameSiteLaxMode,
-	}
-
-	if err := session.Save(r, w); err != nil {
-		return fmt.Errorf("gagal menghapus session: %w", err)
-	}
-
-	return nil
+	})
 }
 
-// RequireLogin memastikan pengguna sudah memiliki session yang valid.
-func (a *Auth) RequireLogin(next http.Handler) http.Handler {
+// RequireLogin memeriksa session sebelum
+// request diteruskan ke handler.
+func (a *Auth) RequireLogin(
+	next http.Handler,
+) http.Handler {
 	return http.HandlerFunc(func(
 		w http.ResponseWriter,
 		r *http.Request,
 	) {
-		session, err := a.store.Get(r, sessionName)
+		if a.Sessions == nil {
+			http.Error(
+				w,
+				"Authentication belum dikonfigurasi",
+				http.StatusInternalServerError,
+			)
+			return
+		}
+
+		cookie, err := r.Cookie(SessionCookieName)
+		if err != nil || strings.TrimSpace(cookie.Value) == "" {
+			a.ClearSessionCookie(w)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+
+		user, err := a.Sessions.ValidateAndTouch(
+			r.Context(),
+			cookie.Value,
+		)
+
+		if errors.Is(err, model.ErrInvalidSession) {
+			a.ClearSessionCookie(w)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+
 		if err != nil {
-			http.Redirect(w, r, loginPath, http.StatusSeeOther)
+			log.Printf("gagal memeriksa session: %v", err)
+			http.Error(
+				w,
+				"Terjadi kesalahan pada server",
+				http.StatusInternalServerError,
+			)
 			return
 		}
 
-		idValue, idOK := session.Values["user_id"].(string)
-		roleValue, roleOK := session.Values["role"].(string)
-
-		if !idOK || !roleOK {
-			http.Redirect(w, r, loginPath, http.StatusSeeOther)
+		if !user.IsActive {
+			a.ClearSessionCookie(w)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
-		}
-
-		userID, err := strconv.ParseInt(idValue, 10, 64)
-		role := normalizeRole(roleValue)
-
-		if err != nil || userID <= 0 || !isValidRole(role) {
-			http.Redirect(w, r, loginPath, http.StatusSeeOther)
-			return
-		}
-
-		user := AuthUser{
-			ID:   userID,
-			Role: role,
 		}
 
 		ctx := context.WithValue(
 			r.Context(),
-			authUserContextKey{},
+			userContextKey{},
 			user,
 		)
 
@@ -157,8 +132,9 @@ func (a *Auth) RequireLogin(next http.Handler) http.Handler {
 	})
 }
 
-// CurrentUser mengambil identitas pengguna dari request context.
-func CurrentUser(r *http.Request) (AuthUser, bool) {
-	user, ok := r.Context().Value(authUserContextKey{}).(AuthUser)
+// CurrentUser mengambil data pengguna
+// dari context request.
+func CurrentUser(r *http.Request) (model.User, bool) {
+	user, ok := r.Context().Value(userContextKey{}).(model.User)
 	return user, ok
 }
