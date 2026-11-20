@@ -113,3 +113,15 @@ func TestHandlerTetapkanKelayakan_IDTidakValid(t *testing.T) {
 		t.Fatalf("status %d, seharusnya 400", w.Code)
 	}
 }
+
+func TestHandlerLaporanLaba_LimitBukanAngka(t *testing.T) {
+	h := NewHandler(NewService(nil, nil))
+	req := httptest.NewRequest(http.MethodGet, "/laporan/laba?limit=abc", nil)
+	w := httptest.NewRecorder()
+
+	h.LaporanLaba(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status %d, seharusnya 400", w.Code)
+	}
+}

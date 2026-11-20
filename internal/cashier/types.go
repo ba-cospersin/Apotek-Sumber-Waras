@@ -189,3 +189,40 @@ type PenjualanRetur struct {
 	Total   float64     `json:"total"`
 	Items   []ReturItem `json:"items"`
 }
+
+// Laba berisi komponen perhitungan laba. Dipakai untuk satu transaksi maupun untuk ringkasan satu periode.
+type Laba struct {
+	Pendapatan    float64 `json:"pendapatan"`     // sales.total
+	HPP           float64 `json:"hpp"`            // biaya perolehan barang terjual
+	LabaKotor     float64 `json:"laba_kotor"`     // pendapatan - hpp
+	ReturRefund   float64 `json:"retur_refund"`   // dana yang dikembalikan ke konsumen
+	ReturHPP      float64 `json:"retur_hpp"`      // biaya perolehan barang yang diretur
+	LabaRetur     float64 `json:"laba_retur"`     // keuntungan dari barang yang diretur
+	LabaBersih    float64 `json:"laba_bersih"`    // laba kotor - laba retur
+	KerugianRetur float64 `json:"kerugian_retur"` // biaya retur TIDAK_LAYAK_JUAL, dilaporkan terpisah
+}
+
+// LabaTransaksi adalah laba untuk satu transaksi penjualan.
+type LabaTransaksi struct {
+	SaleID      int64     `json:"sale_id"`
+	Tanggal     time.Time `json:"tanggal"`
+	Kasir       string    `json:"kasir"`
+	MetodeBayar string    `json:"metode_bayar"`
+	Laba
+}
+
+// RingkasanLaba adalah total laba untuk satu periode.
+type RingkasanLaba struct {
+	Dari            string `json:"dari"`   // YYYY-MM-DD, inklusif
+	Sampai          string `json:"sampai"` // YYYY-MM-DD, inklusif
+	JumlahTransaksi int    `json:"jumlah_transaksi"`
+	Laba
+}
+
+// LaporanLaba adalah isi halaman laporan: ringkasan plus daftar transaksi.
+type LaporanLaba struct {
+	Ringkasan RingkasanLaba   `json:"ringkasan"`
+	Transaksi []LabaTransaksi `json:"transaksi"`
+	Limit     int             `json:"limit"`
+	Offset    int             `json:"offset"`
+}

@@ -34,6 +34,11 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux, auth *middleware.Auth) {
 			middleware.RequireRole(model.RoleCashier, model.RoleOwner)(next),
 		)
 	}
+	owner := func(next http.HandlerFunc) http.Handler {
+		return auth.RequireLogin(
+			middleware.RequireRole(model.RoleOwner)(next),
+		)
+	}
 
 	mux.Handle("GET /kasir/obat", kasir(h.CariObat))
 	mux.Handle("POST /kasir/transaksi", kasir(h.Transaksi))
@@ -41,6 +46,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux, auth *middleware.Auth) {
 	mux.Handle("GET /retur/penjualan/{id}", kasir(h.PenjualanRetur))
 	mux.Handle("POST /retur", kasir(h.CatatRetur))
 	mux.Handle("POST /retur/{id}/kelayakan", kasir(h.TetapkanKelayakan))
+	mux.Handle("GET /laporan/laba", owner(h.LaporanLaba))
 }
 
 // CariObat menangani GET /kasir/obat?q=para
@@ -197,4 +203,35 @@ func (h *Handler) TetapkanKelayakan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"data": hasil})
+}
+
+// LaporanLaba menangani GET /laporan/laba?dari=YYYY-MM-DD&sampai=YYYY-MM-DD&limit=&offset=
+func (h *Handler) LaporanLaba(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+
+	limit, err := angkaQuery(q.Get("limit"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "limit harus berupa angka")
+		return
+	}
+	offset, err := angkaQuery(q.Get("offset"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "offset harus berupa angka")
+		return
+	}
+
+	hasil, err := h.svc.LaporanLaba(r.Context(), q.Get("dari"), q.Get("sampai"), limit, offset)
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"data": hasil})
+}
+
+// angkaQuery mengubah nilai query string menjadi int. Kosong berarti 0.
+func angkaQuery(s string) (int, error) {
+	if s == "" {
+		return 0, nil
+	}
+	return strconv.Atoi(s)
 }
