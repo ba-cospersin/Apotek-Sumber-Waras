@@ -183,3 +183,82 @@ type DetailPenerimaan struct {
 	DicatatOleh string                 `json:"dicatat_oleh"`
 	Items       []ItemDetailPenerimaan `json:"items"`
 }
+
+// ---------- Persediaan dan pemblokiran batch ----------
+
+// ErrSudahDiblokir: batch sudah berstatus diblokir -> HTTP 409.
+var ErrSudahDiblokir = errors.New("batch sudah berstatus diblokir")
+
+// FilterBatch adalah filter dari pengguna untuk daftar stok per batch.
+type FilterBatch struct {
+	Kata           string // cari di nama obat, kode obat, atau nomor batch
+	Status         string // BOLEH_DIJUAL, MENDEKATI_KEDALUWARSA, KEDALUWARSA, DIBLOKIR
+	TermasukKosong bool   // true = batch yang stoknya habis ikut ditampilkan
+	Page           int
+	PerPage        int
+}
+
+// QueryBatch adalah filter yang sudah divalidasi, siap untuk SQL.
+type QueryBatch struct {
+	Kata         string
+	Status       string
+	HariIni      string // YYYY-MM-DD
+	Batas        string // YYYY-MM-DD: hari ini + 1 bulan
+	HanyaAdaStok bool
+	Limit        int
+	Offset       int
+}
+
+// BatchStok adalah satu batch fisik beserta total stoknya.
+type BatchStok struct {
+	BatchID         int64   `json:"batch_id"`
+	MedicineID      int64   `json:"medicine_id"`
+	KodeObat        string  `json:"kode_obat"`
+	NamaObat        string  `json:"nama_obat"`
+	SatuanDasar     string  `json:"satuan_dasar"`
+	NoBatch         string  `json:"no_batch"`
+	TglKadaluarsa   string  `json:"tgl_kadaluarsa"`
+	StatusBatch     string  `json:"status_batch"` // AKTIF atau DIBLOKIR (database)
+	StatusJual      string  `json:"status_jual"`  // hasil perhitungan, lihat statusJual
+	TotalStok       float64 `json:"total_stok"`
+	StokBolehDijual float64 `json:"stok_boleh_dijual"`
+	JumlahLapisan   int     `json:"jumlah_lapisan"`
+}
+
+// DaftarBatch adalah satu halaman daftar stok per batch.
+type DaftarBatch struct {
+	Data []BatchStok `json:"data"`
+	Meta Halaman     `json:"meta"`
+}
+
+// LapisanBatch adalah satu lapisan penerimaan pada sebuah batch.
+type LapisanBatch struct {
+	ReceiptID         int64   `json:"receipt_id"`
+	PurchaseID        int64   `json:"purchase_id"`
+	NoFaktur          string  `json:"no_faktur"`
+	TglFaktur         string  `json:"tgl_faktur"`
+	NamaPBF           string  `json:"nama_pbf"`
+	TanggalTerima     string  `json:"tanggal_terima"`
+	QtyDiterima       float64 `json:"qty_diterima"`
+	QtySisa           float64 `json:"qty_sisa"`
+	HargaBeliPerDasar float64 `json:"harga_beli_per_dasar"`
+}
+
+// DetailBatch adalah satu batch fisik beserta seluruh lapisan penerimaannya.
+type DetailBatch struct {
+	BatchStok
+	AlasanBlokir  string         `json:"alasan_blokir"`
+	TanggalBlokir string         `json:"tanggal_blokir"`
+	Lapisan       []LapisanBatch `json:"lapisan"`
+}
+
+// RingkasanStok adalah angka ringkas untuk bagian atas halaman stok.
+// Yang dihitung hanya batch yang masih punya stok.
+type RingkasanStok struct {
+	TotalBatch                int     `json:"total_batch"`
+	BatchBolehDijual          int     `json:"batch_boleh_dijual"`
+	BatchMendekatiKedaluwarsa int     `json:"batch_mendekati_kedaluwarsa"`
+	BatchKedaluwarsa          int     `json:"batch_kedaluwarsa"`
+	BatchDiblokir             int     `json:"batch_diblokir"`
+	StokBolehDijual           float64 `json:"stok_boleh_dijual"`
+}

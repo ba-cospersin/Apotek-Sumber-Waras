@@ -34,6 +34,14 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux, auth *middleware.Auth) {
 	mux.Handle("POST /gudang/penerimaan", gudang(h.CreatePenerimaan))
 	mux.Handle("GET /gudang/penerimaan", gudang(h.ListPenerimaan))
 	mux.Handle("GET /gudang/penerimaan/{id}", gudang(h.DetailPenerimaan))
+
+	// Persediaan dan pemblokiran batch.
+	// Catatan: URL ini sementara. Rute final mengikuti kontrak Backend Lead
+	// dan cukup diganti di sini.
+	mux.Handle("GET /gudang/persediaan", gudang(h.ListPersediaan))
+	mux.Handle("GET /gudang/persediaan/ringkasan", gudang(h.RingkasanPersediaan))
+	mux.Handle("GET /gudang/persediaan/batch/{id}", gudang(h.DetailBatch))
+	mux.Handle("POST /gudang/persediaan/batch/{id}/blokir", gudang(h.BlokirBatch))
 }
 
 // CreatePenerimaan menangani POST /gudang/penerimaan.
@@ -133,6 +141,100 @@ func angkaQuery(q url.Values, kunci string) (int64, error) {
 	return n, nil
 }
 
+// ListPersediaan menangani GET /gudang/persediaan.
+//
+// Query string (semuanya opsional):
+// q (cari obat atau batch), status, semua=1 (sertakan batch yang stoknya habis),
+// page, per_page.
+func (h *Handler) ListPersediaan(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+
+	page, err := angkaQuery(q, "page")
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+	perPage, err := angkaQuery(q, "per_page")
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	semua := q.Get("semua") == "1" || q.Get("semua") == "true"
+
+	hasil, err := h.svc.DaftarBatch(r.Context(), FilterBatch{
+		Kata:           q.Get("q"),
+		Status:         q.Get("status"),
+		TermasukKosong: semua,
+		Page:           int(page),
+		PerPage:        int(perPage),
+	})
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, hasil)
+}
+
+// RingkasanPersediaan menangani GET /gudang/persediaan/ringkasan.
+func (h *Handler) RingkasanPersediaan(w http.ResponseWriter, r *http.Request) {
+	hasil, err := h.svc.Ringkasan(r.Context())
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{"data": hasil})
+}
+
+// DetailBatch menangani GET /gudang/persediaan/batch/{id}.
+func (h *Handler) DetailBatch(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "id batch harus berupa angka")
+		return
+	}
+
+	hasil, err := h.svc.DetailBatch(r.Context(), id)
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{"data": hasil})
+}
+
+// BlokirBatch menangani POST /gudang/persediaan/batch/{id}/blokir.
+// Datanya berupa form biasa dengan satu field: alasan.
+// Jika berhasil, pengguna diarahkan (303) ke halaman detail batch.
+func (h *Handler) BlokirBatch(w http.ResponseWriter, r *http.Request) {
+	user, ok := middleware.CurrentUser(r)
+	if !ok {
+		writeError(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "id batch harus berupa angka")
+		return
+	}
+
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+	if err := r.ParseForm(); err != nil {
+		writeError(w, http.StatusBadRequest, "form tidak valid: "+err.Error())
+		return
+	}
+
+	if err := h.svc.BlokirBatch(r.Context(), user.ID, id, r.PostFormValue("alasan")); err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	http.Redirect(w, r, "/gudang/persediaan/batch/"+strconv.FormatInt(id, 10), http.StatusSeeOther)
+}
+
 // writeServiceError mengubah error dari service menjadi response HTTP.
 func writeServiceError(w http.ResponseWriter, err error) {
 	switch {
@@ -140,7 +242,8 @@ func writeServiceError(w http.ResponseWriter, err error) {
 		writeError(w, http.StatusBadRequest, err.Error())
 
 	case errors.Is(err, ErrFakturDuplikat),
-		errors.Is(err, ErrKedaluwarsaBeda):
+		errors.Is(err, ErrKedaluwarsaBeda),
+		errors.Is(err, ErrSudahDiblokir):
 		writeError(w, http.StatusConflict, err.Error())
 
 	case errors.Is(err, ErrTidakDitemukan):

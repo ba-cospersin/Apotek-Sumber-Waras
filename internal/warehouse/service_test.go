@@ -1,7 +1,9 @@
 package warehouse
 
 import (
+	"context"
 	"errors"
+	"strings"
 	"testing"
 	"time"
 )
@@ -218,5 +220,133 @@ func TestTambahSatuBulan(t *testing.T) {
 		if got := tambahSatuBulan(tgl(masuk)).Format(layoutTanggal); got != harapan {
 			t.Fatalf("%s + 1 bulan: dapat %s, seharusnya %s", masuk, got, harapan)
 		}
+	}
+}
+
+// ---------- Persediaan ----------
+
+func TestSiapkanFilterBatch_Bawaan(t *testing.T) {
+	hariIni := time.Date(2026, 11, 7, 0, 0, 0, 0, time.Local)
+
+	q, page, perPage, err := siapkanFilterBatch(FilterBatch{}, hariIni)
+	if err != nil {
+		t.Fatalf("seharusnya valid: %v", err)
+	}
+	if page != 1 || perPage != 20 || q.Limit != 20 || q.Offset != 0 {
+		t.Fatalf("paginasi bawaan salah: %d %d %d %d", page, perPage, q.Limit, q.Offset)
+	}
+	if !q.HanyaAdaStok {
+		t.Fatalf("bawaannya hanya batch yang masih ada stok")
+	}
+	if q.HariIni != "2026-11-07" || q.Batas != "2026-12-07" {
+		t.Fatalf("tanggal salah: hari ini %s, batas %s", q.HariIni, q.Batas)
+	}
+}
+
+func TestSiapkanFilterBatch_Opsi(t *testing.T) {
+	hariIni := time.Date(2026, 11, 7, 0, 0, 0, 0, time.Local)
+
+	q, _, _, err := siapkanFilterBatch(FilterBatch{
+		Kata: "  para  ", Status: "diblokir", TermasukKosong: true, Page: 3, PerPage: 500,
+	}, hariIni)
+	if err != nil {
+		t.Fatalf("seharusnya valid: %v", err)
+	}
+	if q.Kata != "para" || q.Status != statusJualDiblokir || q.HanyaAdaStok {
+		t.Fatalf("opsi tidak terbaca: %+v", q)
+	}
+	if q.Limit != 100 || q.Offset != 200 {
+		t.Fatalf("per_page harus dibatasi 100: limit %d offset %d", q.Limit, q.Offset)
+	}
+}
+
+func TestSiapkanFilterBatch_Tolak(t *testing.T) {
+	hariIni := time.Date(2026, 11, 7, 0, 0, 0, 0, time.Local)
+
+	kasus := []struct {
+		nama   string
+		filter FilterBatch
+	}{
+		{"status ngawur", FilterBatch{Status: "SEMUA"}},
+		{"page negatif", FilterBatch{Page: -1}},
+		{"per_page negatif", FilterBatch{PerPage: -1}},
+		{"kata terlalu panjang", FilterBatch{Kata: strings.Repeat("a", 101)}},
+	}
+	for _, k := range kasus {
+		t.Run(k.nama, func(t *testing.T) {
+			_, _, _, err := siapkanFilterBatch(k.filter, hariIni)
+			if !errors.Is(err, ErrValidasi) {
+				t.Fatalf("seharusnya ErrValidasi, dapat: %v", err)
+			}
+		})
+	}
+}
+
+func TestEscapeLike(t *testing.T) {
+	kasus := map[string]string{
+		"para": "para",
+		"50%":  "50!%",
+		"a_b":  "a!_b",
+		"a!b":  "a!!b",
+		"%_!":  "!%!_!!",
+	}
+	for masuk, harapan := range kasus {
+		if got := escapeLike(masuk); got != harapan {
+			t.Fatalf("escapeLike(%q) = %q, seharusnya %q", masuk, got, harapan)
+		}
+	}
+}
+
+func TestBlokirBatch_Validasi(t *testing.T) {
+	// Validasi berjalan sebelum menyentuh database, jadi repo boleh nil.
+	svc := serviceUji()
+	ctx := context.Background()
+
+	kasus := []struct {
+		nama    string
+		batchID int64
+		alasan  string
+	}{
+		{"id nol", 0, "penarikan"},
+		{"alasan kosong", 1, ""},
+		{"alasan spasi saja", 1, "   "},
+		{"alasan terlalu panjang", 1, strings.Repeat("x", 501)},
+	}
+	for _, k := range kasus {
+		t.Run(k.nama, func(t *testing.T) {
+			err := svc.BlokirBatch(ctx, 1, k.batchID, k.alasan)
+			if !errors.Is(err, ErrValidasi) {
+				t.Fatalf("seharusnya ErrValidasi, dapat: %v", err)
+			}
+		})
+	}
+}
+
+func TestStokTersedia_Validasi(t *testing.T) {
+	if _, err := serviceUji().StokTersedia(context.Background(), 0, time.Time{}); !errors.Is(err, ErrValidasi) {
+		t.Fatalf("medicine_id 0 seharusnya ErrValidasi, dapat: %v", err)
+	}
+}
+
+func TestIsiStatusBatch(t *testing.T) {
+	hariIni := time.Date(2026, 11, 7, 0, 0, 0, 0, time.Local)
+
+	b := BatchStok{BatchID: 1, TglKadaluarsa: "2028-01-01", StatusBatch: statusBatchAktif, TotalStok: 120}
+	if err := isiStatusBatch(&b, hariIni); err != nil {
+		t.Fatal(err)
+	}
+	if b.StatusJual != statusJualBoleh || b.StokBolehDijual != 120 {
+		t.Fatalf("batch aktif jauh: %+v", b)
+	}
+
+	b = BatchStok{BatchID: 2, TglKadaluarsa: "2028-01-01", StatusBatch: statusBatchDiblokir, TotalStok: 120}
+	_ = isiStatusBatch(&b, hariIni)
+	if b.StatusJual != statusJualDiblokir || b.StokBolehDijual != 0 {
+		t.Fatalf("batch diblokir tidak boleh dijual: %+v", b)
+	}
+
+	b = BatchStok{BatchID: 3, TglKadaluarsa: "bukan-tanggal", StatusBatch: statusBatchAktif}
+	if err := isiStatusBatch(&b, hariIni); err == nil {
+		t.Fatalf("tanggal rusak seharusnya error")
 	}
 }

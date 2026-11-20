@@ -3,6 +3,7 @@ package warehouse
 import (
 	"context"
 	"fmt"
+	"log"
 	"math"
 	"strings"
 	"time"
@@ -443,4 +444,217 @@ func tambahSatuBulan(t time.Time) time.Time {
 		d = akhir
 	}
 	return time.Date(y, m, d, 0, 0, 0, 0, t.Location())
+}
+
+// ---------- Persediaan ----------
+
+// StokTersedia mengembalikan jumlah stok obat (satuan dasar) yang BOLEH DIJUAL
+// pada tanggal hariIni: batch AKTIF, kedaluwarsa lebih dari satu bulan setelah
+// hariIni, dan masih ada sisa. Dipakai modul Kasir untuk menampilkan stok.
+// Pemeriksaan yang sah tetap dilakukan Kasir di dalam transaksi penjualan.
+// Jika hariIni kosong, dipakai tanggal hari ini.
+func (s *Service) StokTersedia(
+	ctx context.Context,
+	medicineID int64,
+	hariIni time.Time,
+) (float64, error) {
+	if medicineID <= 0 {
+		return 0, validasi("medicine_id tidak valid")
+	}
+
+	tgl := s.hariIni()
+	if !hariIni.IsZero() {
+		tgl = time.Date(hariIni.Year(), hariIni.Month(), hariIni.Day(), 0, 0, 0, 0, time.Local)
+	}
+
+	return s.repo.SumStokDapatDijual(ctx, medicineID, tambahSatuBulan(tgl).Format(layoutTanggal))
+}
+
+// Ringkasan menghitung angka ringkas persediaan.
+func (s *Service) Ringkasan(ctx context.Context) (*RingkasanStok, error) {
+	hariIni := s.hariIni()
+	rs, err := s.repo.RingkasanStok(
+		ctx,
+		hariIni.Format(layoutTanggal),
+		tambahSatuBulan(hariIni).Format(layoutTanggal),
+	)
+	if err != nil {
+		return nil, err
+	}
+	rs.StokBolehDijual = bulatkan(rs.StokBolehDijual, 3)
+	return rs, nil
+}
+
+// DaftarBatch mengambil satu halaman daftar stok per batch.
+func (s *Service) DaftarBatch(
+	ctx context.Context,
+	f FilterBatch,
+) (*DaftarBatch, error) {
+	hariIni := s.hariIni()
+
+	q, page, perPage, err := siapkanFilterBatch(f, hariIni)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, total, err := s.repo.ListBatch(ctx, q)
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range rows {
+		if err := isiStatusBatch(&rows[i], hariIni); err != nil {
+			return nil, err
+		}
+	}
+
+	return &DaftarBatch{
+		Data: rows,
+		Meta: Halaman{
+			Page:         page,
+			PerPage:      perPage,
+			Total:        total,
+			TotalHalaman: (total + perPage - 1) / perPage,
+		},
+	}, nil
+}
+
+// DetailBatch mengambil satu batch fisik beserta semua lapisan penerimaannya.
+func (s *Service) DetailBatch(
+	ctx context.Context,
+	id int64,
+) (*DetailBatch, error) {
+	if id <= 0 {
+		return nil, validasi("id batch tidak valid")
+	}
+
+	d, err := s.repo.GetBatch(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if d == nil {
+		return nil, fmt.Errorf("batch dengan id %d: %w", id, ErrTidakDitemukan)
+	}
+
+	d.TotalStok = bulatkan(d.TotalStok, 3)
+	if err := isiStatusBatch(&d.BatchStok, s.hariIni()); err != nil {
+		return nil, err
+	}
+	return d, nil
+}
+
+// BlokirBatch menandai batch fisik sebagai diblokir. Semua lapisan penerimaan
+// batch itu tidak lagi boleh dijual, tetapi stoknya tetap tercatat untuk
+// ditindaklanjuti (pemusnahan atau retur ke PBF).
+func (s *Service) BlokirBatch(
+	ctx context.Context,
+	userID, batchID int64,
+	alasan string,
+) error {
+	if userID <= 0 {
+		return fmt.Errorf("user tidak dikenali")
+	}
+	if batchID <= 0 {
+		return validasi("id batch tidak valid")
+	}
+
+	alasan = strings.TrimSpace(alasan)
+	if alasan == "" {
+		return validasi("alasan pemblokiran wajib diisi")
+	}
+	if len([]rune(alasan)) > 500 {
+		return validasi("alasan pemblokiran maksimal 500 karakter")
+	}
+
+	err := s.repo.WithTx(ctx, func(tx *TxRepository) error {
+		b, err := tx.FindBatchByID(ctx, batchID)
+		if err != nil {
+			return err
+		}
+		if b == nil {
+			return fmt.Errorf("batch dengan id %d: %w", batchID, ErrTidakDitemukan)
+		}
+		if b.Status == statusBatchDiblokir {
+			return ErrSudahDiblokir
+		}
+		return tx.SetBatchDiblokir(ctx, batchID, alasan, s.now())
+	})
+	if err != nil {
+		return err
+	}
+
+	// Skema belum punya kolom "diblokir oleh", jadi pelakunya dicatat di log.
+	log.Printf("warehouse: batch %d diblokir oleh user %d, alasan: %s", batchID, userID, alasan)
+	return nil
+}
+
+// isiStatusBatch mengisi status_jual dan stok_boleh_dijual dari data batch.
+func isiStatusBatch(b *BatchStok, hariIni time.Time) error {
+	kadaluarsa, err := time.ParseInLocation(layoutTanggal, b.TglKadaluarsa, time.Local)
+	if err != nil {
+		return fmt.Errorf("tanggal kedaluwarsa batch %d tidak valid: %w", b.BatchID, err)
+	}
+
+	b.StatusJual = statusJual(b.StatusBatch, kadaluarsa, hariIni)
+	b.StokBolehDijual = 0
+	if b.StatusJual == statusJualBoleh {
+		b.StokBolehDijual = b.TotalStok
+	}
+	return nil
+}
+
+// hitungHalaman memvalidasi page dan per_page, lalu memberi nilai bawaan.
+func hitungHalaman(page, perPage int) (int, int, error) {
+	if page < 0 || perPage < 0 {
+		return 0, 0, validasi("page dan per_page tidak boleh negatif")
+	}
+	if page == 0 {
+		page = 1
+	}
+	if perPage == 0 {
+		perPage = perHalamanBawaan
+	}
+	if perPage > perHalamanMaks {
+		perPage = perHalamanMaks
+	}
+	return page, perPage, nil
+}
+
+// siapkanFilterBatch memvalidasi filter dan mengubahnya menjadi query.
+func siapkanFilterBatch(
+	f FilterBatch,
+	hariIni time.Time,
+) (QueryBatch, int, int, error) {
+	var q QueryBatch
+
+	page, perPage, err := hitungHalaman(f.Page, f.PerPage)
+	if err != nil {
+		return q, 0, 0, err
+	}
+
+	kata := strings.TrimSpace(f.Kata)
+	if len([]rune(kata)) > 100 {
+		return q, 0, 0, validasi("q maksimal 100 karakter")
+	}
+
+	status := strings.ToUpper(strings.TrimSpace(f.Status))
+	switch status {
+	case "", statusJualBoleh, statusJualMendekati, statusJualKedaluwarsa, statusJualDiblokir:
+	default:
+		return q, 0, 0, validasi(
+			"status harus salah satu dari %s, %s, %s, %s",
+			statusJualBoleh, statusJualMendekati, statusJualKedaluwarsa, statusJualDiblokir,
+		)
+	}
+
+	q = QueryBatch{
+		Kata:         kata,
+		Status:       status,
+		HariIni:      hariIni.Format(layoutTanggal),
+		Batas:        tambahSatuBulan(hariIni).Format(layoutTanggal),
+		HanyaAdaStok: !f.TermasukKosong,
+		Limit:        perPage,
+		Offset:       (page - 1) * perPage,
+	}
+	return q, page, perPage, nil
 }

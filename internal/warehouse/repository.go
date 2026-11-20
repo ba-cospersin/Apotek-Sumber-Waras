@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
@@ -371,4 +372,283 @@ func (r *Repository) GetPenerimaan(
 	}
 
 	return &d, nil
+}
+
+// ---------- Persediaan ----------
+
+// escapeLike menetralkan karakter khusus LIKE (% dan _) pada kata pencarian.
+// Karakter escape yang dipakai adalah tanda seru, dan harus dipasangkan
+// dengan ESCAPE '!' pada query.
+func escapeLike(s string) string {
+	return strings.NewReplacer("!", "!!", "%", "!%", "_", "!_").Replace(s)
+}
+
+// SumStokDapatDijual menjumlahkan qty_sisa semua lapisan obat yang boleh dijual:
+// batch AKTIF, kedaluwarsa LEBIH dari batas (hari ini + 1 bulan), dan masih ada sisa.
+// Syarat ini HARUS sama dengan query lapisan yang dipakai Kasir saat menjual.
+func (r *Repository) SumStokDapatDijual(
+	ctx context.Context,
+	medicineID int64,
+	batas string,
+) (float64, error) {
+	var total float64
+	err := r.db.QueryRowContext(
+		ctx,
+		`SELECT COALESCE(SUM(r.qty_sisa), 0)
+		   FROM batch_receipts r
+		   JOIN batches b ON b.id = r.batch_id
+		  WHERE b.medicine_id = ?
+		    AND b.status_batch = ?
+		    AND b.tgl_kadaluarsa > ?
+		    AND r.qty_sisa > 0`,
+		medicineID, statusBatchAktif, batas,
+	).Scan(&total)
+	if err != nil {
+		return 0, fmt.Errorf("gagal menghitung stok tersedia: %w", err)
+	}
+	return total, nil
+}
+
+// RingkasanStok menghitung jumlah batch per kategori (hanya yang masih punya stok).
+func (r *Repository) RingkasanStok(
+	ctx context.Context,
+	hariIni, batas string,
+) (*RingkasanStok, error) {
+	var rs RingkasanStok
+	err := r.db.QueryRowContext(
+		ctx,
+		`SELECT COUNT(*),
+		        COALESCE(SUM(CASE WHEN b.status_batch = ? THEN 1 ELSE 0 END), 0),
+		        COALESCE(SUM(CASE WHEN b.status_batch = ? AND b.tgl_kadaluarsa <= ? THEN 1 ELSE 0 END), 0),
+		        COALESCE(SUM(CASE WHEN b.status_batch = ? AND b.tgl_kadaluarsa > ? AND b.tgl_kadaluarsa <= ? THEN 1 ELSE 0 END), 0),
+		        COALESCE(SUM(CASE WHEN b.status_batch = ? AND b.tgl_kadaluarsa > ? THEN 1 ELSE 0 END), 0),
+		        COALESCE(SUM(CASE WHEN b.status_batch = ? AND b.tgl_kadaluarsa > ? THEN t.total ELSE 0 END), 0)
+		   FROM batches b
+		   JOIN (SELECT batch_id, SUM(qty_sisa) AS total
+		           FROM batch_receipts
+		          GROUP BY batch_id
+		         HAVING SUM(qty_sisa) > 0) t ON t.batch_id = b.id`,
+		statusBatchDiblokir,
+		statusBatchAktif, hariIni,
+		statusBatchAktif, hariIni, batas,
+		statusBatchAktif, batas,
+		statusBatchAktif, batas,
+	).Scan(
+		&rs.TotalBatch, &rs.BatchDiblokir, &rs.BatchKedaluwarsa,
+		&rs.BatchMendekatiKedaluwarsa, &rs.BatchBolehDijual, &rs.StokBolehDijual,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("gagal menghitung ringkasan stok: %w", err)
+	}
+	return &rs, nil
+}
+
+// ListBatch mengambil satu halaman daftar batch beserta total stoknya.
+// Urutan: kedaluwarsa terdekat dulu.
+func (r *Repository) ListBatch(
+	ctx context.Context,
+	q QueryBatch,
+) ([]BatchStok, int, error) {
+	where := " WHERE 1=1"
+	var args []any
+
+	if q.Kata != "" {
+		pola := "%" + escapeLike(q.Kata) + "%"
+		where += " AND (m.nama LIKE ? ESCAPE '!' OR m.kode LIKE ? ESCAPE '!' OR b.no_batch LIKE ? ESCAPE '!')"
+		args = append(args, pola, pola, pola)
+	}
+
+	switch q.Status {
+	case statusJualDiblokir:
+		where += " AND b.status_batch = ?"
+		args = append(args, statusBatchDiblokir)
+	case statusJualKedaluwarsa:
+		where += " AND b.status_batch = ? AND b.tgl_kadaluarsa <= ?"
+		args = append(args, statusBatchAktif, q.HariIni)
+	case statusJualMendekati:
+		where += " AND b.status_batch = ? AND b.tgl_kadaluarsa > ? AND b.tgl_kadaluarsa <= ?"
+		args = append(args, statusBatchAktif, q.HariIni, q.Batas)
+	case statusJualBoleh:
+		where += " AND b.status_batch = ? AND b.tgl_kadaluarsa > ?"
+		args = append(args, statusBatchAktif, q.Batas)
+	}
+
+	if q.HanyaAdaStok {
+		where += ` AND EXISTS (SELECT 1 FROM batch_receipts rs
+		                        WHERE rs.batch_id = b.id AND rs.qty_sisa > 0)`
+	}
+
+	var total int
+	err := r.db.QueryRowContext(
+		ctx,
+		`SELECT COUNT(*)
+		   FROM batches b
+		   JOIN medicines m ON m.id = b.medicine_id`+where,
+		args...,
+	).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("gagal menghitung daftar batch: %w", err)
+	}
+
+	argsHalaman := append(append([]any{}, args...), q.Limit, q.Offset)
+
+	rows, err := r.db.QueryContext(
+		ctx,
+		`SELECT b.id, b.medicine_id, m.kode, m.nama, m.satuan_dasar,
+		        b.no_batch, b.tgl_kadaluarsa, b.status_batch,
+		        COALESCE(SUM(r.qty_sisa), 0), COUNT(r.id)
+		   FROM batches b
+		   JOIN medicines m ON m.id = b.medicine_id
+		   LEFT JOIN batch_receipts r ON r.batch_id = b.id`+where+`
+		  GROUP BY b.id, b.medicine_id, m.kode, m.nama, m.satuan_dasar,
+		           b.no_batch, b.tgl_kadaluarsa, b.status_batch
+		  ORDER BY b.tgl_kadaluarsa ASC, m.nama ASC, b.id ASC
+		  LIMIT ? OFFSET ?`,
+		argsHalaman...,
+	)
+	if err != nil {
+		return nil, 0, fmt.Errorf("gagal mengambil daftar batch: %w", err)
+	}
+	defer rows.Close()
+
+	hasil := make([]BatchStok, 0)
+	for rows.Next() {
+		var b BatchStok
+		var kadaluarsa time.Time
+		if err := rows.Scan(
+			&b.BatchID, &b.MedicineID, &b.KodeObat, &b.NamaObat, &b.SatuanDasar,
+			&b.NoBatch, &kadaluarsa, &b.StatusBatch, &b.TotalStok, &b.JumlahLapisan,
+		); err != nil {
+			return nil, 0, fmt.Errorf("gagal membaca daftar batch: %w", err)
+		}
+		b.TglKadaluarsa = kadaluarsa.Format(layoutTanggal)
+		hasil = append(hasil, b)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, 0, fmt.Errorf("gagal membaca daftar batch: %w", err)
+	}
+
+	return hasil, total, nil
+}
+
+// GetBatch mengambil satu batch fisik beserta semua lapisan penerimaannya.
+// Mengembalikan nil jika batch tidak ditemukan.
+func (r *Repository) GetBatch(
+	ctx context.Context,
+	id int64,
+) (*DetailBatch, error) {
+	var d DetailBatch
+	var kadaluarsa time.Time
+	var alasan sql.NullString
+	var tglBlokir sql.NullTime
+
+	err := r.db.QueryRowContext(
+		ctx,
+		`SELECT b.id, b.medicine_id, m.kode, m.nama, m.satuan_dasar,
+		        b.no_batch, b.tgl_kadaluarsa, b.status_batch,
+		        b.alasan_blokir, b.tanggal_blokir
+		   FROM batches b
+		   JOIN medicines m ON m.id = b.medicine_id
+		  WHERE b.id = ?`,
+		id,
+	).Scan(
+		&d.BatchID, &d.MedicineID, &d.KodeObat, &d.NamaObat, &d.SatuanDasar,
+		&d.NoBatch, &kadaluarsa, &d.StatusBatch, &alasan, &tglBlokir,
+	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("gagal mengambil batch: %w", err)
+	}
+	d.TglKadaluarsa = kadaluarsa.Format(layoutTanggal)
+	if alasan.Valid {
+		d.AlasanBlokir = alasan.String
+	}
+	if tglBlokir.Valid {
+		d.TanggalBlokir = tglBlokir.Time.Format("2006-01-02 15:04:05")
+	}
+
+	rows, err := r.db.QueryContext(
+		ctx,
+		`SELECT r.id, r.purchase_id, p.no_faktur, p.tgl_faktur, s.nama_pbf,
+		        r.tanggal_terima, r.qty_diterima, r.qty_sisa, r.harga_beli_per_dasar
+		   FROM batch_receipts r
+		   JOIN purchases p ON p.id = r.purchase_id
+		   JOIN suppliers s ON s.id = p.supplier_id
+		  WHERE r.batch_id = ?
+		  ORDER BY r.tanggal_terima ASC, r.id ASC`,
+		id,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("gagal mengambil lapisan batch: %w", err)
+	}
+	defer rows.Close()
+
+	d.Lapisan = make([]LapisanBatch, 0)
+	for rows.Next() {
+		var l LapisanBatch
+		var tglFaktur, terima time.Time
+		if err := rows.Scan(
+			&l.ReceiptID, &l.PurchaseID, &l.NoFaktur, &tglFaktur, &l.NamaPBF,
+			&terima, &l.QtyDiterima, &l.QtySisa, &l.HargaBeliPerDasar,
+		); err != nil {
+			return nil, fmt.Errorf("gagal membaca lapisan batch: %w", err)
+		}
+		l.TglFaktur = tglFaktur.Format(layoutTanggal)
+		l.TanggalTerima = terima.Format("2006-01-02 15:04:05")
+		d.TotalStok += l.QtySisa
+		d.Lapisan = append(d.Lapisan, l)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("gagal membaca lapisan batch: %w", err)
+	}
+	d.JumlahLapisan = len(d.Lapisan)
+
+	return &d, nil
+}
+
+// FindBatchByID mengunci dan mengambil satu batch (FOR UPDATE).
+// Mengembalikan nil jika batch tidak ditemukan.
+func (t *TxRepository) FindBatchByID(
+	ctx context.Context,
+	id int64,
+) (*Batch, error) {
+	var b Batch
+	err := t.tx.QueryRowContext(
+		ctx,
+		`SELECT id, tgl_kadaluarsa, status_batch
+		   FROM batches
+		  WHERE id = ?
+		    FOR UPDATE`,
+		id,
+	).Scan(&b.ID, &b.TglKadaluarsa, &b.Status)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("gagal mengambil data batch: %w", err)
+	}
+	return &b, nil
+}
+
+// SetBatchDiblokir menandai batch sebagai diblokir beserta alasan dan waktunya.
+func (t *TxRepository) SetBatchDiblokir(
+	ctx context.Context,
+	id int64,
+	alasan string,
+	waktu time.Time,
+) error {
+	_, err := t.tx.ExecContext(
+		ctx,
+		`UPDATE batches
+		    SET status_batch = ?, alasan_blokir = ?, tanggal_blokir = ?
+		  WHERE id = ?`,
+		statusBatchDiblokir, alasan, waktu.Format("2006-01-02 15:04:05"), id,
+	)
+	if err != nil {
+		return fmt.Errorf("gagal memblokir batch: %w", err)
+	}
+	return nil
 }
