@@ -57,3 +57,32 @@ type Obat struct {
 	StokTersedia float64      `json:"stok_tersedia"` // satuan dasar, hanya yang boleh dijual
 	Satuan       []SatuanJual `json:"satuan"`
 }
+
+// UnitObat adalah satuan jual beserta obat pemiliknya.
+type UnitObat struct {
+	SatuanJual
+	MedicineID int64
+	NamaObat   string
+}
+
+// ItemInput adalah satu baris keranjang dari kasir.
+// Harga TIDAK dikirim dari browser; server menghitungnya dari database.
+type ItemInput struct {
+	UnitID int64   `json:"unit_id"`
+	Qty    float64 `json:"qty"` // dalam satuan yang dipilih (UnitID)
+}
+
+// TransaksiInput adalah permintaan penyimpanan satu penjualan.
+type TransaksiInput struct {
+	MetodeBayar string      `json:"metode_bayar"` // TUNAI atau NONTUNAI
+	JumlahBayar float64     `json:"jumlah_bayar"`
+	Items       []ItemInput `json:"items"`
+}
+
+// HasilTransaksi adalah hasil penjualan yang berhasil disimpan.
+type HasilTransaksi struct {
+	SaleID      int64   `json:"sale_id"`
+	Total       float64 `json:"total"`
+	JumlahBayar float64 `json:"jumlah_bayar"`
+	Kembalian   float64 `json:"kembalian"`
+}

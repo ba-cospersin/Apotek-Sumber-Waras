@@ -1,0 +1,55 @@
+package cashier
+
+import (
+	"context"
+	"errors"
+	"testing"
+)
+
+func TestJual_TolakInputTidakValid(t *testing.T) {
+	s := NewService(nil, nil) // validasi terjadi sebelum repo dipakai
+	ctx := context.Background()
+
+	banyak := make([]ItemInput, maxItemTransaksi+1)
+	for i := range banyak {
+		banyak[i] = ItemInput{UnitID: 1, Qty: 1}
+	}
+
+	tests := []struct {
+		nama string
+		in   TransaksiInput
+	}{
+		{"keranjang kosong", TransaksiInput{MetodeBayar: "TUNAI", JumlahBayar: 1000}},
+		{"metode kosong", TransaksiInput{Items: []ItemInput{{UnitID: 1, Qty: 1}}}},
+		{"metode tidak dikenal", TransaksiInput{MetodeBayar: "KARTU", Items: []ItemInput{{UnitID: 1, Qty: 1}}}},
+		{"unit_id nol", TransaksiInput{MetodeBayar: "TUNAI", Items: []ItemInput{{UnitID: 0, Qty: 1}}}},
+		{"qty nol", TransaksiInput{MetodeBayar: "TUNAI", Items: []ItemInput{{UnitID: 1, Qty: 0}}}},
+		{"qty negatif", TransaksiInput{MetodeBayar: "TUNAI", Items: []ItemInput{{UnitID: 1, Qty: -2}}}},
+		{"terlalu banyak item", TransaksiInput{MetodeBayar: "TUNAI", Items: banyak}},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.nama, func(t *testing.T) {
+			_, err := s.Jual(ctx, 1, tc.in)
+			if !errors.Is(err, ErrValidasi) {
+				t.Fatalf("seharusnya ErrValidasi, dapat %v", err)
+			}
+		})
+	}
+}
+
+func TestJual_UserTidakDikenali(t *testing.T) {
+	s := NewService(nil, nil)
+	_, err := s.Jual(context.Background(), 0, TransaksiInput{})
+	if err == nil {
+		t.Fatal("seharusnya error untuk user 0")
+	}
+}
+
+func TestCariObat_KataKunciTerlaluPendek(t *testing.T) {
+	s := NewService(nil, nil)
+	_, err := s.CariObat(context.Background(), " a ")
+	if !errors.Is(err, ErrValidasi) {
+		t.Fatalf("seharusnya ErrValidasi, dapat %v", err)
+	}
+}
