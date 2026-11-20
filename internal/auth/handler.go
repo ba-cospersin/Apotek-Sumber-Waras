@@ -1,42 +1,75 @@
 package auth
 
 import (
+	"errors"
+	"log"
 	"net/http"
 
-	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/view"
+	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/middleware"
+	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/model"
 )
 
-// Handler menangani request HTTP yang berkaitan dengan autentikasi.
-// Saat ini hanya menampilkan halaman login; proses autentikasi belum diimplementasikan.
+var _ middleware.SessionValidator = (*Service)(nil)
+
+type Renderer interface {
+	Tampil(w http.ResponseWriter, name string, data any)
+}
+
+type LoginForm struct {
+	Identifier string
+	Error      string
+}
+
 type Handler struct {
-	View *view.Renderer
+	Svc  *Service
+	Auth *middleware.Auth
+	View Renderer
 }
 
-func NewHandler(renderer *view.Renderer) *Handler {
-	return &Handler{View: renderer}
+func (h *Handler) FormLogin(w http.ResponseWriter, r http.Request) {
+	h.View.Tampil(w, "login.html", LoginForm{})
 }
 
-// Login menampilkan halaman login dan menyediakan respons sementara
-// untuk POST sampai service serta repository autentikasi selesai dibuat.
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		h.View.RenderLogin(w, http.StatusOK, view.LoginData{})
-	case http.MethodPost:
-		if err := r.ParseForm(); err != nil {
-			h.View.RenderLogin(w, http.StatusBadRequest, view.LoginData{
-				Error: "Data formulir tidak dapat dibaca. Silakan coba kembali.",
-			})
-			return
-		}
+	identifier := r.PostFormValue("identifier")
 
-		// Jangan memberikan kesan bahwa login berhasil sebelum backend auth tersedia.
-		h.View.RenderLogin(w, http.StatusNotImplemented, view.LoginData{
-			Error:      "Tampilan login sudah tersedia, tetapi proses autentikasi belum dihubungkan ke backend.",
-			Identifier: r.FormValue("identifier"),
+	token, user, err := h.Svc.Login(r.Context(), identifier, r.PostFormValue("password"))
+	if errors.Is(err, ErrLoginGagal) {
+		w.WriteHeader(http.StatusUnauthorized)
+		h.View.Tampil(w, "login.html", LoginForm{
+			Identifier: identifier,
+			Error:      ErrLoginGagal.Error(),
 		})
+		return
+	}
+	if err != nil {
+		log.Printf("login: %v", err)
+		http.Error(w, "Terjadi Kesalahan pada Server", http.StatusInternalServerError)
+		return
+	}
+	h.Auth.SetSessionCookie(w, token)
+	http.Redirect(w, r, halamanAwal(user.Role), http.StatusSeeOther)
+}
+
+func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
+	if c, err := r.Cookie(middleware.SessionCookieName); err == nil {
+		if err := h.Svc.Logout(r.Context(), c.Value); err != nil {
+			log.Printf("logout: %v", err)
+		}
+	}
+	h.Auth.ClearSessionCookie(w)
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
+}
+
+func halamanAwal(role string) string {
+	switch role {
+	case model.RoleOwner:
+		return "/dashboard"
+	case model.RoleCashier:
+		return "/kasir"
+	case model.RoleWarehouse:
+		return "/cek-stok"
 	default:
-		w.Header().Set("Allow", "GET, POST")
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return "/login"
 	}
 }
