@@ -38,6 +38,9 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux, auth *middleware.Auth) {
 	mux.Handle("GET /kasir/obat", kasir(h.CariObat))
 	mux.Handle("POST /kasir/transaksi", kasir(h.Transaksi))
 	mux.Handle("GET /kasir/struk/{id}", kasirDanOwner(h.Struk))
+	mux.Handle("GET /retur/penjualan/{id}", kasir(h.PenjualanRetur))
+	mux.Handle("POST /retur", kasir(h.CatatRetur))
+	mux.Handle("POST /retur/{id}/kelayakan", kasir(h.TetapkanKelayakan))
 }
 
 // CariObat menangani GET /kasir/obat?q=para
@@ -99,7 +102,8 @@ func writeServiceError(w http.ResponseWriter, err error) {
 	case errors.Is(err, ErrValidasi):
 		writeError(w, http.StatusBadRequest, err.Error())
 
-	case errors.Is(err, ErrStokTidakCukup):
+	case errors.Is(err, ErrStokTidakCukup),
+		errors.Is(err, ErrStatusSudahFinal):
 		writeError(w, http.StatusConflict, err.Error())
 
 	case errors.Is(err, ErrTidakDitemukan):
@@ -121,4 +125,76 @@ func writeJSON(w http.ResponseWriter, status int, body any) {
 
 func writeError(w http.ResponseWriter, status int, message string) {
 	writeJSON(w, status, map[string]string{"error": message})
+}
+
+// bacaJSON membaca body JSON dengan batas 1 MB dan menolak field yang tidak dikenal.
+// Jika gagal, respons 400 sudah ditulis dan hasilnya false.
+func bacaJSON(w http.ResponseWriter, r *http.Request, dst any) bool {
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+
+	if err := dec.Decode(dst); err != nil {
+		writeError(w, http.StatusBadRequest, "format JSON tidak valid: "+err.Error())
+		return false
+	}
+	return true
+}
+
+// PenjualanRetur menangani GET /retur/penjualan/{id}.
+func (h *Handler) PenjualanRetur(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "id penjualan harus berupa angka")
+		return
+	}
+
+	p, err := h.svc.PenjualanUntukRetur(r.Context(), id)
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"data": p})
+}
+
+// CatatRetur menangani POST /retur.
+func (h *Handler) CatatRetur(w http.ResponseWriter, r *http.Request) {
+	user, ok := middleware.CurrentUser(r)
+	if !ok {
+		writeError(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	var in ReturInput
+	if !bacaJSON(w, r, &in) {
+		return
+	}
+
+	hasil, err := h.svc.CatatRetur(r.Context(), user.ID, in)
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusCreated, map[string]any{"data": hasil})
+}
+
+// TetapkanKelayakan menangani POST /retur/{id}/kelayakan.
+func (h *Handler) TetapkanKelayakan(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "id retur harus berupa angka")
+		return
+	}
+
+	var in KelayakanInput
+	if !bacaJSON(w, r, &in) {
+		return
+	}
+
+	hasil, err := h.svc.TetapkanKelayakan(r.Context(), id, in.StatusKelayakan)
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"data": hasil})
 }

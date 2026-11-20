@@ -19,6 +19,7 @@ func TestWriteServiceError(t *testing.T) {
 		{"stok kurang", fmt.Errorf("%w untuk Paracetamol", ErrStokTidakCukup), http.StatusConflict},
 		{"tidak ditemukan", ErrTidakDitemukan, http.StatusNotFound},
 		{"error tak terduga", errors.New("db mati"), http.StatusInternalServerError},
+		{"status sudah final", fmt.Errorf("%w (status sekarang LAYAK_JUAL)", ErrStatusSudahFinal), http.StatusConflict},
 	}
 	for _, tc := range tests {
 		t.Run(tc.nama, func(t *testing.T) {
@@ -72,5 +73,43 @@ func TestHandlerTransaksi_TanpaLogin(t *testing.T) {
 
 	if w.Code != http.StatusUnauthorized {
 		t.Fatalf("status %d, seharusnya 401", w.Code)
+	}
+}
+
+func TestHandlerPenjualanRetur_IDTidakValid(t *testing.T) {
+	h := NewHandler(NewService(nil, nil))
+	req := httptest.NewRequest(http.MethodGet, "/retur/penjualan/abc", nil)
+	req.SetPathValue("id", "abc")
+	w := httptest.NewRecorder()
+
+	h.PenjualanRetur(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status %d, seharusnya 400", w.Code)
+	}
+}
+
+func TestHandlerCatatRetur_TanpaLogin(t *testing.T) {
+	h := NewHandler(NewService(nil, nil))
+	req := httptest.NewRequest(http.MethodPost, "/retur", nil)
+	w := httptest.NewRecorder()
+
+	h.CatatRetur(w, req)
+
+	if w.Code != http.StatusUnauthorized {
+		t.Fatalf("status %d, seharusnya 401", w.Code)
+	}
+}
+
+func TestHandlerTetapkanKelayakan_IDTidakValid(t *testing.T) {
+	h := NewHandler(NewService(nil, nil))
+	req := httptest.NewRequest(http.MethodPost, "/retur/x/kelayakan", nil)
+	req.SetPathValue("id", "x")
+	w := httptest.NewRecorder()
+
+	h.TetapkanKelayakan(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status %d, seharusnya 400", w.Code)
 	}
 }

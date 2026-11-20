@@ -22,6 +22,7 @@ type Stok interface {
 	// (tidak diblokir, belum mendekati kedaluwarsa). Dikunci jika kunci = true.
 	LapisanTersedia(ctx context.Context, q DBTX, medicineID int64, hariIni time.Time, kunci bool) ([]Lapisan, error)
 	KurangiStok(ctx context.Context, q DBTX, receiptID int64, qty float64) error
+	TambahStok(ctx context.Context, q DBTX, receiptID int64, qty float64) error
 }
 
 // Service berisi aturan bisnis modul kasir.
