@@ -37,6 +37,7 @@ var pagePaths = map[string]string{
 	"data_master":        "/data-master",
 	"manajemen_pengguna": "/manajemen-pengguna",
 	"struk_penjualan":    "/struk-penjualan",
+	"profil":             "/profil",
 }
 
 var pageConfigs = []pageConfig{
@@ -93,7 +94,7 @@ func New(db *sql.DB, renderer *view.Renderer, authHandler *auth.Handler, authMw 
 			continue
 		}
 
-		mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
+		pageHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path != path {
 				http.NotFound(w, r)
 				return
@@ -105,9 +106,12 @@ func New(db *sql.DB, renderer *view.Renderer, authHandler *auth.Handler, authMw 
 			}
 
 			user, roleLabel, avatar := previewUser(pageConfig.defaultRole)
-			routes := make(map[string]string, len(pagePaths))
-			for name, routePath := range pagePaths {
-				routes[name] = routePath
+			homeRole := pageConfig.defaultRole
+			if sessionUser, ok := middleware.CurrentUser(r); ok {
+				user = sessionUser
+				roleLabel = view.RoleLabel(sessionUser.Role)
+				avatar = view.AvatarText(sessionUser.Nama)
+				homeRole = sessionUser.Role
 			}
 
 			renderer.RenderPage(w, http.StatusOK, pageConfig.name, view.PageData{
@@ -119,11 +123,22 @@ func New(db *sql.DB, renderer *view.Renderer, authHandler *auth.Handler, authMw 
 				CurrentDate: currentDateIndonesia(),
 				RoleLabel:   roleLabel,
 				AvatarText:  avatar,
-				HomeURL:     previewHomeURL(pageConfig.defaultRole),
+				HomeURL:     previewHomeURL(homeRole),
 				User:        user,
-				Routes:      routes,
+				Routes:      allRoutes(),
 			})
 		})
+
+		if authMw != nil {
+			mux.Handle(path, authMw.RequireLogin(pageHandler))
+		} else {
+			mux.Handle(path, pageHandler)
+		}
+	}
+
+	// Halaman profil ditangani modul auth karena membutuhkan user dari session.
+	if authMw != nil && authHandler != nil {
+		mux.Handle("GET /profil", authMw.RequireLogin(http.HandlerFunc(authHandler.Profile)))
 	}
 
 	// Endpoint pemeriksaan koneksi server dan database.
@@ -151,6 +166,15 @@ func New(db *sql.DB, renderer *view.Renderer, authHandler *auth.Handler, authMw 
 	})
 
 	return mux
+}
+
+// allRoutes menyalin kontrak URL halaman untuk dipakai template.
+func allRoutes() map[string]string {
+	routes := make(map[string]string, len(pagePaths))
+	for name, path := range pagePaths {
+		routes[name] = path
+	}
+	return routes
 }
 
 // previewUser hanya menyediakan identitas statis untuk pemeriksaan tampilan.

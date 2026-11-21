@@ -16,6 +16,10 @@ type LoginRenderer interface {
 	RenderLogin(w http.ResponseWriter, status int, data view.LoginData)
 }
 
+type ProfileRenderer interface {
+	RenderProfile(w http.ResponseWriter, status int, data view.PageData)
+}
+
 type Handler struct {
 	Svc  *Service
 	Auth *middleware.Auth
@@ -49,6 +53,29 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	h.Auth.SetSessionCookie(w, token)
 	http.Redirect(w, r, halamanAwal(user.Role), http.StatusSeeOther)
+}
+
+// Profile menampilkan halaman profil pengguna yang sedang login.
+func (h *Handler) Profile(w http.ResponseWriter, r *http.Request) {
+	user, ok := middleware.CurrentUser(r)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	renderer, ok := h.View.(ProfileRenderer)
+	if !ok {
+		http.Error(w, "Renderer profil tidak tersedia", http.StatusInternalServerError)
+		return
+	}
+
+	renderer.RenderProfile(w, http.StatusOK, view.PageData{
+		Title:      "Profil Saya",
+		RoleLabel:  view.RoleLabel(user.Role),
+		AvatarText: view.AvatarText(user.Nama),
+		HomeURL:    halamanAwal(user.Role),
+		User:       user,
+	})
 }
 
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {

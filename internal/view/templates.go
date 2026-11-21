@@ -5,14 +5,16 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/model"
 )
 
 // Renderer memuat dan merender template HTML aplikasi.
 type Renderer struct {
-	login *template.Template
-	pages map[string]*template.Template
+	login   *template.Template
+	profile *template.Template
+	pages   map[string]*template.Template
 }
 
 // LoginData adalah data yang ditampilkan pada halaman login.
@@ -69,6 +71,11 @@ func NewRenderer() (*Renderer, error) {
 		return nil, fmt.Errorf("gagal memuat template login: %w", err)
 	}
 
+	profileTemplate, err := template.ParseFiles("web/templates/profil.html")
+	if err != nil {
+		return nil, fmt.Errorf("gagal memuat template profil: %w", err)
+	}
+
 	commonFiles := []string{
 		"web/templates/layouts/base.html",
 		"web/templates/partials/header.html",
@@ -85,7 +92,7 @@ func NewRenderer() (*Renderer, error) {
 		pages[name] = pageTemplate
 	}
 
-	return &Renderer{login: loginTemplate, pages: pages}, nil
+	return &Renderer{login: loginTemplate, profile: profileTemplate, pages: pages}, nil
 }
 
 // RenderLogin merender halaman login dengan status HTTP yang ditentukan.
@@ -99,6 +106,41 @@ func (rd *Renderer) RenderLogin(w http.ResponseWriter, status int, data LoginDat
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(status)
 	_, _ = output.WriteTo(w)
+}
+
+// RenderProfile merender halaman profil standalone tanpa layout aplikasi.
+func (rd *Renderer) RenderProfile(w http.ResponseWriter, status int, data PageData) {
+	var output bytes.Buffer
+	if err := rd.profile.ExecuteTemplate(&output, "profil.html", data); err != nil {
+		http.Error(w, "Terjadi kesalahan saat menampilkan halaman", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(status)
+	_, _ = output.WriteTo(w)
+}
+
+// RoleLabel memetakan role database ke label yang ditampilkan di UI.
+func RoleLabel(role string) string {
+	switch role {
+	case model.RoleCashier:
+		return "Kasir"
+	case model.RoleWarehouse:
+		return "Petugas Gudang"
+	default:
+		return "Owner"
+	}
+}
+
+// AvatarText mengambil huruf pertama nama pengguna untuk avatar.
+func AvatarText(nama string) string {
+	for _, r := range strings.TrimSpace(nama) {
+		if r != ' ' {
+			return strings.ToUpper(string(r))
+		}
+	}
+	return "?"
 }
 
 // RenderPage merender salah satu halaman dengan layout utama yang sama.

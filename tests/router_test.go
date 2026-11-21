@@ -8,9 +8,6 @@ import (
 	"runtime"
 	"strings"
 	"testing"
-
-	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/router"
-	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/view"
 )
 
 func TestMain(m *testing.M) {
@@ -28,12 +25,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestPageRoutesUseCanonicalPaths(t *testing.T) {
-	renderer, err := view.NewRenderer()
-	if err != nil {
-		t.Fatalf("NewRenderer() error = %v", err)
-	}
-
-	mux := router.New(nil, renderer, nil, nil)
+	mux := newAuthenticatedMux(t)
 	paths := []string{
 		"/dashboard",
 		"/kasir",
@@ -50,7 +42,7 @@ func TestPageRoutesUseCanonicalPaths(t *testing.T) {
 
 	for _, path := range paths {
 		t.Run(path, func(t *testing.T) {
-			req := httptest.NewRequest(http.MethodGet, path, nil)
+			req := authenticatedRequest(http.MethodGet, path)
 			rec := httptest.NewRecorder()
 			mux.ServeHTTP(rec, req)
 
@@ -65,13 +57,8 @@ func TestPageRoutesUseCanonicalPaths(t *testing.T) {
 }
 
 func TestLegacyPreviewPathIsNotRegistered(t *testing.T) {
-	renderer, err := view.NewRenderer()
-	if err != nil {
-		t.Fatalf("NewRenderer() error = %v", err)
-	}
-
-	mux := router.New(nil, renderer, nil, nil)
-	req := httptest.NewRequest(http.MethodGet, "/__preview/dashboard", nil)
+	mux := newAuthenticatedMux(t)
+	req := authenticatedRequest(http.MethodGet, "/__preview/dashboard")
 	rec := httptest.NewRecorder()
 	mux.ServeHTTP(rec, req)
 
@@ -81,13 +68,8 @@ func TestLegacyPreviewPathIsNotRegistered(t *testing.T) {
 }
 
 func TestPageRoutesRejectNonGetMethods(t *testing.T) {
-	renderer, err := view.NewRenderer()
-	if err != nil {
-		t.Fatalf("NewRenderer() error = %v", err)
-	}
-
-	mux := router.New(nil, renderer, nil, nil)
-	req := httptest.NewRequest(http.MethodPost, "/dashboard", nil)
+	mux := newAuthenticatedMux(t)
+	req := authenticatedRequest(http.MethodPost, "/dashboard")
 	rec := httptest.NewRecorder()
 	mux.ServeHTTP(rec, req)
 
