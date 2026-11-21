@@ -7,12 +7,13 @@ import (
 
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/middleware"
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/model"
+	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/view"
 )
 
 var _ middleware.SessionValidator = (*Service)(nil)
 
-type Renderer interface {
-	Tampil(w http.ResponseWriter, name string, data any)
+type LoginRenderer interface {
+	RenderLogin(w http.ResponseWriter, status int, data view.LoginData)
 }
 
 type LoginForm struct {
@@ -26,7 +27,7 @@ type Handler struct {
 	View Renderer
 }
 
-func (h *Handler) FormLogin(w http.ResponseWriter, r http.Request) {
+func (h *Handler) FormLogin(w http.ResponseWriter, r *http.Request) {
 	h.View.Tampil(w, "login.html", LoginForm{})
 }
 

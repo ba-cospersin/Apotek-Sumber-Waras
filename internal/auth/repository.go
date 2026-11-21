@@ -55,11 +55,20 @@ func (r *Repo) CreateSession(ctx context.Context, userID int64, token string) er
 	}
 	defer tx.Rollback()
 
+	if _, err := tx.ExecContext(ctx,
+		"DELETE FROM sessions WHERE user_id = ?", userID); err != nil {
+		return fmt.Errorf("hapus session lama : %w", err)
+	}
+
 	if _, err := tx.ExecContext(ctx, `
-	INSERT INTO sessions (user_id, token_hash, expires_at)
-	VALUES (?, ?, NOW() + INTERVAL ? HOUR)`,
+		INSERT INTO sessions (user_id, token_hash, expires_at)
+		VALUES (?, ?, NOW() + INTERVAL ? HOUR)`,
 		userID, hashToken(token), maxSessionHours); err != nil {
-		return fmt.Errorf("commit session: %w", err)
+		return fmt.Errorf("simpan session: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit session : %w", err)
 	}
 	return nil
 }
