@@ -40,7 +40,7 @@ func New(db *sql.DB) *http.ServeMux {
 	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		// Halaman login berdiri sendiri, tidak butuh base, sidebar, atau header.
 		// Sesuaikan "dashboardlogin.html" dengan nama file login asli Anda.
-		tmpl, err := template.ParseFiles("web/templates/dashboardlogin.html")
+		tmpl, err := template.ParseFiles("web/templates/login1.html")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

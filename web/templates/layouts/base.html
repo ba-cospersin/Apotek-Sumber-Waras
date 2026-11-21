@@ -50,20 +50,113 @@
                     <svg class="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     <span class="absolute right-2 top-2 text-[10px] text-slate-400 bg-white px-1.5 py-0.5 rounded border font-mono">⌘K</span>
                 </div>
-                <!-- Profil Pengguna -->
-                <div class="flex items-center gap-2 pl-2">
-                    <div class="w-8 h-8 rounded-full bg-[#964334] text-white flex items-center justify-center font-bold text-xs">A</div>
+                
+                <!-- Profil Pengguna (Bisa Diklik) -->
+                <button id="btnBukaProfilModal" type="button" class="flex items-center gap-2 pl-2 pr-2.5 py-1.5 rounded-xl hover:bg-[#F8F6F2] border border-transparent hover:border-[#EAE2D8] transition cursor-pointer">
+                    <div id="headerAvatarInisial" class="w-8 h-8 rounded-full bg-[#964334] text-white flex items-center justify-center font-bold text-xs">A</div>
                     <div class="hidden md:block leading-tight text-left">
-                        <p class="text-xs font-bold text-slate-900">Administrator</p>
-                        <p class="text-[10px] text-slate-500">Admin Farmasi</p>
+                        <p id="headerNamaUser" class="text-xs font-bold text-slate-900">Administrator</p>
+                        <p id="headerRoleUser" class="text-[10px] text-slate-500">Admin Farmasi</p>
                     </div>
-                </div>
+                </button>
             </div>
         </header>
 
-        <!-- Inject Halaman Konten (Dashboard) -->
+        <!-- Inject Halaman Konten -->
         {{template "content" .}}
     </main>
 
+    <!-- Modal Pop-up Profil & Ganti Peran -->
+    <div id="modalProfilUser" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-[2px]">
+        <div class="bg-white w-full max-w-xs rounded-2xl border border-[#EAE2D8] shadow-2xl p-6 text-center relative">
+            <!-- Tombol Tutup -->
+            <button id="btnTutupProfilModal" type="button" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+
+            <!-- Keterangan Login & Ikon Avatar -->
+            <h3 id="modalJudulRole" class="text-base font-extrabold text-slate-900 mt-1">Anda Login Sebagai Admin</h3>
+            
+            <div class="my-4 mx-auto w-16 h-16 rounded-2xl bg-[#FDF8F6] border-2 border-[#EED3CD] text-[#964334] flex items-center justify-center shadow-2xs">
+                <svg class="w-9 h-9" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                </svg>
+            </div>
+
+            <!-- Menu Konfirmasi Pindah Login Role -->
+            <div class="border-t border-slate-100 pt-3.5 mb-4 space-y-2 text-left">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-center mb-2">Konfirmasi Ganti Akses</p>
+                
+                <button type="button" onclick="konfirmasiPindahRole('Admin')" id="btnRoleAdmin" class="hidden w-full flex items-center justify-between px-3.5 py-2 rounded-xl border border-[#EED3CD] bg-[#FDF8F6] hover:bg-[#F7EBE8] text-[#964334] text-xs font-bold transition cursor-pointer">
+                    <span>Login Admin</span>
+                    <span>→</span>
+                </button>
+
+                <button type="button" onclick="konfirmasiPindahRole('Gudang')" id="btnRoleGudang" class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/60 text-slate-700 hover:text-emerald-700 text-xs font-semibold transition cursor-pointer">
+                    <span>Login Gudang</span>
+                    <span>→</span>
+                </button>
+
+                <button type="button" onclick="konfirmasiPindahRole('Kasir')" id="btnRoleKasir" class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl border border-slate-200 hover:border-orange-300 hover:bg-orange-50/60 text-slate-700 hover:text-orange-700 text-xs font-semibold transition cursor-pointer">
+                    <span>Login Kasir</span>
+                    <span>→</span>
+                </button>
+            </div>
+
+            <!-- Tombol Keluar ke Halaman Login -->
+            <a href="/login" onclick="localStorage.removeItem('apotek_active_role')" class="block w-full py-2.5 px-4 rounded-xl bg-[#DC2626] hover:bg-[#B91C1C] text-white font-bold text-xs shadow-sm transition">
+                Keluar
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const modalProfil = document.getElementById('modalProfilUser');
+        const btnBukaProfil = document.getElementById('btnBukaProfilModal');
+        const btnTutupProfil = document.getElementById('btnTutupProfilModal');
+
+        btnBukaProfil.addEventListener('click', () => {
+            modalProfil.classList.remove('hidden');
+            modalProfil.classList.add('flex');
+        });
+
+        function tutupModalProfil() {
+            modalProfil.classList.add('hidden');
+            modalProfil.classList.remove('flex');
+        }
+
+        btnTutupProfil.addEventListener('click', tutupModalProfil);
+        modalProfil.addEventListener('click', (e) => {
+            if (e.target === modalProfil) tutupModalProfil();
+        });
+
+        function terapkanTampilanRole(roleBaru) {
+            document.getElementById('modalJudulRole').innerText = `Anda Login Sebagai ${roleBaru}`;
+            document.getElementById('headerAvatarInisial').innerText = roleBaru.charAt(0);
+            document.getElementById('headerNamaUser').innerText = roleBaru === 'Admin' ? 'Administrator' : `Staf ${roleBaru}`;
+            document.getElementById('headerRoleUser').innerText = roleBaru === 'Admin' ? 'Admin Farmasi' : `Akses ${roleBaru}`;
+
+            document.getElementById('btnRoleAdmin').classList.toggle('hidden', roleBaru === 'Admin');
+            document.getElementById('btnRoleGudang').classList.toggle('hidden', roleBaru === 'Gudang');
+            document.getElementById('btnRoleKasir').classList.toggle('hidden', roleBaru === 'Kasir');
+        }
+
+        function konfirmasiPindahRole(roleBaru) {
+            const yakin = confirm(`Konfirmasi beralih akses menjadi Login ${roleBaru}?`);
+            if (!yakin) return;
+
+            localStorage.setItem('apotek_active_role', roleBaru);
+            terapkanTampilanRole(roleBaru);
+            tutupModalProfil();
+        }
+
+        // Pulihkan peran terakhir saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedRole = localStorage.getItem('apotek_active_role');
+            if (savedRole) {
+                terapkanTampilanRole(savedRole);
+            }
+        });
+    </script>
 </body>
 </html>
