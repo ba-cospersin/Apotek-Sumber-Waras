@@ -33,7 +33,7 @@ func TestPageRoutesUseCanonicalPaths(t *testing.T) {
 		t.Fatalf("NewRenderer() error = %v", err)
 	}
 
-	mux := router.New(nil, renderer)
+	mux := router.New(nil, renderer, nil, nil)
 	paths := []string{
 		"/dashboard",
 		"/kasir",
@@ -70,7 +70,7 @@ func TestLegacyPreviewPathIsNotRegistered(t *testing.T) {
 		t.Fatalf("NewRenderer() error = %v", err)
 	}
 
-	mux := router.New(nil, renderer)
+	mux := router.New(nil, renderer, nil, nil)
 	req := httptest.NewRequest(http.MethodGet, "/__preview/dashboard", nil)
 	rec := httptest.NewRecorder()
 	mux.ServeHTTP(rec, req)
@@ -86,7 +86,7 @@ func TestPageRoutesRejectNonGetMethods(t *testing.T) {
 		t.Fatalf("NewRenderer() error = %v", err)
 	}
 
-	mux := router.New(nil, renderer)
+	mux := router.New(nil, renderer, nil, nil)
 	req := httptest.NewRequest(http.MethodPost, "/dashboard", nil)
 	rec := httptest.NewRecorder()
 	mux.ServeHTTP(rec, req)

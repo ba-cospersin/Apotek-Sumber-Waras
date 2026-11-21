@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/auth"
+	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/middleware"
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/model"
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/view"
 )
@@ -54,7 +55,7 @@ var pageConfigs = []pageConfig{
 
 // New mendaftarkan route aplikasi menggunakan URL permanen.
 // db boleh nil hanya untuk pengujian halaman; endpoint /health akan mengembalikan 503.
-func New(db *sql.DB, renderer *view.Renderer) *http.ServeMux {
+func New(db *sql.DB, renderer *view.Renderer, authHandler *auth.Handler, authMw *middleware.Auth) *http.ServeMux {
 	mux := http.NewServeMux()
 
 	staticFiles := http.FileServer(http.Dir("web/static"))
@@ -75,8 +76,12 @@ func New(db *sql.DB, renderer *view.Renderer) *http.ServeMux {
 
 	// Handler login tetap dimiliki modul Backend Owner.
 	// Saat ini GET login tersedia; POST akan aktif setelah service autentikasi selesai.
-	authHandler := auth.NewHandler(renderer)
-	mux.HandleFunc("/login", authHandler.Login)
+	// udah di integrasiin ()
+	if authHandler != nil {
+		mux.HandleFunc("GET /login", authHandler.FormLogin)
+		mux.HandleFunc("POST /login", authHandler.Login)
+		mux.Handle("POST /logout", authMw.RequireLogin(http.HandlerFunc(authHandler.Logout)))
+	}
 
 	// PERHATIAN: halaman di bawah masih menggunakan identitas dan data demo.
 	// Route sudah memakai URL final agar frontend dapat diuji tanpa __preview.
