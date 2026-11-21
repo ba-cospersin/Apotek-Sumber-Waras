@@ -48,6 +48,15 @@ func New(db *sql.DB) *http.ServeMux {
 		tmpl.Execute(w, nil)
 	})
 
+	mux.HandleFunc("/profil", func(w http.ResponseWriter, r *http.Request) {
+		tmpl, err := template.ParseFiles("web/templates/profil.html")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		tmpl.Execute(w, nil)
+	})
+
 	// 4. Rute Halaman Dashboard Utama
 	mux.HandleFunc("/dashboard", func(w http.ResponseWriter, r *http.Request) {
 		// Untuk dashboard, WAJIB memuat keempat file ini bersamaan
