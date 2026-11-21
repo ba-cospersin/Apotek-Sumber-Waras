@@ -16,19 +16,18 @@ type LoginRenderer interface {
 	RenderLogin(w http.ResponseWriter, status int, data view.LoginData)
 }
 
-type LoginForm struct {
-	Identifier string
-	Error      string
-}
-
 type Handler struct {
 	Svc  *Service
 	Auth *middleware.Auth
-	View Renderer
+	View LoginRenderer
+}
+
+func NewHandler(svc *Service, mw *middleware.Auth, v LoginRenderer) *Handler {
+	return &Handler{Svc: svc, Auth: mw, View: v}
 }
 
 func (h *Handler) FormLogin(w http.ResponseWriter, r *http.Request) {
-	h.View.Tampil(w, "login.html", LoginForm{})
+	h.View.RenderLogin(w, http.StatusOK, view.LoginData{})
 }
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
@@ -36,8 +35,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	token, user, err := h.Svc.Login(r.Context(), identifier, r.PostFormValue("password"))
 	if errors.Is(err, ErrLoginGagal) {
-		w.WriteHeader(http.StatusUnauthorized)
-		h.View.Tampil(w, "login.html", LoginForm{
+		h.View.RenderLogin(w, http.StatusUnauthorized, view.LoginData{
 			Identifier: identifier,
 			Error:      ErrLoginGagal.Error(),
 		})
@@ -45,9 +43,10 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	if err != nil {
 		log.Printf("login: %v", err)
-		http.Error(w, "Terjadi Kesalahan pada Server", http.StatusInternalServerError)
+		http.Error(w, "Terjadi kesalahan pada server", http.StatusInternalServerError)
 		return
 	}
+
 	h.Auth.SetSessionCookie(w, token)
 	http.Redirect(w, r, halamanAwal(user.Role), http.StatusSeeOther)
 }

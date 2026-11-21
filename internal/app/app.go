@@ -5,6 +5,8 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/auth"
+	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/middleware"
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/router"
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/view"
 )
@@ -29,7 +31,11 @@ func New(db *sql.DB) (*Application, error) {
 		return nil, err
 	}
 
-	mux := router.New(db, renderer)
+	authSvc := &auth.Service{Repo: &auth.Repo{DB: db}}
+	authMw := middleware.NewAuth(authSvc, false) // false: localhost memakai http
+	authHandler := auth.NewHandler(authSvc, authMw, renderer)
+
+	mux := router.New(db, renderer, authHandler, authMw)
 
 	return &Application{
 		Handler: mux,
