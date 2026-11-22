@@ -3,6 +3,10 @@ package warehouse
 import (
 	"context"
 	"errors"
+	"math"
+	"net/http"
+	"net/http/httptest"
+	neturl "net/url"
 	"strings"
 	"testing"
 	"time"
@@ -348,5 +352,159 @@ func TestIsiStatusBatch(t *testing.T) {
 	b = BatchStok{BatchID: 3, TglKadaluarsa: "bukan-tanggal", StatusBatch: statusBatchAktif}
 	if err := isiStatusBatch(&b, hariIni); err == nil {
 		t.Fatalf("tanggal rusak seharusnya error")
+	}
+}
+
+// ---------- Tindak lanjut stok ----------
+
+func tindakLanjutValid() TindakLanjutInput {
+	return TindakLanjutInput{
+		BatchReceiptID:     1,
+		Jenis:              "PEMUSNAHAN",
+		SumberTindakLanjut: "INTERNAL_APOTEK",
+		Alasan:             "KEDALUWARSA",
+		QtyDasar:           10,
+		NilaiKompensasi:    0,
+	}
+}
+
+func TestValidasiTindakLanjut_Valid(t *testing.T) {
+	in, err := validasiTindakLanjut(tindakLanjutValid())
+	if err != nil {
+		t.Fatalf("seharusnya valid: %v", err)
+	}
+	if in.Jenis != jenisPemusnahan || in.QtyDasar != 10 {
+		t.Fatalf("hasil tidak sesuai: %+v", in)
+	}
+}
+
+func TestValidasiTindakLanjut_Dirapikan(t *testing.T) {
+	in := tindakLanjutValid()
+	in.Jenis = " retur_pbf "
+	in.SumberTindakLanjut = "produsen_pbf"
+	in.Alasan = "  rusak "
+	in.QtyDasar = 2.0004
+	in.NilaiKompensasi = 1234.567
+	in.Catatan = "  dikirim via ekspedisi  "
+
+	got, err := validasiTindakLanjut(in)
+	if err != nil {
+		t.Fatalf("seharusnya valid: %v", err)
+	}
+	if got.Jenis != jenisReturPBF || got.SumberTindakLanjut != sumberProdusenPBF {
+		t.Fatalf("jenis/sumber tidak dinormalisasi: %+v", got)
+	}
+	if got.Alasan != "RUSAK" {
+		t.Fatalf("alasan umum seharusnya disamakan hurufnya, dapat %q", got.Alasan)
+	}
+	if got.QtyDasar != 2 || got.NilaiKompensasi != 1234.57 {
+		t.Fatalf("pembulatan salah: qty %v, kompensasi %v", got.QtyDasar, got.NilaiKompensasi)
+	}
+	if got.Catatan != "dikirim via ekspedisi" {
+		t.Fatalf("catatan tidak dirapikan: %q", got.Catatan)
+	}
+
+	// Alasan di luar daftar umum dibiarkan apa adanya.
+	in.Alasan = "Kontaminasi"
+	got, _ = validasiTindakLanjut(in)
+	if got.Alasan != "Kontaminasi" {
+		t.Fatalf("alasan lain seharusnya tetap, dapat %q", got.Alasan)
+	}
+}
+
+func TestValidasiTindakLanjut_Tolak(t *testing.T) {
+	kasus := []struct {
+		nama string
+		ubah func(in *TindakLanjutInput)
+	}{
+		{"receipt id nol", func(in *TindakLanjutInput) { in.BatchReceiptID = 0 }},
+		{"jenis kosong", func(in *TindakLanjutInput) { in.Jenis = "" }},
+		{"jenis ngawur", func(in *TindakLanjutInput) { in.Jenis = "BUANG" }},
+		{"sumber kosong", func(in *TindakLanjutInput) { in.SumberTindakLanjut = "" }},
+		{"sumber ngawur", func(in *TindakLanjutInput) { in.SumberTindakLanjut = "TETANGGA" }},
+		{"alasan kosong", func(in *TindakLanjutInput) { in.Alasan = "  " }},
+		{"alasan terlalu panjang", func(in *TindakLanjutInput) { in.Alasan = strings.Repeat("a", 101) }},
+		{"qty nol", func(in *TindakLanjutInput) { in.QtyDasar = 0 }},
+		{"qty negatif", func(in *TindakLanjutInput) { in.QtyDasar = -1 }},
+		{"qty terlalu kecil (dibulatkan jadi 0)", func(in *TindakLanjutInput) { in.QtyDasar = 0.0001 }},
+		{"qty NaN", func(in *TindakLanjutInput) { in.QtyDasar = math.NaN() }},
+		{"qty tak hingga", func(in *TindakLanjutInput) { in.QtyDasar = math.Inf(1) }},
+		{"kompensasi negatif", func(in *TindakLanjutInput) { in.NilaiKompensasi = -1 }},
+		{"kompensasi NaN", func(in *TindakLanjutInput) { in.NilaiKompensasi = math.NaN() }},
+		{"kompensasi tak hingga", func(in *TindakLanjutInput) { in.NilaiKompensasi = math.Inf(1) }},
+		{"kompensasi terlalu besar", func(in *TindakLanjutInput) { in.NilaiKompensasi = 1e14 }},
+		{"catatan terlalu panjang", func(in *TindakLanjutInput) { in.Catatan = strings.Repeat("x", 1001) }},
+	}
+
+	for _, k := range kasus {
+		t.Run(k.nama, func(t *testing.T) {
+			in := tindakLanjutValid()
+			k.ubah(&in)
+			if _, err := validasiTindakLanjut(in); !errors.Is(err, ErrValidasi) {
+				t.Fatalf("seharusnya ErrValidasi, dapat: %v", err)
+			}
+		})
+	}
+}
+
+func TestCatatTindakLanjut_ValidasiSebelumDatabase(t *testing.T) {
+	// Validasi berjalan sebelum menyentuh database, jadi repo boleh nil.
+	in := tindakLanjutValid()
+	in.QtyDasar = 0
+	if _, err := serviceUji().CatatTindakLanjut(context.Background(), 1, in); !errors.Is(err, ErrValidasi) {
+		t.Fatalf("seharusnya ErrValidasi, dapat: %v", err)
+	}
+}
+
+func TestSiapkanFilterTindakLanjut(t *testing.T) {
+	q, page, perPage, err := siapkanFilterTindakLanjut(FilterTindakLanjut{
+		Jenis: "retur_pbf", BatchID: 3, Dari: "2026-11-01", Sampai: "2026-11-30", Page: 2, PerPage: 10,
+	})
+	if err != nil {
+		t.Fatalf("seharusnya valid: %v", err)
+	}
+	if q.Jenis != jenisReturPBF || q.BatchID != 3 || page != 2 || perPage != 10 || q.Offset != 10 {
+		t.Fatalf("hasil salah: %+v page %d perPage %d", q, page, perPage)
+	}
+
+	kasus := []FilterTindakLanjut{
+		{Jenis: "BUANG"},
+		{BatchID: -1},
+		{Dari: "kemarin"},
+		{Sampai: "07/11/2026"},
+		{Dari: "2026-12-01", Sampai: "2026-11-01"},
+		{Page: -1},
+	}
+	for i, f := range kasus {
+		if _, _, _, err := siapkanFilterTindakLanjut(f); !errors.Is(err, ErrValidasi) {
+			t.Fatalf("kasus %d seharusnya ErrValidasi, dapat: %v", i, err)
+		}
+	}
+}
+
+func TestAngkaForm(t *testing.T) {
+	buat := func(nilai string) *http.Request {
+		form := neturl.Values{"x": {nilai}}
+		req := httptest.NewRequest("POST", "/", strings.NewReader(form.Encode()))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		return req
+	}
+
+	if n, err := angkaDesimalForm(buat("12.5"), "x"); err != nil || n != 12.5 {
+		t.Fatalf("12.5 salah: %v %v", n, err)
+	}
+	if n, err := angkaDesimalForm(buat(""), "x"); err != nil || n != 0 {
+		t.Fatalf("kosong seharusnya 0: %v %v", n, err)
+	}
+	for _, buruk := range []string{"abc", "1,5", "NaN", "Inf", "-Inf", "+Inf"} {
+		if _, err := angkaDesimalForm(buat(buruk), "x"); !errors.Is(err, ErrValidasi) {
+			t.Fatalf("%q seharusnya ErrValidasi, dapat %v", buruk, err)
+		}
+	}
+	if n, err := angkaBulatForm(buat(" 42 "), "x"); err != nil || n != 42 {
+		t.Fatalf("42 salah: %v %v", n, err)
+	}
+	if _, err := angkaBulatForm(buat("4.2"), "x"); !errors.Is(err, ErrValidasi) {
+		t.Fatalf("4.2 seharusnya ErrValidasi, dapat %v", err)
 	}
 }

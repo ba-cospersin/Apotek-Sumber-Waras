@@ -652,3 +652,167 @@ func (t *TxRepository) SetBatchDiblokir(
 	}
 	return nil
 }
+
+// ---------- Tindak lanjut stok ----------
+
+// FindReceiptForUpdate mengunci dan mengambil satu lapisan penerimaan (FOR UPDATE).
+// Mengembalikan nil jika lapisan tidak ditemukan.
+func (t *TxRepository) FindReceiptForUpdate(
+	ctx context.Context,
+	id int64,
+) (*LapisanStok, error) {
+	var l LapisanStok
+	err := t.tx.QueryRowContext(
+		ctx,
+		`SELECT id, batch_id, qty_sisa, harga_beli_per_dasar
+		   FROM batch_receipts
+		  WHERE id = ?
+		    FOR UPDATE`,
+		id,
+	).Scan(&l.ID, &l.BatchID, &l.QtySisa, &l.HargaBeliPerDasar)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("gagal mengambil lapisan penerimaan: %w", err)
+	}
+	return &l, nil
+}
+
+// KurangiStokLapisan mengurangi qty_sisa sebuah lapisan.
+// Penjaga "qty_sisa >= ?" memastikan stok tidak pernah negatif: jika sisa tidak
+// cukup, tidak ada baris yang berubah dan ErrStokTidakCukup dikembalikan.
+func (t *TxRepository) KurangiStokLapisan(
+	ctx context.Context,
+	id int64,
+	qty float64,
+) error {
+	res, err := t.tx.ExecContext(
+		ctx,
+		`UPDATE batch_receipts
+		    SET qty_sisa = qty_sisa - ?
+		  WHERE id = ? AND qty_sisa >= ?`,
+		qty, id, qty,
+	)
+	if err != nil {
+		return fmt.Errorf("gagal mengurangi stok lapisan: %w", err)
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("gagal memeriksa pengurangan stok: %w", err)
+	}
+	if n != 1 {
+		return ErrStokTidakCukup
+	}
+	return nil
+}
+
+// InsertDisposal menyimpan satu baris tindak lanjut.
+func (t *TxRepository) InsertDisposal(
+	ctx context.Context,
+	d DisposalBaru,
+) (int64, error) {
+	var catatan sql.NullString
+	if d.Catatan != "" {
+		catatan = sql.NullString{String: d.Catatan, Valid: true}
+	}
+
+	res, err := t.tx.ExecContext(
+		ctx,
+		`INSERT INTO batch_disposals
+		   (batch_receipt_id, user_id, jenis, sumber_tindak_lanjut, alasan,
+		    qty_dasar, nilai_kompensasi, catatan, tanggal)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		d.ReceiptID, d.UserID, d.Jenis, d.Sumber, d.Alasan,
+		d.Qty, d.Kompensasi, catatan, d.Waktu.Format("2006-01-02 15:04:05"),
+	)
+	if err != nil {
+		return 0, fmt.Errorf("gagal menyimpan tindak lanjut: %w", err)
+	}
+	return res.LastInsertId()
+}
+
+// ListTindakLanjut mengambil satu halaman riwayat tindak lanjut.
+// Urutan: terbaru dulu.
+func (r *Repository) ListTindakLanjut(
+	ctx context.Context,
+	q QueryTindakLanjut,
+) ([]RiwayatTindakLanjut, int, error) {
+	const dari = `
+	  FROM batch_disposals d
+	  JOIN batch_receipts r ON r.id = d.batch_receipt_id
+	  JOIN batches b ON b.id = r.batch_id
+	  JOIN medicines m ON m.id = b.medicine_id
+	  JOIN users u ON u.id = d.user_id`
+
+	where := " WHERE 1=1"
+	var args []any
+
+	if q.Jenis != "" {
+		where += " AND d.jenis = ?"
+		args = append(args, q.Jenis)
+	}
+	if q.BatchID > 0 {
+		where += " AND b.id = ?"
+		args = append(args, q.BatchID)
+	}
+	if q.Dari != "" {
+		where += " AND DATE(d.tanggal) >= ?"
+		args = append(args, q.Dari)
+	}
+	if q.Sampai != "" {
+		where += " AND DATE(d.tanggal) <= ?"
+		args = append(args, q.Sampai)
+	}
+
+	var total int
+	if err := r.db.QueryRowContext(ctx, `SELECT COUNT(*)`+dari+where, args...).Scan(&total); err != nil {
+		return nil, 0, fmt.Errorf("gagal menghitung riwayat tindak lanjut: %w", err)
+	}
+
+	argsHalaman := append(append([]any{}, args...), q.Limit, q.Offset)
+
+	rows, err := r.db.QueryContext(
+		ctx,
+		`SELECT d.id, d.batch_receipt_id, b.id, b.medicine_id, m.kode, m.nama,
+		        m.satuan_dasar, b.no_batch, d.jenis, d.sumber_tindak_lanjut,
+		        d.alasan, d.qty_dasar, d.nilai_kompensasi, r.harga_beli_per_dasar,
+		        d.catatan, u.nama, d.tanggal`+dari+where+`
+		  ORDER BY d.tanggal DESC, d.id DESC
+		  LIMIT ? OFFSET ?`,
+		argsHalaman...,
+	)
+	if err != nil {
+		return nil, 0, fmt.Errorf("gagal mengambil riwayat tindak lanjut: %w", err)
+	}
+	defer rows.Close()
+
+	hasil := make([]RiwayatTindakLanjut, 0)
+	for rows.Next() {
+		var it RiwayatTindakLanjut
+		var harga float64
+		var catatan sql.NullString
+		var tanggal time.Time
+		if err := rows.Scan(
+			&it.DisposalID, &it.BatchReceiptID, &it.BatchID, &it.MedicineID,
+			&it.KodeObat, &it.NamaObat, &it.SatuanDasar, &it.NoBatch, &it.Jenis,
+			&it.SumberTindakLanjut, &it.Alasan, &it.QtyDasar, &it.NilaiKompensasi,
+			&harga, &catatan, &it.DicatatOleh, &tanggal,
+		); err != nil {
+			return nil, 0, fmt.Errorf("gagal membaca riwayat tindak lanjut: %w", err)
+		}
+		if catatan.Valid {
+			it.Catatan = catatan.String
+		}
+		it.Tanggal = tanggal.Format("2006-01-02 15:04:05")
+		it.NilaiPerolehan = bulatkan(harga*it.QtyDasar, 2)
+		it.NilaiKerugian = bulatkan(it.NilaiPerolehan-it.NilaiKompensasi, 2)
+		hasil = append(hasil, it)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, 0, fmt.Errorf("gagal membaca riwayat tindak lanjut: %w", err)
+	}
+
+	return hasil, total, nil
+}

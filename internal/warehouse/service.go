@@ -658,3 +658,222 @@ func siapkanFilterBatch(
 	}
 	return q, page, perPage, nil
 }
+
+// ---------- Tindak lanjut stok: pemusnahan dan retur ke PBF ----------
+
+// CatatTindakLanjut mencatat pemusnahan atau retur ke PBF untuk satu lapisan
+// penerimaan, mengurangi stok lapisan itu, dan menghitung nilai kerugian
+// (harga beli historis x jumlah - kompensasi).
+//
+// Semuanya berjalan dalam SATU transaksi. Lapisan dikunci (FOR UPDATE) supaya
+// penjualan atau tindak lanjut lain yang berjalan bersamaan tidak membuat stok
+// negatif.
+func (s *Service) CatatTindakLanjut(
+	ctx context.Context,
+	userID int64,
+	in TindakLanjutInput,
+) (*TindakLanjut, error) {
+	if userID <= 0 {
+		return nil, fmt.Errorf("user tidak dikenali")
+	}
+
+	in, err := validasiTindakLanjut(in)
+	if err != nil {
+		return nil, err
+	}
+
+	waktu := s.now()
+	var hasil *TindakLanjut
+
+	err = s.repo.WithTx(ctx, func(tx *TxRepository) error {
+		lap, err := tx.FindReceiptForUpdate(ctx, in.BatchReceiptID)
+		if err != nil {
+			return err
+		}
+		if lap == nil {
+			return fmt.Errorf("lapisan penerimaan dengan id %d: %w", in.BatchReceiptID, ErrTidakDitemukan)
+		}
+
+		if in.QtyDasar > lap.QtySisa {
+			return fmt.Errorf(
+				"lapisan penerimaan %d: jumlah %v, sisa stok %v: %w",
+				lap.ID, in.QtyDasar, lap.QtySisa, ErrStokTidakCukup,
+			)
+		}
+
+		if err := tx.KurangiStokLapisan(ctx, lap.ID, in.QtyDasar); err != nil {
+			return err
+		}
+
+		id, err := tx.InsertDisposal(ctx, DisposalBaru{
+			ReceiptID:  lap.ID,
+			UserID:     userID,
+			Jenis:      in.Jenis,
+			Sumber:     in.SumberTindakLanjut,
+			Alasan:     in.Alasan,
+			Qty:        in.QtyDasar,
+			Kompensasi: in.NilaiKompensasi,
+			Catatan:    in.Catatan,
+			Waktu:      waktu,
+		})
+		if err != nil {
+			return err
+		}
+
+		perolehan := bulatkan(lap.HargaBeliPerDasar*in.QtyDasar, 2)
+		hasil = &TindakLanjut{
+			DisposalID:         id,
+			BatchReceiptID:     lap.ID,
+			BatchID:            lap.BatchID,
+			Jenis:              in.Jenis,
+			SumberTindakLanjut: in.SumberTindakLanjut,
+			Alasan:             in.Alasan,
+			QtyDasar:           in.QtyDasar,
+			NilaiPerolehan:     perolehan,
+			NilaiKompensasi:    in.NilaiKompensasi,
+			NilaiKerugian:      bulatkan(perolehan-in.NilaiKompensasi, 2),
+			SisaSetelah:        bulatkan(lap.QtySisa-in.QtyDasar, 3),
+			Tanggal:            waktu.Format("2006-01-02 15:04:05"),
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return hasil, nil
+}
+
+// DaftarTindakLanjut mengambil satu halaman riwayat tindak lanjut.
+func (s *Service) DaftarTindakLanjut(
+	ctx context.Context,
+	f FilterTindakLanjut,
+) (*DaftarTindakLanjut, error) {
+	q, page, perPage, err := siapkanFilterTindakLanjut(f)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, total, err := s.repo.ListTindakLanjut(ctx, q)
+	if err != nil {
+		return nil, err
+	}
+
+	return &DaftarTindakLanjut{
+		Data: rows,
+		Meta: Halaman{
+			Page:         page,
+			PerPage:      perPage,
+			Total:        total,
+			TotalHalaman: (total + perPage - 1) / perPage,
+		},
+	}, nil
+}
+
+// validasiTindakLanjut memeriksa dan merapikan input tanpa menyentuh database.
+func validasiTindakLanjut(in TindakLanjutInput) (TindakLanjutInput, error) {
+	if in.BatchReceiptID <= 0 {
+		return in, validasi("batch_receipt_id wajib diisi")
+	}
+
+	in.Jenis = strings.ToUpper(strings.TrimSpace(in.Jenis))
+	if in.Jenis != jenisPemusnahan && in.Jenis != jenisReturPBF {
+		return in, validasi("jenis harus %s atau %s", jenisPemusnahan, jenisReturPBF)
+	}
+
+	in.SumberTindakLanjut = strings.ToUpper(strings.TrimSpace(in.SumberTindakLanjut))
+	switch in.SumberTindakLanjut {
+	case sumberInternalApotek, sumberBPOM, sumberProdusenPBF:
+	default:
+		return in, validasi(
+			"sumber_tindak_lanjut harus %s, %s, atau %s",
+			sumberInternalApotek, sumberBPOM, sumberProdusenPBF,
+		)
+	}
+
+	in.Alasan = strings.TrimSpace(in.Alasan)
+	if in.Alasan == "" {
+		return in, validasi("alasan wajib diisi")
+	}
+	if len([]rune(in.Alasan)) > 100 {
+		return in, validasi("alasan maksimal 100 karakter")
+	}
+	// Alasan yang umum disamakan hurufnya supaya laporan kerugian bisa dikelompokkan.
+	switch strings.ToUpper(in.Alasan) {
+	case "KEDALUWARSA", "PENARIKAN", "RUSAK":
+		in.Alasan = strings.ToUpper(in.Alasan)
+	}
+
+	if math.IsNaN(in.QtyDasar) || math.IsInf(in.QtyDasar, 0) || in.QtyDasar <= 0 {
+		return in, validasi("qty_dasar harus lebih dari 0")
+	}
+	in.QtyDasar = bulatkan(in.QtyDasar, 3)
+	if in.QtyDasar <= 0 {
+		return in, validasi("qty_dasar harus lebih dari 0")
+	}
+
+	if math.IsNaN(in.NilaiKompensasi) || math.IsInf(in.NilaiKompensasi, 0) || in.NilaiKompensasi < 0 {
+		return in, validasi("nilai_kompensasi tidak boleh negatif")
+	}
+	if in.NilaiKompensasi > maksNilaiUang {
+		return in, validasi("nilai_kompensasi terlalu besar")
+	}
+	in.NilaiKompensasi = bulatkan(in.NilaiKompensasi, 2)
+
+	in.Catatan = strings.TrimSpace(in.Catatan)
+	if len([]rune(in.Catatan)) > 1000 {
+		return in, validasi("catatan maksimal 1000 karakter")
+	}
+
+	return in, nil
+}
+
+// siapkanFilterTindakLanjut memvalidasi filter riwayat.
+func siapkanFilterTindakLanjut(
+	f FilterTindakLanjut,
+) (QueryTindakLanjut, int, int, error) {
+	var q QueryTindakLanjut
+
+	page, perPage, err := hitungHalaman(f.Page, f.PerPage)
+	if err != nil {
+		return q, 0, 0, err
+	}
+
+	jenis := strings.ToUpper(strings.TrimSpace(f.Jenis))
+	if jenis != "" && jenis != jenisPemusnahan && jenis != jenisReturPBF {
+		return q, 0, 0, validasi("jenis harus %s atau %s", jenisPemusnahan, jenisReturPBF)
+	}
+	if f.BatchID < 0 {
+		return q, 0, 0, validasi("batch_id tidak valid")
+	}
+
+	dari := strings.TrimSpace(f.Dari)
+	sampai := strings.TrimSpace(f.Sampai)
+
+	var tDari, tSampai time.Time
+	if dari != "" {
+		tDari, err = time.ParseInLocation(layoutTanggal, dari, time.Local)
+		if err != nil {
+			return q, 0, 0, validasi("dari harus berformat YYYY-MM-DD")
+		}
+	}
+	if sampai != "" {
+		tSampai, err = time.ParseInLocation(layoutTanggal, sampai, time.Local)
+		if err != nil {
+			return q, 0, 0, validasi("sampai harus berformat YYYY-MM-DD")
+		}
+	}
+	if dari != "" && sampai != "" && tDari.After(tSampai) {
+		return q, 0, 0, validasi("dari tidak boleh lebih besar dari sampai")
+	}
+
+	q = QueryTindakLanjut{
+		Jenis:   jenis,
+		BatchID: f.BatchID,
+		Dari:    dari,
+		Sampai:  sampai,
+		Limit:   perPage,
+		Offset:  (page - 1) * perPage,
+	}
+	return q, page, perPage, nil
+}

@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"math"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/middleware"
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/model"
@@ -42,6 +44,10 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux, auth *middleware.Auth) {
 	mux.Handle("GET /gudang/persediaan/ringkasan", gudang(h.RingkasanPersediaan))
 	mux.Handle("GET /gudang/persediaan/batch/{id}", gudang(h.DetailBatch))
 	mux.Handle("POST /gudang/persediaan/batch/{id}/blokir", gudang(h.BlokirBatch))
+
+	// Pemusnahan dan retur ke PBF (URL sementara, sama seperti di atas).
+	mux.Handle("POST /gudang/tindak-lanjut", gudang(h.CatatTindakLanjut))
+	mux.Handle("GET /gudang/tindak-lanjut", gudang(h.ListTindakLanjut))
 }
 
 // CreatePenerimaan menangani POST /gudang/penerimaan.
@@ -235,6 +241,123 @@ func (h *Handler) BlokirBatch(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/gudang/persediaan/batch/"+strconv.FormatInt(id, 10), http.StatusSeeOther)
 }
 
+// CatatTindakLanjut menangani POST /gudang/tindak-lanjut.
+//
+// Data berupa form biasa. Field: batch_receipt_id, jenis, sumber_tindak_lanjut,
+// alasan, qty_dasar, nilai_kompensasi (opsional), catatan (opsional).
+// Angka memakai titik desimal. Jika berhasil, pengguna diarahkan (303) ke
+// halaman detail batch supaya sisa stoknya terlihat.
+func (h *Handler) CatatTindakLanjut(w http.ResponseWriter, r *http.Request) {
+	user, ok := middleware.CurrentUser(r)
+	if !ok {
+		writeError(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+	if err := r.ParseForm(); err != nil {
+		writeError(w, http.StatusBadRequest, "form tidak valid: "+err.Error())
+		return
+	}
+
+	receiptID, err := angkaBulatForm(r, "batch_receipt_id")
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+	qty, err := angkaDesimalForm(r, "qty_dasar")
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+	kompensasi, err := angkaDesimalForm(r, "nilai_kompensasi")
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	hasil, err := h.svc.CatatTindakLanjut(r.Context(), user.ID, TindakLanjutInput{
+		BatchReceiptID:     receiptID,
+		Jenis:              r.PostFormValue("jenis"),
+		SumberTindakLanjut: r.PostFormValue("sumber_tindak_lanjut"),
+		Alasan:             r.PostFormValue("alasan"),
+		QtyDasar:           qty,
+		NilaiKompensasi:    kompensasi,
+		Catatan:            r.PostFormValue("catatan"),
+	})
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	http.Redirect(w, r, "/gudang/persediaan/batch/"+strconv.FormatInt(hasil.BatchID, 10), http.StatusSeeOther)
+}
+
+// ListTindakLanjut menangani GET /gudang/tindak-lanjut.
+//
+// Query string (semuanya opsional): jenis, batch_id, dari, sampai, page, per_page.
+func (h *Handler) ListTindakLanjut(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+
+	batchID, err := angkaQuery(q, "batch_id")
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+	page, err := angkaQuery(q, "page")
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+	perPage, err := angkaQuery(q, "per_page")
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	hasil, err := h.svc.DaftarTindakLanjut(r.Context(), FilterTindakLanjut{
+		Jenis:   q.Get("jenis"),
+		BatchID: batchID,
+		Dari:    q.Get("dari"),
+		Sampai:  q.Get("sampai"),
+		Page:    int(page),
+		PerPage: int(perPage),
+	})
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, hasil)
+}
+
+// angkaBulatForm membaca field form berupa bilangan bulat. Kosong dianggap 0.
+func angkaBulatForm(r *http.Request, kunci string) (int64, error) {
+	nilai := strings.TrimSpace(r.PostFormValue(kunci))
+	if nilai == "" {
+		return 0, nil
+	}
+	n, err := strconv.ParseInt(nilai, 10, 64)
+	if err != nil {
+		return 0, validasi("%s harus berupa angka bulat", kunci)
+	}
+	return n, nil
+}
+
+// angkaDesimalForm membaca field form berupa angka desimal (pakai titik).
+// Kosong dianggap 0. Nilai NaN dan Inf ditolak.
+func angkaDesimalForm(r *http.Request, kunci string) (float64, error) {
+	nilai := strings.TrimSpace(r.PostFormValue(kunci))
+	if nilai == "" {
+		return 0, nil
+	}
+	n, err := strconv.ParseFloat(nilai, 64)
+	if err != nil || math.IsNaN(n) || math.IsInf(n, 0) {
+		return 0, validasi("%s harus berupa angka (gunakan titik sebagai desimal)", kunci)
+	}
+	return n, nil
+}
+
 // writeServiceError mengubah error dari service menjadi response HTTP.
 func writeServiceError(w http.ResponseWriter, err error) {
 	switch {
@@ -243,7 +366,8 @@ func writeServiceError(w http.ResponseWriter, err error) {
 
 	case errors.Is(err, ErrFakturDuplikat),
 		errors.Is(err, ErrKedaluwarsaBeda),
-		errors.Is(err, ErrSudahDiblokir):
+		errors.Is(err, ErrSudahDiblokir),
+		errors.Is(err, ErrStokTidakCukup):
 		writeError(w, http.StatusConflict, err.Error())
 
 	case errors.Is(err, ErrTidakDitemukan):

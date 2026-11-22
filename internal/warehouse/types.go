@@ -262,3 +262,120 @@ type RingkasanStok struct {
 	BatchDiblokir             int     `json:"batch_diblokir"`
 	StokBolehDijual           float64 `json:"stok_boleh_dijual"`
 }
+
+// ---------- Tindak lanjut stok: pemusnahan dan retur ke PBF ----------
+
+// ErrStokTidakCukup: jumlah tindak lanjut melebihi sisa stok lapisan -> HTTP 409.
+var ErrStokTidakCukup = errors.New("jumlah melebihi sisa stok lapisan penerimaan")
+
+// Nilai kolom jenis pada tabel batch_disposals.
+const (
+	jenisPemusnahan = "PEMUSNAHAN"
+	jenisReturPBF   = "RETUR_PBF"
+)
+
+// Nilai kolom sumber_tindak_lanjut pada tabel batch_disposals.
+const (
+	sumberInternalApotek = "INTERNAL_APOTEK"
+	sumberBPOM           = "BPOM"
+	sumberProdusenPBF    = "PRODUSEN_PBF"
+)
+
+// Batas nilai uang (DECIMAL(15,2)).
+const maksNilaiUang = 9999999999999.99
+
+// TindakLanjutInput adalah satu pemusnahan atau retur ke PBF untuk satu lapisan.
+type TindakLanjutInput struct {
+	BatchReceiptID     int64   `json:"batch_receipt_id"`
+	Jenis              string  `json:"jenis"`                // PEMUSNAHAN atau RETUR_PBF
+	SumberTindakLanjut string  `json:"sumber_tindak_lanjut"` // INTERNAL_APOTEK, BPOM, PRODUSEN_PBF
+	Alasan             string  `json:"alasan"`               // KEDALUWARSA, PENARIKAN, RUSAK, atau alasan lain
+	QtyDasar           float64 `json:"qty_dasar"`            // dalam satuan dasar
+	NilaiKompensasi    float64 `json:"nilai_kompensasi"`     // dari PBF, boleh 0
+	Catatan            string  `json:"catatan"`
+}
+
+// TindakLanjut adalah hasil pencatatan satu tindak lanjut.
+type TindakLanjut struct {
+	DisposalID         int64   `json:"disposal_id"`
+	BatchReceiptID     int64   `json:"batch_receipt_id"`
+	BatchID            int64   `json:"batch_id"`
+	Jenis              string  `json:"jenis"`
+	SumberTindakLanjut string  `json:"sumber_tindak_lanjut"`
+	Alasan             string  `json:"alasan"`
+	QtyDasar           float64 `json:"qty_dasar"`
+	NilaiPerolehan     float64 `json:"nilai_perolehan"` // harga beli historis x jumlah
+	NilaiKompensasi    float64 `json:"nilai_kompensasi"`
+	NilaiKerugian      float64 `json:"nilai_kerugian"` // perolehan - kompensasi
+	SisaSetelah        float64 `json:"sisa_setelah"`   // sisa lapisan setelah dikurangi
+	Tanggal            string  `json:"tanggal"`
+}
+
+// LapisanStok adalah data lapisan penerimaan yang dikunci saat tindak lanjut.
+type LapisanStok struct {
+	ID                int64
+	BatchID           int64
+	QtySisa           float64
+	HargaBeliPerDasar float64
+}
+
+// DisposalBaru adalah baris yang akan disimpan ke batch_disposals.
+type DisposalBaru struct {
+	ReceiptID  int64
+	UserID     int64
+	Jenis      string
+	Sumber     string
+	Alasan     string
+	Qty        float64
+	Kompensasi float64
+	Catatan    string
+	Waktu      time.Time
+}
+
+// FilterTindakLanjut adalah filter dari pengguna untuk riwayat tindak lanjut.
+type FilterTindakLanjut struct {
+	Jenis   string
+	BatchID int64
+	Dari    string // YYYY-MM-DD
+	Sampai  string // YYYY-MM-DD
+	Page    int
+	PerPage int
+}
+
+// QueryTindakLanjut adalah filter yang sudah divalidasi, siap untuk SQL.
+type QueryTindakLanjut struct {
+	Jenis   string
+	BatchID int64
+	Dari    string
+	Sampai  string
+	Limit   int
+	Offset  int
+}
+
+// RiwayatTindakLanjut adalah satu baris pada riwayat tindak lanjut.
+type RiwayatTindakLanjut struct {
+	DisposalID         int64   `json:"disposal_id"`
+	BatchReceiptID     int64   `json:"batch_receipt_id"`
+	BatchID            int64   `json:"batch_id"`
+	MedicineID         int64   `json:"medicine_id"`
+	KodeObat           string  `json:"kode_obat"`
+	NamaObat           string  `json:"nama_obat"`
+	SatuanDasar        string  `json:"satuan_dasar"`
+	NoBatch            string  `json:"no_batch"`
+	Jenis              string  `json:"jenis"`
+	SumberTindakLanjut string  `json:"sumber_tindak_lanjut"`
+	Alasan             string  `json:"alasan"`
+	QtyDasar           float64 `json:"qty_dasar"`
+	NilaiPerolehan     float64 `json:"nilai_perolehan"`
+	NilaiKompensasi    float64 `json:"nilai_kompensasi"`
+	NilaiKerugian      float64 `json:"nilai_kerugian"`
+	Catatan            string  `json:"catatan"`
+	DicatatOleh        string  `json:"dicatat_oleh"`
+	Tanggal            string  `json:"tanggal"`
+}
+
+// DaftarTindakLanjut adalah satu halaman riwayat tindak lanjut.
+type DaftarTindakLanjut struct {
+	Data []RiwayatTindakLanjut `json:"data"`
+	Meta Halaman               `json:"meta"`
+}
