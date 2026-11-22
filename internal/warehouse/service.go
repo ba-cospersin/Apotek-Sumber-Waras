@@ -877,3 +877,325 @@ func siapkanFilterTindakLanjut(
 	}
 	return q, page, perPage, nil
 }
+
+// ---------- Stock opname ----------
+
+// penyesuaianHitung adalah rencana perubahan stok satu lapisan.
+// Satuan milli = seperseribu satuan dasar (bilangan bulat, bebas galat desimal).
+type penyesuaianHitung struct {
+	lapisan LapisanStok
+	milli   int64 // negatif = dikurangi
+}
+
+// keMilli mengubah jumlah ke bilangan bulat seperseribu satuan.
+func keMilli(x float64) int64 { return int64(math.Round(x * 1000)) }
+
+// dariMilli mengubah bilangan bulat seperseribu satuan kembali ke jumlah.
+func dariMilli(m int64) float64 { return float64(m) / 1000 }
+
+// alokasiSelisih membagi selisih hasil opname ke lapisan penerimaan sebuah
+// batch, sesuai aturan rancangan (2.3 no. 14):
+//
+//   - Kekurangan (selisih < 0): mengurangi lapisan yang LEBIH DAHULU diterima.
+//     Jika melebihi sisa lapisan itu, dilanjutkan ke lapisan berikutnya.
+//     Lapisan yang sisanya 0 dilewati.
+//   - Kelebihan (selisih > 0): seluruhnya ditambahkan ke lapisan yang PALING
+//     AKHIR diterima.
+//
+// lapisan HARUS sudah berurutan dari yang paling dahulu diterima. Total
+// penyesuaian yang dikembalikan selalu sama dengan selisih.
+func alokasiSelisih(lapisan []LapisanStok, selisihMilli int64) ([]penyesuaianHitung, error) {
+	if selisihMilli == 0 {
+		return nil, nil
+	}
+	if len(lapisan) == 0 {
+		return nil, fmt.Errorf("batch tidak punya lapisan penerimaan")
+	}
+
+	// Kelebihan: ke lapisan paling akhir.
+	if selisihMilli > 0 {
+		return []penyesuaianHitung{{lapisan: lapisan[len(lapisan)-1], milli: selisihMilli}}, nil
+	}
+
+	// Kekurangan: dari lapisan paling awal.
+	sisaKurang := -selisihMilli
+	var hasil []penyesuaianHitung
+	for _, l := range lapisan {
+		if sisaKurang == 0 {
+			break
+		}
+		tersedia := keMilli(l.QtySisa)
+		if tersedia <= 0 {
+			continue
+		}
+		ambil := tersedia
+		if sisaKurang < ambil {
+			ambil = sisaKurang
+		}
+		hasil = append(hasil, penyesuaianHitung{lapisan: l, milli: -ambil})
+		sisaKurang -= ambil
+	}
+	if sisaKurang > 0 {
+		return nil, fmt.Errorf("kekurangan %v melebihi total stok lapisan", dariMilli(sisaKurang))
+	}
+	return hasil, nil
+}
+
+// CatatStockOpname mencatat hasil hitung fisik satu batch fisik.
+//
+// Sistem menjumlahkan sisa stok semua lapisan batch itu (stok menurut sistem),
+// menghitung selisih (fisik - sistem), mengalokasikannya ke lapisan sesuai
+// aturan, dan menyimpan hasil opname beserta detail tiap lapisan yang berubah.
+// Selisih TIDAK menimpa angka stok begitu saja: setiap perubahan tercatat.
+//
+// Semuanya berjalan dalam SATU transaksi. Semua lapisan batch dikunci
+// (FOR UPDATE), jadi penjualan atau tindak lanjut yang berjalan bersamaan
+// menunggu, dan hitungan stok menurut sistem tidak berubah di tengah jalan.
+func (s *Service) CatatStockOpname(
+	ctx context.Context,
+	userID int64,
+	in StockOpnameInput,
+) (*StockOpname, error) {
+	if userID <= 0 {
+		return nil, fmt.Errorf("user tidak dikenali")
+	}
+
+	in, waktu, err := s.validasiStockOpname(in)
+	if err != nil {
+		return nil, err
+	}
+
+	var opnameID int64
+
+	err = s.repo.WithTx(ctx, func(tx *TxRepository) error {
+		ada, err := tx.BatchAda(ctx, in.BatchID)
+		if err != nil {
+			return err
+		}
+		if !ada {
+			return fmt.Errorf("batch dengan id %d: %w", in.BatchID, ErrTidakDitemukan)
+		}
+
+		lapisan, err := tx.LockLapisanBatch(ctx, in.BatchID)
+		if err != nil {
+			return err
+		}
+		if len(lapisan) == 0 {
+			return validasi("batch ini belum punya lapisan penerimaan, tidak bisa di-opname")
+		}
+
+		var sistemMilli int64
+		for _, l := range lapisan {
+			sistemMilli += keMilli(l.QtySisa)
+		}
+		fisikMilli := keMilli(in.QtyFisik)
+
+		rencana, err := alokasiSelisih(lapisan, fisikMilli-sistemMilli)
+		if err != nil {
+			return err
+		}
+
+		id, err := tx.InsertStockOpname(ctx, OpnameBaru{
+			BatchID:   in.BatchID,
+			UserID:    userID,
+			QtySistem: dariMilli(sistemMilli),
+			QtyFisik:  dariMilli(fisikMilli),
+			Catatan:   in.Catatan,
+			Waktu:     waktu,
+		})
+		if err != nil {
+			return err
+		}
+
+		for _, p := range rencana {
+			sebelum := keMilli(p.lapisan.QtySisa)
+			sesudah := sebelum + p.milli
+
+			if p.milli < 0 {
+				err = tx.KurangiStokLapisan(ctx, p.lapisan.ID, dariMilli(-p.milli))
+			} else {
+				err = tx.TambahStokLapisan(ctx, p.lapisan.ID, dariMilli(p.milli))
+			}
+			if err != nil {
+				return err
+			}
+
+			if err := tx.InsertOpnameDetail(
+				ctx, id, p.lapisan.ID,
+				dariMilli(p.milli), dariMilli(sebelum), dariMilli(sesudah),
+			); err != nil {
+				return err
+			}
+		}
+
+		opnameID = id
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return s.DetailStockOpname(ctx, opnameID)
+}
+
+// DetailStockOpname mengambil satu hasil opname beserta penyesuaiannya.
+func (s *Service) DetailStockOpname(
+	ctx context.Context,
+	id int64,
+) (*StockOpname, error) {
+	if id <= 0 {
+		return nil, validasi("id stock opname tidak valid")
+	}
+
+	o, err := s.repo.GetStockOpname(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if o == nil {
+		return nil, fmt.Errorf("stock opname dengan id %d: %w", id, ErrTidakDitemukan)
+	}
+
+	isiTurunanOpname(o)
+	return o, nil
+}
+
+// DaftarStockOpname mengambil satu halaman riwayat opname.
+func (s *Service) DaftarStockOpname(
+	ctx context.Context,
+	f FilterStockOpname,
+) (*DaftarStockOpname, error) {
+	q, page, perPage, err := siapkanFilterStockOpname(f)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, total, err := s.repo.ListStockOpname(ctx, q)
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range rows {
+		rows[i].Selisih = bulatkan(rows[i].QtyFisik-rows[i].QtySistem, 3)
+		rows[i].StatusSelisih = statusSelisih(rows[i].QtySistem, rows[i].QtyFisik)
+	}
+
+	return &DaftarStockOpname{
+		Data: rows,
+		Meta: Halaman{
+			Page:         page,
+			PerPage:      perPage,
+			Total:        total,
+			TotalHalaman: (total + perPage - 1) / perPage,
+		},
+	}, nil
+}
+
+// statusSelisih menentukan SESUAI, KURANG, atau LEBIH dari dua jumlah.
+func statusSelisih(sistem, fisik float64) string {
+	d := keMilli(fisik) - keMilli(sistem)
+	switch {
+	case d < 0:
+		return selisihKurang
+	case d > 0:
+		return selisihLebih
+	default:
+		return selisihSesuai
+	}
+}
+
+// isiTurunanOpname mengisi selisih, status, dan nilai selisih.
+func isiTurunanOpname(o *StockOpname) {
+	o.Selisih = bulatkan(o.QtyFisik-o.QtySistem, 3)
+	o.StatusSelisih = statusSelisih(o.QtySistem, o.QtyFisik)
+
+	var nilai float64
+	for _, p := range o.Penyesuaian {
+		nilai += p.QtyPenyesuaian * p.HargaBeliPerDasar
+	}
+	o.NilaiSelisih = bulatkan(nilai, 2)
+}
+
+// validasiStockOpname memeriksa input tanpa menyentuh database dan menentukan
+// waktu pencatatan opname.
+func (s *Service) validasiStockOpname(
+	in StockOpnameInput,
+) (StockOpnameInput, time.Time, error) {
+	if in.BatchID <= 0 {
+		return in, time.Time{}, validasi("batch_id wajib diisi")
+	}
+
+	if math.IsNaN(in.QtyFisik) || math.IsInf(in.QtyFisik, 0) || in.QtyFisik < 0 {
+		return in, time.Time{}, validasi("qty_fisik tidak boleh negatif")
+	}
+	if in.QtyFisik > maksQty {
+		return in, time.Time{}, validasi("qty_fisik terlalu besar")
+	}
+	in.QtyFisik = bulatkan(in.QtyFisik, 3)
+
+	in.Catatan = strings.TrimSpace(in.Catatan)
+	if len([]rune(in.Catatan)) > 1000 {
+		return in, time.Time{}, validasi("catatan maksimal 1000 karakter")
+	}
+
+	// Tanggal opname. Kosong = sekarang. Jika diisi, jamnya memakai waktu saat
+	// ini supaya urutan beberapa opname pada tanggal yang sama tetap terjaga.
+	waktu := s.now()
+	if t := strings.TrimSpace(in.TglOpname); t != "" {
+		tgl, err := time.ParseInLocation(layoutTanggal, t, time.Local)
+		if err != nil {
+			return in, time.Time{}, validasi("tgl_opname harus berformat YYYY-MM-DD")
+		}
+		if tgl.After(s.hariIni()) {
+			return in, time.Time{}, validasi("tgl_opname tidak boleh di masa depan")
+		}
+		n := s.now()
+		waktu = time.Date(tgl.Year(), tgl.Month(), tgl.Day(), n.Hour(), n.Minute(), n.Second(), 0, time.Local)
+	}
+
+	return in, waktu, nil
+}
+
+// siapkanFilterStockOpname memvalidasi filter riwayat opname.
+func siapkanFilterStockOpname(
+	f FilterStockOpname,
+) (QueryStockOpname, int, int, error) {
+	var q QueryStockOpname
+
+	page, perPage, err := hitungHalaman(f.Page, f.PerPage)
+	if err != nil {
+		return q, 0, 0, err
+	}
+	if f.BatchID < 0 {
+		return q, 0, 0, validasi("batch_id tidak valid")
+	}
+
+	dari := strings.TrimSpace(f.Dari)
+	sampai := strings.TrimSpace(f.Sampai)
+
+	var tDari, tSampai time.Time
+	if dari != "" {
+		tDari, err = time.ParseInLocation(layoutTanggal, dari, time.Local)
+		if err != nil {
+			return q, 0, 0, validasi("dari harus berformat YYYY-MM-DD")
+		}
+	}
+	if sampai != "" {
+		tSampai, err = time.ParseInLocation(layoutTanggal, sampai, time.Local)
+		if err != nil {
+			return q, 0, 0, validasi("sampai harus berformat YYYY-MM-DD")
+		}
+	}
+	if dari != "" && sampai != "" && tDari.After(tSampai) {
+		return q, 0, 0, validasi("dari tidak boleh lebih besar dari sampai")
+	}
+
+	q = QueryStockOpname{
+		BatchID:      f.BatchID,
+		Dari:         dari,
+		Sampai:       sampai,
+		HanyaSelisih: f.HanyaSelisih,
+		Limit:        perPage,
+		Offset:       (page - 1) * perPage,
+	}
+	return q, page, perPage, nil
+}

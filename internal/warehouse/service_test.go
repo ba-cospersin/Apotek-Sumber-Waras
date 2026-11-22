@@ -3,6 +3,8 @@ package warehouse
 import (
 	"context"
 	"errors"
+	"fmt"
+	"github.com/go-sql-driver/mysql"
 	"math"
 	"net/http"
 	"net/http/httptest"
@@ -506,5 +508,285 @@ func TestAngkaForm(t *testing.T) {
 	}
 	if _, err := angkaBulatForm(buat("4.2"), "x"); !errors.Is(err, ErrValidasi) {
 		t.Fatalf("4.2 seharusnya ErrValidasi, dapat %v", err)
+	}
+}
+
+// ---------- Stock opname ----------
+
+func lap(id int64, sisa float64) LapisanStok { return LapisanStok{ID: id, QtySisa: sisa} }
+
+func TestAlokasiSelisih(t *testing.T) {
+	type alok struct {
+		id    int64
+		milli int64
+	}
+	kasus := []struct {
+		nama     string
+		lapisan  []LapisanStok // urut dari yang paling dahulu diterima
+		selisih  int64         // milli
+		harapan  []alok
+		harapErr bool
+	}{
+		{"tanpa selisih", []LapisanStok{lap(1, 100)}, 0, nil, false},
+		{"kurang, cukup di lapisan tertua", []LapisanStok{lap(1, 100), lap(2, 50)}, -30000, []alok{{1, -30000}}, false},
+		{"kurang pas sebesar lapisan tertua", []LapisanStok{lap(1, 100), lap(2, 50)}, -100000, []alok{{1, -100000}}, false},
+		{"kurang melewati lapisan tertua", []LapisanStok{lap(1, 100), lap(2, 50)}, -120000, []alok{{1, -100000}, {2, -20000}}, false},
+		{"kurang sebesar seluruh stok", []LapisanStok{lap(1, 100), lap(2, 50)}, -150000, []alok{{1, -100000}, {2, -50000}}, false},
+		{"lapisan kosong dilewati", []LapisanStok{lap(1, 10), lap(2, 0), lap(3, 20)}, -25000, []alok{{1, -10000}, {3, -15000}}, false},
+		{"lapisan tertua kosong dilewati", []LapisanStok{lap(1, 0), lap(2, 40)}, -5000, []alok{{2, -5000}}, false},
+		{"lebih masuk ke lapisan terakhir", []LapisanStok{lap(1, 100), lap(2, 50)}, 60000, []alok{{2, 60000}}, false},
+		{"lebih, lapisan terakhir sisanya 0", []LapisanStok{lap(1, 100), lap(2, 0)}, 5000, []alok{{2, 5000}}, false},
+		{"lebih, satu lapisan saja", []LapisanStok{lap(1, 7)}, 1, []alok{{1, 1}}, false},
+		{"desimal tanpa galat", []LapisanStok{lap(1, 0.1), lap(2, 0.2)}, -200, []alok{{1, -100}, {2, -100}}, false},
+		{"desimal 0.1 + 0.2 tepat 0.3", []LapisanStok{lap(1, 0.1), lap(2, 0.2)}, -300, []alok{{1, -100}, {2, -200}}, false},
+		{"kurang melebihi seluruh stok", []LapisanStok{lap(1, 10)}, -10001, nil, true},
+		{"tanpa lapisan", nil, -1, nil, true},
+		{"tanpa lapisan dan tanpa selisih", nil, 0, nil, false},
+	}
+
+	for _, k := range kasus {
+		t.Run(k.nama, func(t *testing.T) {
+			got, err := alokasiSelisih(k.lapisan, k.selisih)
+			if k.harapErr {
+				if err == nil {
+					t.Fatalf("seharusnya error, dapat %+v", got)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("tidak seharusnya error: %v", err)
+			}
+			if len(got) != len(k.harapan) {
+				t.Fatalf("jumlah penyesuaian %d, seharusnya %d: %+v", len(got), len(k.harapan), got)
+			}
+			var total int64
+			for i, g := range got {
+				if g.lapisan.ID != k.harapan[i].id || g.milli != k.harapan[i].milli {
+					t.Fatalf("penyesuaian %d: dapat (id %d, %d), seharusnya (id %d, %d)",
+						i, g.lapisan.ID, g.milli, k.harapan[i].id, k.harapan[i].milli)
+				}
+				total += g.milli
+			}
+			// Aturan dokumen: total penyesuaian SAMA dengan selisih.
+			if total != k.selisih {
+				t.Fatalf("total penyesuaian %d, seharusnya sama dengan selisih %d", total, k.selisih)
+			}
+		})
+	}
+}
+
+func TestAlokasiSelisih_TidakPernahMembuatStokNegatif(t *testing.T) {
+	lapisan := []LapisanStok{lap(1, 3.333), lap(2, 0), lap(3, 12.5), lap(4, 0.001)}
+	var sistem int64
+	for _, l := range lapisan {
+		sistem += keMilli(l.QtySisa)
+	}
+
+	// Semua kemungkinan hasil hitung fisik dari 0 sampai sistem.
+	for fisik := int64(0); fisik <= sistem; fisik += 7 {
+		got, err := alokasiSelisih(lapisan, fisik-sistem)
+		if err != nil {
+			t.Fatalf("fisik %d: %v", fisik, err)
+		}
+		sisa := map[int64]int64{}
+		for _, l := range lapisan {
+			sisa[l.ID] = keMilli(l.QtySisa)
+		}
+		var total int64
+		for _, g := range got {
+			sisa[g.lapisan.ID] += g.milli
+			total += g.milli
+			if sisa[g.lapisan.ID] < 0 {
+				t.Fatalf("fisik %d: lapisan %d menjadi negatif", fisik, g.lapisan.ID)
+			}
+		}
+		if total != fisik-sistem {
+			t.Fatalf("fisik %d: total %d bukan selisih %d", fisik, total, fisik-sistem)
+		}
+	}
+}
+
+func TestKeMilli(t *testing.T) {
+	if keMilli(0.1+0.2) != 300 || keMilli(1189) != 1189000 || keMilli(0.0004) != 0 || keMilli(2.0005) != 2001 {
+		t.Fatalf("keMilli salah: %d %d %d %d", keMilli(0.1+0.2), keMilli(1189), keMilli(0.0004), keMilli(2.0005))
+	}
+	if dariMilli(1234) != 1.234 {
+		t.Fatalf("dariMilli salah: %v", dariMilli(1234))
+	}
+}
+
+func TestStatusSelisih(t *testing.T) {
+	if statusSelisih(100, 100) != selisihSesuai || statusSelisih(100, 99.999) != selisihKurang ||
+		statusSelisih(100, 100.001) != selisihLebih || statusSelisih(0.1+0.2, 0.3) != selisihSesuai {
+		t.Fatalf("statusSelisih salah")
+	}
+}
+
+func TestIsiTurunanOpname(t *testing.T) {
+	o := &StockOpname{
+		QtySistem: 150, QtyFisik: 40,
+		Penyesuaian: []PenyesuaianLapisan{
+			{QtyPenyesuaian: -100, HargaBeliPerDasar: 500},
+			{QtyPenyesuaian: -10, HargaBeliPerDasar: 520},
+		},
+	}
+	isiTurunanOpname(o)
+	if o.Selisih != -110 || o.StatusSelisih != selisihKurang || o.NilaiSelisih != -55200 {
+		t.Fatalf("turunan salah: %+v", o)
+	}
+}
+
+func TestValidasiStockOpname_Valid(t *testing.T) {
+	in, waktu, err := serviceUji().validasiStockOpname(StockOpnameInput{BatchID: 1, QtyFisik: 0, Catatan: "  habis  "})
+	if err != nil {
+		t.Fatalf("qty_fisik 0 harus valid (stok bisa habis): %v", err)
+	}
+	if in.QtyFisik != 0 || in.Catatan != "habis" {
+		t.Fatalf("input tidak dirapikan: %+v", in)
+	}
+	if waktu.Format(layoutTanggal) != "2026-11-07" {
+		t.Fatalf("waktu bawaan salah: %v", waktu)
+	}
+
+	in, waktu, err = serviceUji().validasiStockOpname(StockOpnameInput{BatchID: 1, QtyFisik: 12.34567, TglOpname: "2026-11-05"})
+	if err != nil || in.QtyFisik != 12.346 {
+		t.Fatalf("pembulatan salah: %+v %v", in, err)
+	}
+	if waktu.Format(layoutTanggal) != "2026-11-05" || waktu.Hour() != 10 {
+		t.Fatalf("tgl_opname salah: %v", waktu)
+	}
+}
+
+func TestValidasiStockOpname_Tolak(t *testing.T) {
+	kasus := []struct {
+		nama string
+		in   StockOpnameInput
+	}{
+		{"batch id nol", StockOpnameInput{BatchID: 0, QtyFisik: 1}},
+		{"qty negatif", StockOpnameInput{BatchID: 1, QtyFisik: -0.001}},
+		{"qty NaN", StockOpnameInput{BatchID: 1, QtyFisik: math.NaN()}},
+		{"qty tak hingga", StockOpnameInput{BatchID: 1, QtyFisik: math.Inf(1)}},
+		{"qty terlalu besar", StockOpnameInput{BatchID: 1, QtyFisik: 1e13}},
+		{"catatan terlalu panjang", StockOpnameInput{BatchID: 1, QtyFisik: 1, Catatan: strings.Repeat("x", 1001)}},
+		{"tanggal salah format", StockOpnameInput{BatchID: 1, QtyFisik: 1, TglOpname: "kemarin"}},
+		{"tanggal masa depan", StockOpnameInput{BatchID: 1, QtyFisik: 1, TglOpname: "2026-11-08"}},
+	}
+	for _, k := range kasus {
+		t.Run(k.nama, func(t *testing.T) {
+			if _, _, err := serviceUji().validasiStockOpname(k.in); !errors.Is(err, ErrValidasi) {
+				t.Fatalf("seharusnya ErrValidasi, dapat: %v", err)
+			}
+		})
+	}
+}
+
+func TestCatatStockOpname_ValidasiSebelumDatabase(t *testing.T) {
+	// Validasi berjalan sebelum menyentuh database, jadi repo boleh nil.
+	_, err := serviceUji().CatatStockOpname(context.Background(), 1, StockOpnameInput{BatchID: 1, QtyFisik: -1})
+	if !errors.Is(err, ErrValidasi) {
+		t.Fatalf("seharusnya ErrValidasi, dapat: %v", err)
+	}
+	if _, err := serviceUji().DetailStockOpname(context.Background(), 0); !errors.Is(err, ErrValidasi) {
+		t.Fatalf("id nol seharusnya ErrValidasi, dapat: %v", err)
+	}
+}
+
+func TestSiapkanFilterStockOpname(t *testing.T) {
+	q, page, perPage, err := siapkanFilterStockOpname(FilterStockOpname{
+		BatchID: 4, Dari: "2026-11-01", Sampai: "2026-11-30", HanyaSelisih: true, Page: 2, PerPage: 10,
+	})
+	if err != nil {
+		t.Fatalf("seharusnya valid: %v", err)
+	}
+	if q.BatchID != 4 || !q.HanyaSelisih || page != 2 || perPage != 10 || q.Offset != 10 {
+		t.Fatalf("hasil salah: %+v", q)
+	}
+
+	kasus := []FilterStockOpname{
+		{BatchID: -1}, {Dari: "kemarin"}, {Sampai: "07/11/2026"},
+		{Dari: "2026-12-01", Sampai: "2026-11-01"}, {Page: -1}, {PerPage: -1},
+	}
+	for i, f := range kasus {
+		if _, _, _, err := siapkanFilterStockOpname(f); !errors.Is(err, ErrValidasi) {
+			t.Fatalf("kasus %d seharusnya ErrValidasi, dapat: %v", i, err)
+		}
+	}
+}
+
+func TestAngkaDesimalWajibForm(t *testing.T) {
+	buat := func(nilai string, ada bool) *http.Request {
+		form := neturl.Values{}
+		if ada {
+			form.Set("x", nilai)
+		}
+		req := httptest.NewRequest("POST", "/", strings.NewReader(form.Encode()))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		return req
+	}
+
+	if n, err := angkaDesimalWajibForm(buat("0", true), "x"); err != nil || n != 0 {
+		t.Fatalf("0 seharusnya sah: %v %v", n, err)
+	}
+	if n, err := angkaDesimalWajibForm(buat("12.5", true), "x"); err != nil || n != 12.5 {
+		t.Fatalf("12.5 salah: %v %v", n, err)
+	}
+	// Kosong atau tidak dikirim TIDAK boleh dianggap 0.
+	for _, r := range []*http.Request{buat("", true), buat("   ", true), buat("", false)} {
+		if _, err := angkaDesimalWajibForm(r, "x"); !errors.Is(err, ErrValidasi) {
+			t.Fatalf("kosong seharusnya ErrValidasi, dapat %v", err)
+		}
+	}
+	if _, err := angkaDesimalWajibForm(buat("NaN", true), "x"); !errors.Is(err, ErrValidasi) {
+		t.Fatalf("NaN seharusnya ErrValidasi, dapat %v", err)
+	}
+}
+
+func TestAdalahDeadlock(t *testing.T) {
+	deadlock := &mysql.MySQLError{Number: 1213, Message: "Deadlock found when trying to get lock"}
+	if !adalahDeadlock(deadlock) || !adalahDeadlock(fmt.Errorf("gagal: %w", deadlock)) {
+		t.Fatalf("deadlock tidak terdeteksi")
+	}
+	if adalahDeadlock(nil) || adalahDeadlock(errors.New("biasa")) ||
+		adalahDeadlock(&mysql.MySQLError{Number: 1062, Message: "duplicate"}) {
+		t.Fatalf("error lain dianggap deadlock")
+	}
+}
+
+func TestUlangiJikaDeadlock(t *testing.T) {
+	deadlock := fmt.Errorf("gagal: %w", &mysql.MySQLError{Number: 1213, Message: "Deadlock"})
+	ctx := context.Background()
+
+	// Dua kali deadlock lalu berhasil.
+	n := 0
+	err := ulangiJikaDeadlock(ctx, func() error {
+		n++
+		if n < 3 {
+			return deadlock
+		}
+		return nil
+	})
+	if err != nil || n != 3 {
+		t.Fatalf("seharusnya berhasil pada percobaan ke-3: err=%v n=%d", err, n)
+	}
+
+	// Error biasa tidak diulang.
+	n = 0
+	biasa := errors.New("bukan deadlock")
+	if err := ulangiJikaDeadlock(ctx, func() error { n++; return biasa }); !errors.Is(err, biasa) || n != 1 {
+		t.Fatalf("error biasa seharusnya 1 kali: err=%v n=%d", err, n)
+	}
+
+	// Deadlock terus-menerus berhenti setelah batas percobaan.
+	n = 0
+	if err := ulangiJikaDeadlock(ctx, func() error { n++; return deadlock }); !adalahDeadlock(err) || n != maksPercobaanTx {
+		t.Fatalf("seharusnya berhenti setelah %d percobaan: err=%v n=%d", maksPercobaanTx, err, n)
+	}
+
+	// Konteks dibatalkan: berhenti tanpa menunggu.
+	ctxBatal, batal := context.WithCancel(ctx)
+	batal()
+	n = 0
+	if err := ulangiJikaDeadlock(ctxBatal, func() error { n++; return deadlock }); !adalahDeadlock(err) || n != 1 {
+		t.Fatalf("konteks batal seharusnya 1 percobaan: err=%v n=%d", err, n)
 	}
 }

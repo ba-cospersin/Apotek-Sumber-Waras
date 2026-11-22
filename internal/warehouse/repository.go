@@ -29,7 +29,49 @@ type TxRepository struct {
 // WithTx menjalankan fn di dalam transaksi.
 // Jika fn mengembalikan error (atau panic), semua perubahan di-rollback.
 // Jika fn sukses, transaksi di-commit.
+// Jika transaksi dibatalkan MySQL karena deadlock, fn dijalankan ulang dari
+// awal (maksimal tiga kali), jadi fn tidak boleh punya efek di luar transaksi.
 func (r *Repository) WithTx(
+	ctx context.Context,
+	fn func(tx *TxRepository) error,
+) error {
+	return ulangiJikaDeadlock(ctx, func() error {
+		return r.jalankanTx(ctx, fn)
+	})
+}
+
+// Jumlah percobaan maksimum jika transaksi dibatalkan karena deadlock.
+const maksPercobaanTx = 3
+
+// adalahDeadlock memeriksa apakah err adalah deadlock MySQL (kode 1213).
+// MySQL membatalkan salah satu transaksi yang saling menunggu; transaksi itu
+// aman diulang dari awal.
+func adalahDeadlock(err error) bool {
+	var me *mysql.MySQLError
+	return errors.As(err, &me) && me.Number == 1213
+}
+
+// ulangiJikaDeadlock menjalankan jalankan() dan mengulanginya (maksimal
+// maksPercobaanTx kali) hanya jika kegagalannya deadlock. Error lain
+// dikembalikan apa adanya.
+func ulangiJikaDeadlock(ctx context.Context, jalankan func() error) error {
+	var err error
+	for percobaan := 1; percobaan <= maksPercobaanTx; percobaan++ {
+		err = jalankan()
+		if !adalahDeadlock(err) || percobaan == maksPercobaanTx {
+			return err
+		}
+		select {
+		case <-ctx.Done():
+			return err
+		case <-time.After(time.Duration(percobaan) * 20 * time.Millisecond):
+		}
+	}
+	return err
+}
+
+// jalankanTx menjalankan satu kali transaksi (tanpa pengulangan).
+func (r *Repository) jalankanTx(
 	ctx context.Context,
 	fn func(tx *TxRepository) error,
 ) error {
@@ -812,6 +854,284 @@ func (r *Repository) ListTindakLanjut(
 	}
 	if err := rows.Err(); err != nil {
 		return nil, 0, fmt.Errorf("gagal membaca riwayat tindak lanjut: %w", err)
+	}
+
+	return hasil, total, nil
+}
+
+// ---------- Stock opname ----------
+
+// BatchAda memeriksa apakah batch dengan id tersebut ada (tanpa mengunci).
+func (t *TxRepository) BatchAda(
+	ctx context.Context,
+	id int64,
+) (bool, error) {
+	var n int
+	err := t.tx.QueryRowContext(
+		ctx,
+		`SELECT COUNT(*) FROM batches WHERE id = ?`,
+		id,
+	).Scan(&n)
+	if err != nil {
+		return false, fmt.Errorf("gagal memeriksa batch: %w", err)
+	}
+	return n > 0, nil
+}
+
+// LockLapisanBatch mengunci (FOR UPDATE) dan mengambil SEMUA lapisan penerimaan
+// sebuah batch, diurutkan dari yang paling dahulu diterima.
+//
+// Bentuk query (JOIN batches ... FOR UPDATE) sengaja sama dengan query lapisan
+// milik modul Kasir, supaya urutan penguncian baris kedua modul sama dan
+// peluang deadlock kecil.
+func (t *TxRepository) LockLapisanBatch(
+	ctx context.Context,
+	batchID int64,
+) ([]LapisanStok, error) {
+	rows, err := t.tx.QueryContext(
+		ctx,
+		`SELECT r.id, r.batch_id, r.qty_sisa, r.harga_beli_per_dasar
+		   FROM batch_receipts r
+		   JOIN batches b ON b.id = r.batch_id
+		  WHERE r.batch_id = ?
+		  ORDER BY r.tanggal_terima ASC, r.id ASC
+		    FOR UPDATE`,
+		batchID,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("gagal mengunci lapisan batch: %w", err)
+	}
+	defer rows.Close()
+
+	var hasil []LapisanStok
+	for rows.Next() {
+		var l LapisanStok
+		if err := rows.Scan(&l.ID, &l.BatchID, &l.QtySisa, &l.HargaBeliPerDasar); err != nil {
+			return nil, fmt.Errorf("gagal membaca lapisan batch: %w", err)
+		}
+		hasil = append(hasil, l)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("gagal membaca lapisan batch: %w", err)
+	}
+	return hasil, nil
+}
+
+// TambahStokLapisan menambah qty_sisa sebuah lapisan.
+func (t *TxRepository) TambahStokLapisan(
+	ctx context.Context,
+	id int64,
+	qty float64,
+) error {
+	res, err := t.tx.ExecContext(
+		ctx,
+		`UPDATE batch_receipts SET qty_sisa = qty_sisa + ? WHERE id = ?`,
+		qty, id,
+	)
+	if err != nil {
+		return fmt.Errorf("gagal menambah stok lapisan: %w", err)
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("gagal memeriksa penambahan stok: %w", err)
+	}
+	if n != 1 {
+		return fmt.Errorf("lapisan penerimaan %d tidak ditemukan saat menambah stok", id)
+	}
+	return nil
+}
+
+// InsertStockOpname menyimpan header hasil opname.
+func (t *TxRepository) InsertStockOpname(
+	ctx context.Context,
+	o OpnameBaru,
+) (int64, error) {
+	var catatan sql.NullString
+	if o.Catatan != "" {
+		catatan = sql.NullString{String: o.Catatan, Valid: true}
+	}
+
+	res, err := t.tx.ExecContext(
+		ctx,
+		`INSERT INTO stock_opnames
+		   (batch_id, user_id, qty_sistem, qty_fisik, catatan, tanggal)
+		 VALUES (?, ?, ?, ?, ?, ?)`,
+		o.BatchID, o.UserID, o.QtySistem, o.QtyFisik, catatan,
+		o.Waktu.Format("2006-01-02 15:04:05"),
+	)
+	if err != nil {
+		return 0, fmt.Errorf("gagal menyimpan stock opname: %w", err)
+	}
+	return res.LastInsertId()
+}
+
+// InsertOpnameDetail menyimpan penyesuaian satu lapisan.
+func (t *TxRepository) InsertOpnameDetail(
+	ctx context.Context,
+	opnameID, receiptID int64,
+	penyesuaian, sebelum, sesudah float64,
+) error {
+	_, err := t.tx.ExecContext(
+		ctx,
+		`INSERT INTO stock_opname_details
+		   (stock_opname_id, batch_receipt_id, qty_penyesuaian, qty_sisa_sebelum, qty_sisa_sesudah)
+		 VALUES (?, ?, ?, ?, ?)`,
+		opnameID, receiptID, penyesuaian, sebelum, sesudah,
+	)
+	if err != nil {
+		return fmt.Errorf("gagal menyimpan detail stock opname: %w", err)
+	}
+	return nil
+}
+
+// GetStockOpname mengambil satu hasil opname beserta penyesuaiannya.
+// Mengembalikan nil jika tidak ditemukan. Field turunan (selisih, status,
+// nilai) diisi oleh service.
+func (r *Repository) GetStockOpname(
+	ctx context.Context,
+	id int64,
+) (*StockOpname, error) {
+	var o StockOpname
+	var kadaluarsa, tanggal time.Time
+	var catatan sql.NullString
+
+	err := r.db.QueryRowContext(
+		ctx,
+		`SELECT so.id, so.batch_id, b.medicine_id, m.kode, m.nama, m.satuan_dasar,
+		        b.no_batch, b.tgl_kadaluarsa, so.qty_sistem, so.qty_fisik,
+		        so.catatan, u.nama, so.tanggal
+		   FROM stock_opnames so
+		   JOIN batches b ON b.id = so.batch_id
+		   JOIN medicines m ON m.id = b.medicine_id
+		   JOIN users u ON u.id = so.user_id
+		  WHERE so.id = ?`,
+		id,
+	).Scan(
+		&o.OpnameID, &o.BatchID, &o.MedicineID, &o.KodeObat, &o.NamaObat,
+		&o.SatuanDasar, &o.NoBatch, &kadaluarsa, &o.QtySistem, &o.QtyFisik,
+		&catatan, &o.DicatatOleh, &tanggal,
+	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("gagal mengambil stock opname: %w", err)
+	}
+	o.TglKadaluarsa = kadaluarsa.Format(layoutTanggal)
+	o.Tanggal = tanggal.Format("2006-01-02 15:04:05")
+	if catatan.Valid {
+		o.Catatan = catatan.String
+	}
+
+	rows, err := r.db.QueryContext(
+		ctx,
+		`SELECT d.batch_receipt_id, p.no_faktur, r.tanggal_terima,
+		        r.harga_beli_per_dasar, d.qty_penyesuaian,
+		        d.qty_sisa_sebelum, d.qty_sisa_sesudah
+		   FROM stock_opname_details d
+		   JOIN batch_receipts r ON r.id = d.batch_receipt_id
+		   JOIN purchases p ON p.id = r.purchase_id
+		  WHERE d.stock_opname_id = ?
+		  ORDER BY d.id`,
+		id,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("gagal mengambil detail stock opname: %w", err)
+	}
+	defer rows.Close()
+
+	o.Penyesuaian = make([]PenyesuaianLapisan, 0)
+	for rows.Next() {
+		var p PenyesuaianLapisan
+		var terima time.Time
+		if err := rows.Scan(
+			&p.ReceiptID, &p.NoFaktur, &terima, &p.HargaBeliPerDasar,
+			&p.QtyPenyesuaian, &p.QtySisaSebelum, &p.QtySisaSesudah,
+		); err != nil {
+			return nil, fmt.Errorf("gagal membaca detail stock opname: %w", err)
+		}
+		p.TanggalTerima = terima.Format("2006-01-02 15:04:05")
+		o.Penyesuaian = append(o.Penyesuaian, p)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("gagal membaca detail stock opname: %w", err)
+	}
+
+	return &o, nil
+}
+
+// ListStockOpname mengambil satu halaman riwayat opname, terbaru dulu.
+func (r *Repository) ListStockOpname(
+	ctx context.Context,
+	q QueryStockOpname,
+) ([]RiwayatStockOpname, int, error) {
+	const dari = `
+	  FROM stock_opnames so
+	  JOIN batches b ON b.id = so.batch_id
+	  JOIN medicines m ON m.id = b.medicine_id
+	  JOIN users u ON u.id = so.user_id`
+
+	where := " WHERE 1=1"
+	var args []any
+
+	if q.BatchID > 0 {
+		where += " AND so.batch_id = ?"
+		args = append(args, q.BatchID)
+	}
+	if q.Dari != "" {
+		where += " AND DATE(so.tanggal) >= ?"
+		args = append(args, q.Dari)
+	}
+	if q.Sampai != "" {
+		where += " AND DATE(so.tanggal) <= ?"
+		args = append(args, q.Sampai)
+	}
+	if q.HanyaSelisih {
+		where += " AND so.qty_fisik <> so.qty_sistem"
+	}
+
+	var total int
+	if err := r.db.QueryRowContext(ctx, `SELECT COUNT(*)`+dari+where, args...).Scan(&total); err != nil {
+		return nil, 0, fmt.Errorf("gagal menghitung riwayat stock opname: %w", err)
+	}
+
+	argsHalaman := append(append([]any{}, args...), q.Limit, q.Offset)
+
+	rows, err := r.db.QueryContext(
+		ctx,
+		`SELECT so.id, so.batch_id, b.medicine_id, m.kode, m.nama, m.satuan_dasar,
+		        b.no_batch, so.qty_sistem, so.qty_fisik,
+		        (SELECT COUNT(*) FROM stock_opname_details d WHERE d.stock_opname_id = so.id),
+		        so.catatan, u.nama, so.tanggal`+dari+where+`
+		  ORDER BY so.tanggal DESC, so.id DESC
+		  LIMIT ? OFFSET ?`,
+		argsHalaman...,
+	)
+	if err != nil {
+		return nil, 0, fmt.Errorf("gagal mengambil riwayat stock opname: %w", err)
+	}
+	defer rows.Close()
+
+	hasil := make([]RiwayatStockOpname, 0)
+	for rows.Next() {
+		var it RiwayatStockOpname
+		var catatan sql.NullString
+		var tanggal time.Time
+		if err := rows.Scan(
+			&it.OpnameID, &it.BatchID, &it.MedicineID, &it.KodeObat, &it.NamaObat,
+			&it.SatuanDasar, &it.NoBatch, &it.QtySistem, &it.QtyFisik,
+			&it.JumlahLapisan, &catatan, &it.DicatatOleh, &tanggal,
+		); err != nil {
+			return nil, 0, fmt.Errorf("gagal membaca riwayat stock opname: %w", err)
+		}
+		if catatan.Valid {
+			it.Catatan = catatan.String
+		}
+		it.Tanggal = tanggal.Format("2006-01-02 15:04:05")
+		hasil = append(hasil, it)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, 0, fmt.Errorf("gagal membaca riwayat stock opname: %w", err)
 	}
 
 	return hasil, total, nil

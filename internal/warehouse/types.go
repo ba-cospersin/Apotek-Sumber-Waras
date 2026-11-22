@@ -379,3 +379,111 @@ type DaftarTindakLanjut struct {
 	Data []RiwayatTindakLanjut `json:"data"`
 	Meta Halaman               `json:"meta"`
 }
+
+// ---------- Stock opname ----------
+
+// Batas jumlah (DECIMAL(15,3)).
+const maksQty = 999999999999.999
+
+// Nilai status_selisih pada hasil stock opname.
+const (
+	selisihSesuai = "SESUAI"
+	selisihKurang = "KURANG"
+	selisihLebih  = "LEBIH"
+)
+
+// StockOpnameInput adalah hasil hitung fisik satu batch fisik.
+type StockOpnameInput struct {
+	BatchID   int64   `json:"batch_id"`
+	QtyFisik  float64 `json:"qty_fisik"`  // hasil hitung fisik, satuan dasar
+	Catatan   string  `json:"catatan"`    // opsional
+	TglOpname string  `json:"tgl_opname"` // YYYY-MM-DD, opsional (kosong = hari ini)
+}
+
+// PenyesuaianLapisan adalah perubahan stok pada satu lapisan penerimaan
+// akibat selisih stock opname.
+type PenyesuaianLapisan struct {
+	ReceiptID         int64   `json:"receipt_id"`
+	NoFaktur          string  `json:"no_faktur"`
+	TanggalTerima     string  `json:"tanggal_terima"`
+	HargaBeliPerDasar float64 `json:"harga_beli_per_dasar"`
+	QtyPenyesuaian    float64 `json:"qty_penyesuaian"` // negatif = dikurangi
+	QtySisaSebelum    float64 `json:"qty_sisa_sebelum"`
+	QtySisaSesudah    float64 `json:"qty_sisa_sesudah"`
+}
+
+// StockOpname adalah satu hasil opname beserta penyesuaiannya.
+type StockOpname struct {
+	OpnameID      int64                `json:"opname_id"`
+	BatchID       int64                `json:"batch_id"`
+	MedicineID    int64                `json:"medicine_id"`
+	KodeObat      string               `json:"kode_obat"`
+	NamaObat      string               `json:"nama_obat"`
+	SatuanDasar   string               `json:"satuan_dasar"`
+	NoBatch       string               `json:"no_batch"`
+	TglKadaluarsa string               `json:"tgl_kadaluarsa"`
+	QtySistem     float64              `json:"qty_sistem"`
+	QtyFisik      float64              `json:"qty_fisik"`
+	Selisih       float64              `json:"selisih"`        // fisik - sistem
+	StatusSelisih string               `json:"status_selisih"` // SESUAI, KURANG, LEBIH
+	NilaiSelisih  float64              `json:"nilai_selisih"`  // total (penyesuaian x harga beli lapisan)
+	Catatan       string               `json:"catatan"`
+	DicatatOleh   string               `json:"dicatat_oleh"`
+	Tanggal       string               `json:"tanggal"`
+	Penyesuaian   []PenyesuaianLapisan `json:"penyesuaian"`
+}
+
+// OpnameBaru adalah baris yang akan disimpan ke stock_opnames.
+type OpnameBaru struct {
+	BatchID   int64
+	UserID    int64
+	QtySistem float64
+	QtyFisik  float64
+	Catatan   string
+	Waktu     time.Time
+}
+
+// FilterStockOpname adalah filter dari pengguna untuk riwayat opname.
+type FilterStockOpname struct {
+	BatchID      int64
+	Dari         string // YYYY-MM-DD
+	Sampai       string // YYYY-MM-DD
+	HanyaSelisih bool   // true = hanya opname yang ada selisihnya
+	Page         int
+	PerPage      int
+}
+
+// QueryStockOpname adalah filter yang sudah divalidasi, siap untuk SQL.
+type QueryStockOpname struct {
+	BatchID      int64
+	Dari         string
+	Sampai       string
+	HanyaSelisih bool
+	Limit        int
+	Offset       int
+}
+
+// RiwayatStockOpname adalah satu baris pada riwayat opname.
+type RiwayatStockOpname struct {
+	OpnameID      int64   `json:"opname_id"`
+	BatchID       int64   `json:"batch_id"`
+	MedicineID    int64   `json:"medicine_id"`
+	KodeObat      string  `json:"kode_obat"`
+	NamaObat      string  `json:"nama_obat"`
+	SatuanDasar   string  `json:"satuan_dasar"`
+	NoBatch       string  `json:"no_batch"`
+	QtySistem     float64 `json:"qty_sistem"`
+	QtyFisik      float64 `json:"qty_fisik"`
+	Selisih       float64 `json:"selisih"`
+	StatusSelisih string  `json:"status_selisih"`
+	JumlahLapisan int     `json:"jumlah_lapisan_disesuaikan"`
+	Catatan       string  `json:"catatan"`
+	DicatatOleh   string  `json:"dicatat_oleh"`
+	Tanggal       string  `json:"tanggal"`
+}
+
+// DaftarStockOpname adalah satu halaman riwayat opname.
+type DaftarStockOpname struct {
+	Data []RiwayatStockOpname `json:"data"`
+	Meta Halaman              `json:"meta"`
+}

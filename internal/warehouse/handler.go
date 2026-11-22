@@ -48,6 +48,11 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux, auth *middleware.Auth) {
 	// Pemusnahan dan retur ke PBF (URL sementara, sama seperti di atas).
 	mux.Handle("POST /gudang/tindak-lanjut", gudang(h.CatatTindakLanjut))
 	mux.Handle("GET /gudang/tindak-lanjut", gudang(h.ListTindakLanjut))
+
+	// Stock opname (URL sementara, sama seperti di atas).
+	mux.Handle("POST /gudang/stock-opname", gudang(h.CatatStockOpname))
+	mux.Handle("GET /gudang/stock-opname", gudang(h.ListStockOpname))
+	mux.Handle("GET /gudang/stock-opname/{id}", gudang(h.DetailStockOpname))
 }
 
 // CreatePenerimaan menangani POST /gudang/penerimaan.
@@ -329,6 +334,117 @@ func (h *Handler) ListTindakLanjut(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, hasil)
+}
+
+// CatatStockOpname menangani POST /gudang/stock-opname.
+//
+// Data berupa form biasa. Field: batch_id, qty_fisik (wajib, boleh 0),
+// catatan (opsional), tgl_opname (opsional, YYYY-MM-DD). Angka memakai titik
+// desimal. Jika berhasil, pengguna diarahkan (303) ke detail hasil opname.
+func (h *Handler) CatatStockOpname(w http.ResponseWriter, r *http.Request) {
+	user, ok := middleware.CurrentUser(r)
+	if !ok {
+		writeError(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+	if err := r.ParseForm(); err != nil {
+		writeError(w, http.StatusBadRequest, "form tidak valid: "+err.Error())
+		return
+	}
+
+	batchID, err := angkaBulatForm(r, "batch_id")
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+	qtyFisik, err := angkaDesimalWajibForm(r, "qty_fisik")
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	hasil, err := h.svc.CatatStockOpname(r.Context(), user.ID, StockOpnameInput{
+		BatchID:   batchID,
+		QtyFisik:  qtyFisik,
+		Catatan:   r.PostFormValue("catatan"),
+		TglOpname: r.PostFormValue("tgl_opname"),
+	})
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	http.Redirect(w, r, "/gudang/stock-opname/"+strconv.FormatInt(hasil.OpnameID, 10), http.StatusSeeOther)
+}
+
+// DetailStockOpname menangani GET /gudang/stock-opname/{id}.
+func (h *Handler) DetailStockOpname(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "id stock opname harus berupa angka")
+		return
+	}
+
+	hasil, err := h.svc.DetailStockOpname(r.Context(), id)
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{"data": hasil})
+}
+
+// ListStockOpname menangani GET /gudang/stock-opname.
+//
+// Query string (semuanya opsional): batch_id, dari, sampai,
+// hanya_selisih=1, page, per_page.
+func (h *Handler) ListStockOpname(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+
+	batchID, err := angkaQuery(q, "batch_id")
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+	page, err := angkaQuery(q, "page")
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+	perPage, err := angkaQuery(q, "per_page")
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	hanyaSelisih := q.Get("hanya_selisih") == "1" || q.Get("hanya_selisih") == "true"
+
+	hasil, err := h.svc.DaftarStockOpname(r.Context(), FilterStockOpname{
+		BatchID:      batchID,
+		Dari:         q.Get("dari"),
+		Sampai:       q.Get("sampai"),
+		HanyaSelisih: hanyaSelisih,
+		Page:         int(page),
+		PerPage:      int(perPage),
+	})
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, hasil)
+}
+
+// angkaDesimalWajibForm sama seperti angkaDesimalForm, tetapi field TIDAK
+// boleh kosong. Dipakai untuk angka yang 0-nya bermakna (misalnya hasil hitung
+// fisik), supaya form yang lupa diisi tidak dianggap 0.
+func angkaDesimalWajibForm(r *http.Request, kunci string) (float64, error) {
+	if strings.TrimSpace(r.PostFormValue(kunci)) == "" {
+		return 0, validasi("%s wajib diisi", kunci)
+	}
+	return angkaDesimalForm(r, kunci)
 }
 
 // angkaBulatForm membaca field form berupa bilangan bulat. Kosong dianggap 0.
