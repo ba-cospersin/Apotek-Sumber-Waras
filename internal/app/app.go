@@ -9,6 +9,7 @@ import (
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/middleware"
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/router"
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/view"
+	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/warehouse"
 )
 
 // Application merupakan hasil inisialisasi seluruh komponen utama aplikasi.
@@ -36,6 +37,12 @@ func New(db *sql.DB) (*Application, error) {
 	authHandler := auth.NewHandler(authSvc, authMw, renderer)
 
 	mux := router.New(db, renderer, authHandler, authMw)
+
+	// Modul Petugas Gudang memakai connection pool yang sama dengan auth.
+	warehouseHandler := warehouse.NewHandler(
+		warehouse.NewService(warehouse.NewRepository(db)),
+	)
+	warehouseHandler.RegisterRoutes(mux, authMw)
 
 	return &Application{
 		Handler: mux,
