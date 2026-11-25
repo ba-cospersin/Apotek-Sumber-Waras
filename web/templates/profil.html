@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#fff8f6">
+    <title>{{.Title}} &mdash; Apotek Sumber Waras</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/profil.css?v=1">
+</head>
+<body class="profile-body">
+    <header class="profile-topbar">
+        <a class="btn btn-outline btn-sm profile-back" href="{{.HomeURL}}">
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 19 3 12l7-7M3 12h18"/></svg>
+            <span>Kembali ke Halaman Utama</span>
+        </a>
+
+        <div class="profile-brand">
+            <img class="profile-brand-logo" src="/static/img/logo.svg" alt="" width="36" height="36">
+            <div class="profile-brand-copy">
+                <strong>APOTEK SUMBER WARAS</strong>
+                <small>Sistem Stok Apotek</small>
+            </div>
+        </div>
+    </header>
+
+    <main class="profile-main">
+        <section class="profile-hero">
+            <span class="profile-avatar" aria-hidden="true">{{.AvatarText}}</span>
+            <div class="profile-hero-copy">
+                <div class="profile-name-row">
+                    <h1>{{.User.Nama}}</h1>
+                    <span class="profile-role-badge">{{.RoleLabel}}</span>
+                </div>
+                <p>Detail informasi akun pengguna yang sedang masuk pada sistem Apotek Sumber Waras.</p>
+            </div>
+        </section>
+
+        <section class="profile-card">
+            <div class="profile-card-head">
+                <div>
+                    <h2>Informasi Akun Pengguna</h2>
+                    <p>Data identitas akun sesuai hak akses sistem</p>
+                </div>
+                <span class="profile-status {{if .User.IsActive}}is-active{{else}}is-inactive{{end}}">
+                    {{if .User.IsActive}}Aktif{{else}}Nonaktif{{end}}
+                </span>
+            </div>
+
+            <div class="profile-fields">
+                <div class="profile-field">
+                    <span>Nama</span>
+                    <strong>{{.User.Nama}}</strong>
+                </div>
+                <div class="profile-field">
+                    <span>Username</span>
+                    <strong>{{.User.Username}}</strong>
+                </div>
+                <div class="profile-field">
+                    <span>Email</span>
+                    <strong>{{if .User.Email}}{{.User.Email}}{{else}}-{{end}}</strong>
+                </div>
+                <div class="profile-field">
+                    <span>Role</span>
+                    <strong>{{.RoleLabel}}</strong>
+                </div>
+            </div>
+        </section>
+
+        <p class="profile-note">
+            Data profil mengikuti akun yang tersimpan pada tabel pengguna dan hanya dapat diubah melalui Manajemen Pengguna.
+        </p>
+    </main>
+    <script src="/static/js/session-guard.js?v=1" defer></script>
+</body>
+</html>

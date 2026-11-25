@@ -79,6 +79,16 @@ func (a *Auth) RequireLogin(
 		w http.ResponseWriter,
 		r *http.Request,
 	) {
+		// Halaman yang membutuhkan login tidak boleh disimpan di cache browser.
+		// Tanpa ini, tombol Back setelah logout dapat menampilkan halaman lama
+		// dari cache/bfcache tanpa memeriksa session ke server.
+		w.Header().Set(
+			"Cache-Control",
+			"no-store, no-cache, must-revalidate, max-age=0",
+		)
+		w.Header().Set("Pragma", "no-cache")
+		w.Header().Set("Expires", "0")
+
 		if a.Sessions == nil {
 			http.Error(
 				w,

@@ -1,5 +1,5 @@
 -- Menambahkan penyimpanan server-side session untuk autentikasi pengguna.
--- Token asli hanya dikirim melalui cookie browser; database menyimpan hash SHA-256.
+-- Token asli hanya dikirim melalui cookie browser, database menyimpan hash SHA-256.
 -- Satu akun dibatasi memiliki maksimal satu baris session aktif.
 
 CREATE TABLE IF NOT EXISTS sessions (
