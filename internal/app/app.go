@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/auth"
+	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/cashier"
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/middleware"
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/router"
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/view"
@@ -43,6 +44,10 @@ func New(db *sql.DB) (*Application, error) {
 		warehouse.NewService(warehouse.NewRepository(db)),
 	)
 	warehouseHandler.RegisterRoutes(mux, authMw)
+
+	// Modul kasir: penjualan, retur konsumen, dan laporan laba.
+	cashierSvc := cashier.NewService(cashier.NewRepository(db), cashier.StokKasir{})
+	cashier.NewHandler(cashierSvc).RegisterRoutes(mux, authMw)
 
 	return &Application{
 		Handler: mux,

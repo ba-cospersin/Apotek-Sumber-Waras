@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestSisaRetur(t *testing.T) {
@@ -109,5 +110,55 @@ func TestTetapkanKelayakan_TolakInputTidakValid(t *testing.T) {
 				t.Fatalf("seharusnya ErrValidasi, dapat %v", err)
 			}
 		})
+	}
+}
+
+func TestIdDariNomor(t *testing.T) {
+	tests := []struct {
+		nomor string
+		id    int64
+		ok    bool
+	}{
+		{"42", 42, true},
+		{" 42 ", 42, true},
+		{"TRX-20261107-0042", 42, true},
+		{"trx-20261107-0042", 42, true},
+		{"TRX-20261107-42", 42, true},
+		{"abc", 0, false},
+		{"TRX-", 0, false},
+		{"TRX-abc", 0, false},
+		{"0", 0, false},
+		{"-5", 0, false},
+		{"", 0, false},
+	}
+	for _, tc := range tests {
+		id, ok := idDariNomor(tc.nomor)
+		if id != tc.id || ok != tc.ok {
+			t.Errorf("idDariNomor(%q) = %d, %v; seharusnya %d, %v", tc.nomor, id, ok, tc.id, tc.ok)
+		}
+	}
+}
+
+func TestNoRetur(t *testing.T) {
+	got := noRetur(time.Date(2026, 11, 6, 9, 0, 0, 0, time.UTC), 12)
+	if got != "RET-20261106-0012" {
+		t.Fatalf("nomor retur %q, seharusnya RET-20261106-0012", got)
+	}
+}
+
+func TestCariPenjualanRetur_NomorTidakValid(t *testing.T) {
+	s := NewService(nil, nil) // validasi terjadi sebelum repo dipakai
+	_, err := s.CariPenjualanRetur(context.Background(), "abc")
+	if !errors.Is(err, ErrValidasi) {
+		t.Fatalf("seharusnya ErrValidasi, dapat %v", err)
+	}
+}
+
+func TestRiwayatRetur_LimitTidakValid(t *testing.T) {
+	s := NewService(nil, nil)
+	for _, limit := range []int{-1, riwayatMaks + 1} {
+		if _, err := s.RiwayatRetur(context.Background(), limit); !errors.Is(err, ErrValidasi) {
+			t.Fatalf("limit %d: seharusnya ErrValidasi, dapat %v", limit, err)
+		}
 	}
 }

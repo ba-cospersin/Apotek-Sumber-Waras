@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 )
 
 func TestJual_TolakInputTidakValid(t *testing.T) {
@@ -72,5 +73,12 @@ func TestLengkapiStruk_SeedPenjualan1(t *testing.T) {
 	}
 	if st.Kembalian != 1000 {
 		t.Fatalf("kembalian %v, seharusnya 1000", st.Kembalian)
+	}
+}
+
+func TestNoTransaksi(t *testing.T) {
+	got := noTransaksi(time.Date(2026, 11, 7, 10, 42, 0, 0, time.UTC), 42)
+	if got != "TRX-20261107-0042" {
+		t.Fatalf("nomor transaksi %q, seharusnya TRX-20261107-0042", got)
 	}
 }

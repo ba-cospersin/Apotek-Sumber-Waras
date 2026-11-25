@@ -105,6 +105,7 @@ type StrukItem struct {
 // Struk adalah data untuk menampilkan dan mencetak struk penjualan.
 type Struk struct {
 	SaleID      int64       `json:"sale_id"`
+	NoTransaksi string      `json:"no_transaksi"`
 	Tanggal     time.Time   `json:"tanggal"`
 	Kasir       string      `json:"kasir"`
 	MetodeBayar string      `json:"metode_bayar"`
@@ -184,6 +185,7 @@ type ReturItem struct {
 // PenjualanRetur adalah transaksi asal yang ditampilkan di halaman retur.
 type PenjualanRetur struct {
 	SaleID  int64       `json:"sale_id"`
+	NoTransaksi string      `json:"no_transaksi"`
 	Tanggal time.Time   `json:"tanggal"`
 	Kasir   string      `json:"kasir"`
 	Total   float64     `json:"total"`
@@ -225,4 +227,18 @@ type LaporanLaba struct {
 	Transaksi []LabaTransaksi `json:"transaksi"`
 	Limit     int             `json:"limit"`
 	Offset    int             `json:"offset"`
+}
+
+// ReturRiwayat adalah satu baris riwayat retur konsumen.
+type ReturRiwayat struct {
+	ReturID           int64     `json:"retur_id"`
+	NoRetur           string    `json:"no_retur"`
+	Tanggal           time.Time `json:"tanggal"`
+	NamaObat          string    `json:"nama_obat"`
+	NoBatch           string    `json:"no_batch"`
+	QtyDasar          float64   `json:"qty_dasar"`
+	SatuanDasar       string    `json:"satuan_dasar"`
+	JenisPengembalian string    `json:"jenis_pengembalian"`
+	StatusKelayakan   string    `json:"status_kelayakan"`
+	NilaiRefund       float64   `json:"nilai_refund"`
 }

@@ -717,3 +717,4 @@
         font-size: 18px;
     }
 }
+.cashier-footnote[hidden] { display: none; }

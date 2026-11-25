@@ -21,19 +21,15 @@ func NewHandler(svc *Service) *Handler {
 }
 
 // RegisterRoutes mendaftarkan route modul kasir ke router.
-// Semua route wajib login. Penjualan hanya untuk KASIR,
-// struk juga boleh dilihat OWNER.
+// Semua route wajib login. Penjualan dan retur boleh diakses KASIR dan OWNER
+// (owner dapat mengakses semua fitur); laporan laba hanya untuk OWNER.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux, auth *middleware.Auth) {
 	kasir := func(next http.HandlerFunc) http.Handler {
-		return auth.RequireLogin(
-			middleware.RequireRole(model.RoleCashier)(next),
-		)
-	}
-	kasirDanOwner := func(next http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(
 			middleware.RequireRole(model.RoleCashier, model.RoleOwner)(next),
 		)
 	}
+	kasirDanOwner := kasir // nama lama dipertahankan untuk route struk
 	owner := func(next http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(
 			middleware.RequireRole(model.RoleOwner)(next),
@@ -45,6 +41,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux, auth *middleware.Auth) {
 	mux.Handle("GET /kasir/struk/{id}", kasirDanOwner(h.Struk))
 	mux.Handle("GET /retur/penjualan/{id}", kasir(h.PenjualanRetur))
 	mux.Handle("POST /retur", kasir(h.CatatRetur))
+	mux.Handle("GET /retur/riwayat", kasir(h.RiwayatRetur))
 	mux.Handle("POST /retur/{id}/kelayakan", kasir(h.TetapkanKelayakan))
 	mux.Handle("GET /laporan/laba", owner(h.LaporanLaba))
 }
@@ -148,14 +145,9 @@ func bacaJSON(w http.ResponseWriter, r *http.Request, dst any) bool {
 }
 
 // PenjualanRetur menangani GET /retur/penjualan/{id}.
+// {id} boleh berupa angka atau nomor transaksi berformat TRX-YYYYMMDD-NNNN.
 func (h *Handler) PenjualanRetur(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
-	if err != nil {
-		writeError(w, http.StatusBadRequest, "id penjualan harus berupa angka")
-		return
-	}
-
-	p, err := h.svc.PenjualanUntukRetur(r.Context(), id)
+	p, err := h.svc.CariPenjualanRetur(r.Context(), r.PathValue("id"))
 	if err != nil {
 		writeServiceError(w, err)
 		return
@@ -234,4 +226,20 @@ func angkaQuery(s string) (int, error) {
 		return 0, nil
 	}
 	return strconv.Atoi(s)
+}
+
+// RiwayatRetur menangani GET /retur/riwayat?limit=10
+func (h *Handler) RiwayatRetur(w http.ResponseWriter, r *http.Request) {
+	limit, err := angkaQuery(r.URL.Query().Get("limit"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "limit harus berupa angka")
+		return
+	}
+
+	daftar, err := h.svc.RiwayatRetur(r.Context(), limit)
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"data": daftar})
 }

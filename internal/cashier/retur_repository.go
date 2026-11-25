@@ -221,3 +221,41 @@ func (t *TxRepository) UbahKelayakan(ctx context.Context, id int64, statusBaru s
 	}
 	return nil
 }
+
+// RiwayatRetur mengambil retur terbaru beserta nama obat dan nomor batch.
+func (r *Repository) RiwayatRetur(ctx context.Context, limit int) ([]ReturRiwayat, error) {
+	rows, err := r.db.QueryContext(ctx,
+		`SELECT rt.id, rt.tanggal, m.nama, b.no_batch, rt.qty_dasar, m.satuan_dasar,
+		        rt.jenis_pengembalian, rt.status_kelayakan, rt.nilai_refund
+		   FROM returns rt
+		   JOIN sale_item_batches sib ON sib.id = rt.sale_item_batch_id
+		   JOIN sale_items si ON si.id = sib.sale_item_id
+		   JOIN medicine_units un ON un.id = si.unit_id
+		   JOIN medicines m ON m.id = un.medicine_id
+		   JOIN batch_receipts br ON br.id = sib.batch_receipt_id
+		   JOIN batches b ON b.id = br.batch_id
+		  ORDER BY rt.tanggal DESC, rt.id DESC
+		  LIMIT ?`,
+		limit,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("gagal mengambil riwayat retur: %w", err)
+	}
+	defer rows.Close()
+
+	hasil := make([]ReturRiwayat, 0)
+	for rows.Next() {
+		var h ReturRiwayat
+		if err := rows.Scan(
+			&h.ReturID, &h.Tanggal, &h.NamaObat, &h.NoBatch, &h.QtyDasar, &h.SatuanDasar,
+			&h.JenisPengembalian, &h.StatusKelayakan, &h.NilaiRefund,
+		); err != nil {
+			return nil, fmt.Errorf("gagal membaca riwayat retur: %w", err)
+		}
+		hasil = append(hasil, h)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("gagal membaca riwayat retur: %w", err)
+	}
+	return hasil, nil
+}

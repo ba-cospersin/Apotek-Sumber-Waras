@@ -3,7 +3,9 @@ package cashier
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 	"unicode/utf8"
 )
 
@@ -44,6 +46,7 @@ func (s *Service) PenjualanUntukRetur(ctx context.Context, saleID int64) (*Penju
 	if err != nil {
 		return nil, err
 	}
+	p.NoTransaksi = noTransaksi(p.Tanggal, p.SaleID)
 	for i := range p.Items {
 		for j := range p.Items[i].Batches {
 			b := &p.Items[i].Batches[j]
@@ -209,4 +212,68 @@ func (s *Service) TetapkanKelayakan(
 		return nil, err
 	}
 	return hasil, nil
+}
+
+const (
+	riwayatBawaan = 10
+	riwayatMaks   = 50
+)
+
+// idDariNomor menerima nomor transaksi berformat TRX-YYYYMMDD-NNNN atau angka biasa.
+func idDariNomor(nomor string) (int64, bool) {
+	s := strings.ToUpper(strings.TrimSpace(nomor))
+	if strings.HasPrefix(s, "TRX-") {
+		s = s[strings.LastIndex(s, "-")+1:]
+	}
+	id, err := strconv.ParseInt(s, 10, 64)
+	if err != nil || id <= 0 {
+		return 0, false
+	}
+	return id, true
+}
+
+// noRetur membentuk nomor retur yang ditampilkan, misalnya RET-20261106-0012.
+// Diturunkan dari tanggal dan id, tidak disimpan di database.
+func noRetur(tanggal time.Time, id int64) string {
+	return fmt.Sprintf("RET-%s-%04d", tanggal.Format("20060102"), id)
+}
+
+// CariPenjualanRetur mencari transaksi asal dari nomor berformat TRX-... atau angka.
+// Jika berformat TRX, bagian tanggalnya harus cocok dengan tanggal transaksi
+// (mencegah salah ketik diterima).
+func (s *Service) CariPenjualanRetur(ctx context.Context, nomor string) (*PenjualanRetur, error) {
+	id, ok := idDariNomor(nomor)
+	if !ok {
+		return nil, validasi("nomor transaksi tidak valid")
+	}
+	p, err := s.PenjualanUntukRetur(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if bagian := strings.Split(strings.ToUpper(strings.TrimSpace(nomor)), "-"); len(bagian) > 1 {
+		if len(bagian) != 3 || bagian[1] != p.Tanggal.Format("20060102") {
+			return nil, ErrTidakDitemukan
+		}
+	}
+	return p, nil
+}
+
+// RiwayatRetur mengambil retur terbaru untuk ditampilkan di halaman retur.
+func (s *Service) RiwayatRetur(ctx context.Context, limit int) ([]ReturRiwayat, error) {
+	if limit == 0 {
+		limit = riwayatBawaan
+	}
+	if limit < 0 || limit > riwayatMaks {
+		return nil, validasi("limit harus antara 1 dan %d", riwayatMaks)
+	}
+
+	daftar, err := s.repo.RiwayatRetur(ctx, limit)
+	if err != nil {
+		return nil, err
+	}
+	for i := range daftar {
+		daftar[i].NoRetur = noRetur(daftar[i].Tanggal, daftar[i].ReturID)
+	}
+	return daftar, nil
 }

@@ -11,6 +11,7 @@ import (
 
 const (
 	batasHasilCari   = 20
+	batasDaftarAwal  = 50 // jumlah obat yang ditampilkan saat kolom cari kosong
 	maxItemTransaksi = 100
 )
 
@@ -44,13 +45,18 @@ func (s *Service) hariIni() time.Time {
 }
 
 // CariObat mencari obat untuk kasir, lengkap dengan satuan jual dan stok yang boleh dijual.
+// Kata kunci kosong menampilkan daftar obat aktif (urut nama) sebagai tampilan awal kasir;
+// kata kunci 1 huruf tetap ditolak.
 func (s *Service) CariObat(ctx context.Context, kata string) ([]Obat, error) {
 	kata = strings.TrimSpace(kata)
-	if len([]rune(kata)) < 2 {
+	batas := batasHasilCari
+	if kata == "" {
+		batas = batasDaftarAwal
+	} else if len([]rune(kata)) < 2 {
 		return nil, validasi("kata kunci minimal 2 karakter")
 	}
 
-	daftar, err := s.repo.CariObat(ctx, kata, batasHasilCari)
+	daftar, err := s.repo.CariObat(ctx, kata, batas)
 	if err != nil {
 		return nil, err
 	}
@@ -224,4 +230,12 @@ func lengkapiStruk(st *Struk) {
 	}
 	// Kembalian tidak disimpan di database, selalu dihitung ulang.
 	st.Kembalian = bulatkan(st.JumlahBayar-st.Total, 2)
+	st.NoTransaksi = noTransaksi(st.Tanggal, st.SaleID)
+}
+
+// noTransaksi membentuk nomor transaksi yang ditampilkan di struk,
+// misalnya TRX-20261107-0042. Nomor ini diturunkan dari tanggal dan id
+// penjualan, jadi tidak disimpan di database.
+func noTransaksi(tanggal time.Time, saleID int64) string {
+	return fmt.Sprintf("TRX-%s-%04d", tanggal.Format("20060102"), saleID)
 }

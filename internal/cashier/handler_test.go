@@ -125,3 +125,15 @@ func TestHandlerLaporanLaba_LimitBukanAngka(t *testing.T) {
 		t.Fatalf("status %d, seharusnya 400", w.Code)
 	}
 }
+
+func TestHandlerRiwayatRetur_LimitBukanAngka(t *testing.T) {
+	h := NewHandler(NewService(nil, nil))
+	req := httptest.NewRequest(http.MethodGet, "/retur/riwayat?limit=abc", nil)
+	w := httptest.NewRecorder()
+
+	h.RiwayatRetur(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status %d, seharusnya 400", w.Code)
+	}
+}
