@@ -1,8 +1,10 @@
-package cashier
+package cashier_test
 
 import (
 	"errors"
 	"testing"
+
+	. "github.com/ba-cospersin/Apotek-Sumber-Waras/internal/cashier"
 )
 
 func TestHitungItem_StripParacetamol(t *testing.T) {

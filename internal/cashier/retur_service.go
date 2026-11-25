@@ -91,13 +91,10 @@ func (s *Service) CatatRetur(ctx context.Context, userID int64, in ReturInput) (
 		return nil, validasi("kondisi obat maksimal %d karakter", maxPanjangKondisi)
 	}
 
-	status := strings.ToUpper(strings.TrimSpace(in.StatusKelayakan))
-	if status == "" {
-		status = StatusMenunggu
-	}
-	if status != StatusMenunggu && status != StatusLayakJual && status != StatusTidakLayakJual {
-		return nil, validasi("status kelayakan tidak dikenal")
-	}
+	// Retur konsumen selalu dimulai dari MENUNGGU_PEMERIKSAAN.
+	// Penetapan LAYAK_JUAL/TIDAK_LAYAK_JUAL hanya boleh dilakukan Owner
+	// melalui endpoint kelayakan, bukan saat Kasir mencatat retur.
+	status := StatusMenunggu
 
 	var hasil *HasilRetur
 
@@ -136,13 +133,9 @@ func (s *Service) CatatRetur(ctx context.Context, userID int64, in ReturInput) (
 			return err
 		}
 
+		// Stok belum ditambah. Penambahan hanya terjadi setelah Owner
+		// menetapkan retur sebagai LAYAK_JUAL lewat TetapkanKelayakan.
 		ditambah := false
-		if status == StatusLayakJual {
-			if err := s.stok.TambahStok(ctx, tx.DB(), a.ReceiptID, qty); err != nil {
-				return err
-			}
-			ditambah = true
-		}
 
 		hasil = &HasilRetur{
 			ReturID:         returID,

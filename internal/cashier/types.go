@@ -96,7 +96,7 @@ type StrukItem struct {
 	HargaSatuan float64 `json:"harga_satuan"` // per satuan yang dibeli
 	Subtotal    float64 `json:"subtotal"`
 
-	// Diisi repository, dipakai service untuk menghitung Subtotal dan HargaSatuan. 
+	// Diisi repository, dipakai service untuk menghitung Subtotal dan HargaSatuan.
 	// Tidak ikut dikirim sebagai JSON.
 	qtyDasar   float64
 	hargaDasar float64
@@ -137,7 +137,7 @@ type ReturInput struct {
 	JenisPengembalian string  `json:"jenis_pengembalian"`
 	Alasan            string  `json:"alasan"`
 	KondisiObat       string  `json:"kondisi_obat"`
-	StatusKelayakan   string  `json:"status_kelayakan"` // opsional, bawaan MENUNGGU_PEMERIKSAAN
+	StatusKelayakan   string  `json:"status_kelayakan"` // diabaikan; server selalu memakai MENUNGGU_PEMERIKSAAN
 }
 
 // HasilRetur adalah hasil retur yang berhasil disimpan.
@@ -184,12 +184,12 @@ type ReturItem struct {
 
 // PenjualanRetur adalah transaksi asal yang ditampilkan di halaman retur.
 type PenjualanRetur struct {
-	SaleID  int64       `json:"sale_id"`
+	SaleID      int64       `json:"sale_id"`
 	NoTransaksi string      `json:"no_transaksi"`
-	Tanggal time.Time   `json:"tanggal"`
-	Kasir   string      `json:"kasir"`
-	Total   float64     `json:"total"`
-	Items   []ReturItem `json:"items"`
+	Tanggal     time.Time   `json:"tanggal"`
+	Kasir       string      `json:"kasir"`
+	Total       float64     `json:"total"`
+	Items       []ReturItem `json:"items"`
 }
 
 // Laba berisi komponen perhitungan laba. Dipakai untuk satu transaksi maupun untuk ringkasan satu periode.

@@ -1,9 +1,11 @@
-package cashier
+package cashier_test
 
 import (
 	"errors"
 	"testing"
 	"time"
+
+	. "github.com/ba-cospersin/Apotek-Sumber-Waras/internal/cashier"
 )
 
 func tgl(tahun int, bulan time.Month, hari int) time.Time {

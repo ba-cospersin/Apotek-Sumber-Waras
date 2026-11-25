@@ -8,6 +8,8 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+
+	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/model"
 )
 
 func TestMain(m *testing.M) {
@@ -78,5 +80,72 @@ func TestPageRoutesRejectNonGetMethods(t *testing.T) {
 	}
 	if got := rec.Header().Get("Allow"); got != http.MethodGet {
 		t.Fatalf("Allow header = %q, want %q", got, http.MethodGet)
+	}
+}
+
+func TestPageRoutesRejectWrongRole(t *testing.T) {
+	cases := []struct {
+		role string
+		path string
+	}{
+		{model.RoleCashier, "/penerimaan"},
+		{model.RoleCashier, "/stock-opname"},
+		{model.RoleCashier, "/kedaluwarsa"},
+		{model.RoleWarehouse, "/kasir"},
+		{model.RoleWarehouse, "/retur"},
+		{model.RoleWarehouse, "/laporan"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.role+" "+tc.path, func(t *testing.T) {
+			mux := newMuxForUser(t, model.User{
+				ID:       2,
+				Nama:     "Pengguna Uji",
+				Username: "uji",
+				Role:     tc.role,
+				IsActive: true,
+			})
+
+			req := authenticatedRequest(http.MethodGet, tc.path)
+			rec := httptest.NewRecorder()
+			mux.ServeHTTP(rec, req)
+
+			if rec.Code != http.StatusForbidden {
+				t.Fatalf("GET %s sebagai %s status = %d, want %d", tc.path, tc.role, rec.Code, http.StatusForbidden)
+			}
+		})
+	}
+}
+
+func TestPageRoutesAllowCorrectRole(t *testing.T) {
+	cases := []struct {
+		role string
+		path string
+	}{
+		{model.RoleCashier, "/kasir"},
+		{model.RoleCashier, "/retur"},
+		{model.RoleWarehouse, "/penerimaan"},
+		{model.RoleWarehouse, "/cek-stok"},
+		{model.RoleWarehouse, "/stock-opname"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.role+" "+tc.path, func(t *testing.T) {
+			mux := newMuxForUser(t, model.User{
+				ID:       2,
+				Nama:     "Pengguna Uji",
+				Username: "uji",
+				Role:     tc.role,
+				IsActive: true,
+			})
+
+			req := authenticatedRequest(http.MethodGet, tc.path)
+			rec := httptest.NewRecorder()
+			mux.ServeHTTP(rec, req)
+
+			if rec.Code != http.StatusOK {
+				t.Fatalf("GET %s sebagai %s status = %d, want %d", tc.path, tc.role, rec.Code, http.StatusOK)
+			}
+		})
 	}
 }

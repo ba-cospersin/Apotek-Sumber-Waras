@@ -54,13 +54,35 @@ var pageConfigs = []pageConfig{
 	{name: "struk_penjualan", title: "Struk Penjualan", subtitle: "Pratinjau bukti transaksi", css: "/static/css/struk_penjualan.css", active: "kasir", defaultRole: model.RoleCashier},
 }
 
+// pageRoles menentukan role yang boleh membuka setiap halaman.
+// Sidebar hanya menyembunyikan menu; pemeriksaan sebenarnya tetap di server.
+var pageRoles = map[string][]string{
+	"dashboard":          {model.RoleOwner},
+	"kasir":              {model.RoleOwner, model.RoleCashier},
+	"penerimaan":         {model.RoleOwner, model.RoleWarehouse},
+	"cek_stok":           {model.RoleOwner, model.RoleWarehouse},
+	"retur":              {model.RoleOwner, model.RoleCashier},
+	"stock_opname":       {model.RoleOwner, model.RoleWarehouse},
+	"kedaluwarsa":        {model.RoleOwner, model.RoleWarehouse},
+	"laporan":            {model.RoleOwner},
+	"data_master":        {model.RoleOwner},
+	"manajemen_pengguna": {model.RoleOwner},
+	"struk_penjualan":    {model.RoleOwner, model.RoleCashier},
+}
+
 // New mendaftarkan route aplikasi menggunakan URL permanen.
 // db boleh nil hanya untuk pengujian halaman; endpoint /health akan mengembalikan 503.
 func New(db *sql.DB, renderer *view.Renderer, authHandler *auth.Handler, authMw *middleware.Auth) *http.ServeMux {
 	mux := http.NewServeMux()
 
 	staticFiles := http.FileServer(http.Dir("web/static"))
-	mux.Handle("/static/", http.StripPrefix("/static/", staticFiles))
+	staticHandler := http.StripPrefix("/static/", staticFiles)
+	mux.Handle("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Aset statis harus divalidasi ulang agar perubahan JS/CSS
+		// tidak tertahan cache lama di browser.
+		w.Header().Set("Cache-Control", "no-cache")
+		staticHandler.ServeHTTP(w, r)
+	}))
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
@@ -84,9 +106,9 @@ func New(db *sql.DB, renderer *view.Renderer, authHandler *auth.Handler, authMw 
 		mux.Handle("POST /logout", authMw.RequireLogin(http.HandlerFunc(authHandler.Logout)))
 	}
 
-	// PERHATIAN: halaman di bawah masih menggunakan identitas dan data demo.
-	// Route sudah memakai URL final agar frontend dapat diuji tanpa __preview.
-	// Route ini BELUM dilindungi session/role dan tidak boleh dianggap siap produksi.
+	// Halaman memakai URL final dan dilindungi session + role.
+	// Beberapa halaman masih menampilkan data demo, tetapi akses role-nya
+	// sudah diperiksa di server agar tidak bisa dibuka hanya dari URL.
 	for _, config := range pageConfigs {
 		pageConfig := config
 		path := pagePaths[pageConfig.name]
@@ -130,7 +152,11 @@ func New(db *sql.DB, renderer *view.Renderer, authHandler *auth.Handler, authMw 
 		})
 
 		if authMw != nil {
-			mux.Handle(path, authMw.RequireLogin(pageHandler))
+			var protected http.Handler = pageHandler
+			if roles := pageRoles[pageConfig.name]; len(roles) > 0 {
+				protected = middleware.RequireRole(roles...)(protected)
+			}
+			mux.Handle(path, authMw.RequireLogin(protected))
 		} else {
 			mux.Handle(path, pageHandler)
 		}

@@ -1,10 +1,11 @@
-package cashier
+package cashier_test
 
 import (
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
+	"math"
 	"os"
 	"strings"
 	"sync"
@@ -13,9 +14,15 @@ import (
 
 	"github.com/joho/godotenv"
 
+	. "github.com/ba-cospersin/Apotek-Sumber-Waras/internal/cashier"
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/config"
 	"github.com/ba-cospersin/Apotek-Sumber-Waras/internal/database"
 )
+
+const layoutTanggalSQL = "2006-01-02"
+
+// keMilli dipakai untuk membandingkan kuantitas desimal tanpa selisih float.
+func keMilli(x float64) int64 { return int64(math.Round(x * 1000)) }
 
 // Tes integrasi memakai database sungguhan. Hanya berjalan jika ASW_INTEGRASI=1
 // dan DB_NAME berakhiran _test, supaya data asli tidak tersentuh.
@@ -465,12 +472,12 @@ func TestIntegrasi_ReturKumulatifDanKelayakan(t *testing.T) {
 		})
 	}
 
-	// 1. LAYAK_JUAL langsung: stok +4, refund 4 x 1000.
+	// 1. Status dari client diabaikan: retur selalu MENUNGGU, stok belum bertambah.
 	r1, err := retur(4, StatusLayakJual)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if r1.NilaiRefund != 4000 || !r1.StokDitambah || f.sisa(t, rA) != 94 {
+	if r1.NilaiRefund != 4000 || r1.StatusKelayakan != StatusMenunggu || r1.StokDitambah || f.sisa(t, rA) != 90 {
 		t.Fatalf("retur 1 tidak sesuai: %+v, sisa %v", r1, f.sisa(t, rA))
 	}
 
@@ -479,16 +486,16 @@ func TestIntegrasi_ReturKumulatifDanKelayakan(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if r2.StatusKelayakan != StatusMenunggu || r2.StokDitambah || f.sisa(t, rA) != 94 {
+	if r2.StatusKelayakan != StatusMenunggu || r2.StokDitambah || f.sisa(t, rA) != 90 {
 		t.Fatalf("retur 2 tidak sesuai: %+v, sisa %v", r2, f.sisa(t, rA))
 	}
 
-	// 3. Tidak layak jual: stok tidak berubah. Total retur sekarang 10.
+	// 3. Status TIDAK_LAYAK_JUAL dari client juga diabaikan; tetap MENUNGGU.
 	r3, err := retur(3, StatusTidakLayakJual)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if r3.StokDitambah || f.sisa(t, rA) != 94 {
+	if r3.StatusKelayakan != StatusMenunggu || r3.StokDitambah || f.sisa(t, rA) != 90 {
 		t.Fatalf("retur 3 tidak sesuai: %+v, sisa %v", r3, f.sisa(t, rA))
 	}
 
@@ -500,20 +507,37 @@ func TestIntegrasi_ReturKumulatifDanKelayakan(t *testing.T) {
 		t.Fatalf("jumlah retur %d, seharusnya 3", n)
 	}
 
-	// 5. Tetapkan kelayakan retur yang menunggu: stok +3.
-	k, err := f.svc.TetapkanKelayakan(ctx, r2.ReturID, StatusLayakJual)
+	// 5. Owner menetapkan r1 LAYAK_JUAL: stok +4 (90 -> 94).
+	k1, err := f.svc.TetapkanKelayakan(ctx, r1.ReturID, StatusLayakJual)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !k.StokDitambah || f.sisa(t, rA) != 97 {
-		t.Fatalf("kelayakan tidak sesuai: %+v, sisa %v", k, f.sisa(t, rA))
+	if !k1.StokDitambah || f.sisa(t, rA) != 94 {
+		t.Fatalf("kelayakan r1 tidak sesuai: %+v, sisa %v", k1, f.sisa(t, rA))
 	}
 
-	// 6. Diulang: ditolak, stok tidak bertambah lagi.
+	// 6. Owner menetapkan r2 LAYAK_JUAL: stok +3 (94 -> 97).
+	k2, err := f.svc.TetapkanKelayakan(ctx, r2.ReturID, StatusLayakJual)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !k2.StokDitambah || f.sisa(t, rA) != 97 {
+		t.Fatalf("kelayakan r2 tidak sesuai: %+v, sisa %v", k2, f.sisa(t, rA))
+	}
+
+	// 7. Diulang: ditolak, stok tidak bertambah lagi.
 	if _, err := f.svc.TetapkanKelayakan(ctx, r2.ReturID, StatusLayakJual); !errors.Is(err, ErrStatusSudahFinal) {
 		t.Fatalf("seharusnya ErrStatusSudahFinal, dapat %v", err)
 	}
-	// 7. Retur yang sudah TIDAK_LAYAK_JUAL juga tidak bisa diubah.
+
+	// 8. Owner menetapkan r3 TIDAK_LAYAK_JUAL: stok tidak berubah.
+	k3, err := f.svc.TetapkanKelayakan(ctx, r3.ReturID, StatusTidakLayakJual)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if k3.StokDitambah || f.sisa(t, rA) != 97 {
+		t.Fatalf("kelayakan r3 tidak sesuai: %+v, sisa %v", k3, f.sisa(t, rA))
+	}
 	if _, err := f.svc.TetapkanKelayakan(ctx, r3.ReturID, StatusLayakJual); !errors.Is(err, ErrStatusSudahFinal) {
 		t.Fatalf("seharusnya ErrStatusSudahFinal, dapat %v", err)
 	}
@@ -600,14 +624,16 @@ func TestIntegrasi_Laba(t *testing.T) {
 	}
 	sib := f.alokasi(t, h.SaleID)[0].ID
 
-	for _, r := range []struct {
+	permintaanRetur := []struct {
 		qty    float64
 		status string
 	}{
 		{4, StatusLayakJual},      // refund 4.000, HPP retur 2.000
 		{2, StatusTidakLayakJual}, // refund 2.000, HPP retur 1.000, kerugian 1.000
-	} {
-		_, err := f.svc.CatatRetur(ctx, f.userID, ReturInput{
+	}
+	hasilRetur := make([]*HasilRetur, 0, len(permintaanRetur))
+	for _, r := range permintaanRetur {
+		h, err := f.svc.CatatRetur(ctx, f.userID, ReturInput{
 			SaleItemBatchID:   sib,
 			QtyDasar:          r.qty,
 			JenisPengembalian: JenisSalahMembeli,
@@ -617,6 +643,14 @@ func TestIntegrasi_Laba(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		hasilRetur = append(hasilRetur, h)
+	}
+	// Simulasi Owner menetapkan kelayakan setelah retur dicatat.
+	if _, err := f.svc.TetapkanKelayakan(ctx, hasilRetur[0].ReturID, StatusLayakJual); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.svc.TetapkanKelayakan(ctx, hasilRetur[1].ReturID, StatusTidakLayakJual); err != nil {
+		t.Fatal(err)
 	}
 
 	lap, err := f.svc.LaporanLaba(ctx, "", "", 500, 0)
@@ -657,7 +691,7 @@ func TestIntegrasi_BatasKedaluwarsaSatuBulan(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	f.tambahLapisan(t, "TEPAT", batas, "AKTIF", 40, 500, terima)                                  // tepat satu bulan: tidak boleh dijual
+	f.tambahLapisan(t, "TEPAT", batas, "AKTIF", 40, 500, terima)                                              // tepat satu bulan: tidak boleh dijual
 	f.tambahLapisan(t, "LEBIH", tglBatas.AddDate(0, 0, 1).Format(layoutTanggalSQL), "AKTIF", 25, 500, terima) // sehari lebih: boleh
 
 	stok, err := StokKasir{}.StokTersedia(context.Background(), f.db, f.medicineID, time.Now())

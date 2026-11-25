@@ -9,11 +9,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/base.css">
-    <link rel="stylesheet" href="/static/css/layout.css?v=2">
-    {{if .PageCSS}}<link rel="stylesheet" href="{{.PageCSS}}">{{end}}
+    <link rel="stylesheet" href="/static/css/base.css?v=3">
+    <link rel="stylesheet" href="/static/css/layout.css?v=3">
+    {{if .PageCSS}}<link rel="stylesheet" href="{{.PageCSS}}?v=3">{{end}}
 </head>
-<body data-page="{{.ActivePage}}" data-receipt-url="{{index .Routes "struk_penjualan"}}">
+<body data-page="{{.ActivePage}}" data-user-role="{{.User.Role}}" data-receipt-url="{{index .Routes "struk_penjualan"}}">
     <div class="app-shell">
         {{template "sidebar" .}}
         <div class="app-main">
@@ -24,9 +24,9 @@
         </div>
     </div>
     <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="true"></div>
-    <script src="/static/js/session-guard.js?v=1" defer></script>
-    <script src="/static/js/layout.js?v=2" defer></script>
-    {{if .PageJS}}<script src="{{.PageJS}}" defer></script>{{end}}
+    <script src="/static/js/session-guard.js?v=2" defer></script>
+    <script src="/static/js/layout.js?v=3" defer></script>
+    {{if .PageJS}}<script src="{{.PageJS}}?v=3" defer></script>{{end}}
     <script src="/static/js/interactions.js" defer></script>
 </body>
 </html>

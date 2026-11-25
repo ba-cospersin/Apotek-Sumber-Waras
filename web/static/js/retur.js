@@ -19,6 +19,8 @@
   const historyBody = $('return-history-body');
   const historyNote = $('return-history-note');
   const teksAwalError = errorBox?.textContent || '';
+  // Hanya Owner yang boleh menetapkan kelayakan retur.
+  const bolehMenilaiRetur = document.body.dataset.userRole === 'OWNER';
 
   // ---------- util ----------
   const money = value => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value).replace(/\u00a0/g, ' ');
@@ -222,6 +224,7 @@
   const statusPill = item => {
     if (item.status_kelayakan === 'LAYAK_JUAL') return '<span class="status-pill safe">✓ Layak Jual</span>';
     if (item.status_kelayakan === 'TIDAK_LAYAK_JUAL') return '<span class="status-pill danger">× Tidak Layak Jual</span>';
+    if (!bolehMenilaiRetur) return '<span class="status-pill warning">Menunggu Pemeriksaan</span>';
     const data = `data-retur-id="${item.retur_id}" data-no="${escapeHTML(item.no_retur)}"`;
     return `<span class="status-pill warning">◷ Menunggu Pemeriksaan</span>
       <div class="kelayakan-actions">

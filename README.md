@@ -858,6 +858,14 @@ internal/warehouse/
 
 Pola tersebut merupakan pedoman, bukan kewajiban mutlak. File tambahan dapat dibuat apabila suatu logika cukup kompleks untuk dipisahkan, misalnya `fefo.go` untuk aturan FEFO. Jangan membuat file kosong hanya untuk mengikuti pola.
 
+Penempatan file test mengikuti aturan package Go:
+
+- `internal/<modul>/*_test.go` dipakai untuk unit test yang menguji fungsi atau tipe **unexported**. File test harus berada di direktori package yang sama agar dapat mengakses identifier tersebut.
+- `tests/<modul>/` dipakai untuk integration test atau test yang hanya memakai **API publik**. Contoh: `tests/cashier/integration_test.go`, `tests/cashier/fefo_test.go`, dan `tests/cashier/hitung_test.go`.
+- Folder `tests/` di root tetap dipakai untuk test lintas modul seperti router, header, dan profil.
+
+Jadi tidak semua file test dipindahkan ke `tests/`; test yang membutuhkan fungsi internal tetap berada di `internal/cashier/`.
+
 ### 11.4 Fungsi `internal/app`
 
 `internal/app/app.go` dipertahankan sebagai tempat inisialisasi dan penghubung dependency aplikasi (*application initialization/dependency wiring*).

@@ -10,10 +10,10 @@ import (
 
 func TestSisaRetur(t *testing.T) {
 	tests := []struct {
-		nama          string
-		dialokasikan  float64
-		sudahDiretur  float64
-		seharusnya    float64
+		nama         string
+		dialokasikan float64
+		sudahDiretur float64
+		seharusnya   float64
 	}{
 		{"belum ada retur", 10, 0, 10},
 		{"retur sebagian", 10, 2, 8},
@@ -56,8 +56,8 @@ func TestCatatRetur_TolakInputTidakValid(t *testing.T) {
 	ctx := context.Background()
 
 	tests := []struct {
-		nama  string
-		ubah  func(*ReturInput)
+		nama string
+		ubah func(*ReturInput)
 	}{
 		{"batch id nol", func(i *ReturInput) { i.SaleItemBatchID = 0 }},
 		{"jumlah nol", func(i *ReturInput) { i.QtyDasar = 0 }},
@@ -67,7 +67,6 @@ func TestCatatRetur_TolakInputTidakValid(t *testing.T) {
 		{"alasan kosong", func(i *ReturInput) { i.Alasan = "   " }},
 		{"alasan terlalu panjang", func(i *ReturInput) { i.Alasan = strings.Repeat("a", maxPanjangAlasan+1) }},
 		{"kondisi terlalu panjang", func(i *ReturInput) { i.KondisiObat = strings.Repeat("a", maxPanjangKondisi+1) }},
-		{"status tidak dikenal", func(i *ReturInput) { i.StatusKelayakan = "SELESAI" }},
 	}
 
 	for _, tc := range tests {

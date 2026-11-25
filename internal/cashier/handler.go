@@ -21,8 +21,8 @@ func NewHandler(svc *Service) *Handler {
 }
 
 // RegisterRoutes mendaftarkan route modul kasir ke router.
-// Semua route wajib login. Penjualan dan retur boleh diakses KASIR dan OWNER
-// (owner dapat mengakses semua fitur); laporan laba hanya untuk OWNER.
+// Semua route wajib login. Penjualan dan pencatatan retur boleh diakses KASIR
+// dan OWNER. Penetapan kelayakan retur dan laporan laba hanya untuk OWNER.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux, auth *middleware.Auth) {
 	kasir := func(next http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(
@@ -42,7 +42,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux, auth *middleware.Auth) {
 	mux.Handle("GET /retur/penjualan/{id}", kasir(h.PenjualanRetur))
 	mux.Handle("POST /retur", kasir(h.CatatRetur))
 	mux.Handle("GET /retur/riwayat", kasir(h.RiwayatRetur))
-	mux.Handle("POST /retur/{id}/kelayakan", kasir(h.TetapkanKelayakan))
+	mux.Handle("POST /retur/{id}/kelayakan", owner(h.TetapkanKelayakan))
 	mux.Handle("GET /laporan/laba", owner(h.LaporanLaba))
 }
 

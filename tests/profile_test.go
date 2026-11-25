@@ -70,7 +70,7 @@ func TestProfilePageIsStandaloneWithoutSidebar(t *testing.T) {
 	}
 }
 
-func TestDashboardShowsSessionUserWhenLoggedIn(t *testing.T) {
+func TestKasirPageShowsSessionUserWhenLoggedIn(t *testing.T) {
 	user := model.User{
 		ID:       9,
 		Nama:     "Kasir Sesi",
@@ -81,20 +81,20 @@ func TestDashboardShowsSessionUserWhenLoggedIn(t *testing.T) {
 	}
 	mux := newMuxForUser(t, user)
 
-	req := authenticatedRequest(http.MethodGet, "/dashboard")
+	req := authenticatedRequest(http.MethodGet, "/kasir")
 	rec := httptest.NewRecorder()
 	mux.ServeHTTP(rec, req)
 
 	if rec.Code != http.StatusOK {
-		t.Fatalf("GET /dashboard status = %d, want %d", rec.Code, http.StatusOK)
+		t.Fatalf("GET /kasir status = %d, want %d", rec.Code, http.StatusOK)
 	}
 
 	body := rec.Body.String()
 	if !strings.Contains(body, user.Nama) {
-		t.Fatalf("GET /dashboard tidak menampilkan user session %q", user.Nama)
+		t.Fatalf("GET /kasir tidak menampilkan user session %q", user.Nama)
 	}
-	if strings.Contains(body, "apt. Hendra Kurniawan") {
-		t.Fatalf("GET /dashboard masih menampilkan identitas preview")
+	if strings.Contains(body, "Budi Santoso") {
+		t.Fatalf("GET /kasir masih menampilkan identitas preview")
 	}
 }
 
