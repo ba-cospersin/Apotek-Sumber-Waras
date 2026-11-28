@@ -487,3 +487,55 @@ type DaftarStockOpname struct {
 	Data []RiwayatStockOpname `json:"data"`
 	Meta Halaman              `json:"meta"`
 }
+
+// ---------- Sinkronisasi dengan halaman ----------
+
+// statusJualBermasalah adalah filter gabungan untuk halaman kedaluwarsa:
+// batch yang TIDAK boleh dijual (diblokir, kedaluwarsa, atau mendekati
+// kedaluwarsa) dan masih punya stok. Bukan status per batch.
+const statusJualBermasalah = "BERMASALAH"
+
+// SatuanOpsi adalah satu satuan jual sebuah obat.
+type SatuanOpsi struct {
+	ID                int64   `json:"id"`
+	NamaSatuan        string  `json:"nama_satuan"`
+	IsiPerSatuanDasar float64 `json:"isi_per_satuan_dasar"`
+}
+
+// ObatOpsi adalah satu obat aktif beserta satuan-satuannya.
+type ObatOpsi struct {
+	ID          int64        `json:"id"`
+	Kode        string       `json:"kode"`
+	Nama        string       `json:"nama"`
+	SatuanDasar string       `json:"satuan_dasar"`
+	Satuan      []SatuanOpsi `json:"satuan"`
+}
+
+// PBFOpsi adalah satu PBF.
+type PBFOpsi struct {
+	ID      int64  `json:"id"`
+	NamaPBF string `json:"nama_pbf"`
+}
+
+// OpsiPenerimaan adalah pilihan untuk mengisi form penerimaan.
+type OpsiPenerimaan struct {
+	PBF  []PBFOpsi  `json:"pbf"`
+	Obat []ObatOpsi `json:"obat"`
+}
+
+// PratinjauOpname adalah hasil alokasi opname seandainya disimpan sekarang.
+// Lapisan berisi SEMUA lapisan batch (yang tidak berubah punya penyesuaian 0).
+type PratinjauOpname struct {
+	BatchID       int64                `json:"batch_id"`
+	MedicineID    int64                `json:"medicine_id"`
+	KodeObat      string               `json:"kode_obat"`
+	NamaObat      string               `json:"nama_obat"`
+	SatuanDasar   string               `json:"satuan_dasar"`
+	NoBatch       string               `json:"no_batch"`
+	QtySistem     float64              `json:"qty_sistem"`
+	QtyFisik      float64              `json:"qty_fisik"`
+	Selisih       float64              `json:"selisih"`
+	StatusSelisih string               `json:"status_selisih"`
+	NilaiSelisih  float64              `json:"nilai_selisih"`
+	Lapisan       []PenyesuaianLapisan `json:"lapisan"`
+}

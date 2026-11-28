@@ -639,11 +639,11 @@ func siapkanFilterBatch(
 
 	status := strings.ToUpper(strings.TrimSpace(f.Status))
 	switch status {
-	case "", statusJualBoleh, statusJualMendekati, statusJualKedaluwarsa, statusJualDiblokir:
+	case "", statusJualBoleh, statusJualMendekati, statusJualKedaluwarsa, statusJualDiblokir, statusJualBermasalah:
 	default:
 		return q, 0, 0, validasi(
-			"status harus salah satu dari %s, %s, %s, %s",
-			statusJualBoleh, statusJualMendekati, statusJualKedaluwarsa, statusJualDiblokir,
+			"status harus salah satu dari %s, %s, %s, %s, %s",
+			statusJualBoleh, statusJualMendekati, statusJualKedaluwarsa, statusJualDiblokir, statusJualBermasalah,
 		)
 	}
 
@@ -1198,4 +1198,89 @@ func siapkanFilterStockOpname(
 		Offset:       (page - 1) * perPage,
 	}
 	return q, page, perPage, nil
+}
+
+// ---------- Sinkronisasi dengan halaman ----------
+
+// OpsiPenerimaan mengambil pilihan untuk mengisi form penerimaan.
+func (s *Service) OpsiPenerimaan(ctx context.Context) (*OpsiPenerimaan, error) {
+	return s.repo.ListOpsiPenerimaan(ctx)
+}
+
+// PratinjauStockOpname menghitung alokasi opname seandainya hasil hitung fisik
+// disimpan sekarang, TANPA mengubah atau mengunci data apa pun.
+//
+// Perhitungannya memakai alokasiSelisih yang sama dengan CatatStockOpname,
+// sehingga yang ditampilkan di layar sama dengan yang nanti disimpan (selama
+// stok tidak berubah di antaranya).
+func (s *Service) PratinjauStockOpname(
+	ctx context.Context,
+	batchID int64,
+	qtyFisik float64,
+) (*PratinjauOpname, error) {
+	in, _, err := s.validasiStockOpname(StockOpnameInput{BatchID: batchID, QtyFisik: qtyFisik})
+	if err != nil {
+		return nil, err
+	}
+
+	d, err := s.repo.GetBatch(ctx, in.BatchID)
+	if err != nil {
+		return nil, err
+	}
+	if d == nil {
+		return nil, fmt.Errorf("batch dengan id %d: %w", in.BatchID, ErrTidakDitemukan)
+	}
+	if len(d.Lapisan) == 0 {
+		return nil, validasi("batch ini belum punya lapisan penerimaan, tidak bisa di-opname")
+	}
+
+	lapisan := make([]LapisanStok, len(d.Lapisan))
+	var sistemMilli int64
+	for i, l := range d.Lapisan {
+		lapisan[i] = LapisanStok{ID: l.ReceiptID, BatchID: d.BatchID, QtySisa: l.QtySisa, HargaBeliPerDasar: l.HargaBeliPerDasar}
+		sistemMilli += keMilli(l.QtySisa)
+	}
+	fisikMilli := keMilli(in.QtyFisik)
+
+	rencana, err := alokasiSelisih(lapisan, fisikMilli-sistemMilli)
+	if err != nil {
+		return nil, err
+	}
+	perubahan := map[int64]int64{}
+	for _, p := range rencana {
+		perubahan[p.lapisan.ID] = p.milli
+	}
+
+	hasil := &PratinjauOpname{
+		BatchID:     d.BatchID,
+		MedicineID:  d.MedicineID,
+		KodeObat:    d.KodeObat,
+		NamaObat:    d.NamaObat,
+		SatuanDasar: d.SatuanDasar,
+		NoBatch:     d.NoBatch,
+		QtySistem:   dariMilli(sistemMilli),
+		QtyFisik:    dariMilli(fisikMilli),
+		Selisih:     dariMilli(fisikMilli - sistemMilli),
+		Lapisan:     make([]PenyesuaianLapisan, 0, len(d.Lapisan)),
+	}
+	hasil.StatusSelisih = statusSelisih(hasil.QtySistem, hasil.QtyFisik)
+
+	var nilai float64
+	for _, l := range d.Lapisan {
+		sebelum := keMilli(l.QtySisa)
+		ubah := perubahan[l.ReceiptID]
+		nilai += dariMilli(ubah) * l.HargaBeliPerDasar
+		hasil.Lapisan = append(hasil.Lapisan, PenyesuaianLapisan{
+			ReceiptID:         l.ReceiptID,
+			NoFaktur:          l.NoFaktur,
+			TanggalTerima:     l.TanggalTerima,
+			HargaBeliPerDasar: l.HargaBeliPerDasar,
+			QtyPenyesuaian:    dariMilli(ubah),
+			QtySisaSebelum:    dariMilli(sebelum),
+			QtySisaSesudah:    dariMilli(sebelum + ubah),
+		})
+	}
+	hasil.NilaiSelisih = bulatkan(nilai, 2)
+
+	return hasil, nil
 }

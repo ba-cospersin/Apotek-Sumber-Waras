@@ -2,7 +2,7 @@ package warehouse
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	"log"
 	"math"
 	"net/http"
@@ -53,9 +53,29 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux, auth *middleware.Auth) {
 	mux.Handle("POST /gudang/stock-opname", gudang(h.CatatStockOpname))
 	mux.Handle("GET /gudang/stock-opname", gudang(h.ListStockOpname))
 	mux.Handle("GET /gudang/stock-opname/{id}", gudang(h.DetailStockOpname))
+
+	// Data tambahan untuk halaman: pratinjau alokasi opname dan pilihan form.
+	mux.Handle("GET /gudang/stock-opname/preview", gudang(h.PratinjauStockOpname))
+	mux.Handle("GET /gudang/opsi/penerimaan", gudang(h.OpsiPenerimaan))
+
+	// Alamat tujuan form dari halaman, sesuai kontrak Backend Lead
+	// (docs/BACKEND_LEAD_HANDOFF.md). Alamat GET dengan nama yang sama
+	// (/penerimaan, /stock-opname, ...) adalah halaman HTML milik router utama;
+	// di sini hanya metode POST yang didaftarkan.
+	mux.Handle("POST /penerimaan", gudang(h.CreatePenerimaan))
+	mux.Handle("POST /stock-opname", gudang(h.CatatStockOpname))
+	mux.Handle("POST /kedaluwarsa/{id}/blokir", gudang(h.BlokirBatch))
+	mux.Handle("POST /kedaluwarsa/tindak-lanjut", gudang(h.CatatTindakLanjut))
 }
 
-// CreatePenerimaan menangani POST /gudang/penerimaan.
+// CreatePenerimaan menangani POST /penerimaan dan POST /gudang/penerimaan.
+//
+// Dua bentuk data diterima, dibedakan dari Content-Type:
+//   - application/json: satu objek faktur dengan daftar items (perilaku lama).
+//   - form biasa: field faktur sekali, dan field baris obat diulang untuk tiap
+//     baris (lihat penerimaanDariForm).
+//
+// Balasan untuk form mengikuti mode respons (lihat respons.go).
 func (h *Handler) CreatePenerimaan(w http.ResponseWriter, r *http.Request) {
 	user, ok := middleware.CurrentUser(r)
 	if !ok {
@@ -63,24 +83,55 @@ func (h *Handler) CreatePenerimaan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Batasi ukuran body 1 MB dan tolak field yang tidak dikenal.
+	// Batasi ukuran body 1 MB.
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
-	dec := json.NewDecoder(r.Body)
-	dec.DisallowUnknownFields()
 
-	var in PenerimaanInput
-	if err := dec.Decode(&in); err != nil {
-		writeError(w, http.StatusBadRequest, "format JSON tidak valid: "+err.Error())
+	// Bentuk JSON: tolak field yang tidak dikenal.
+	if strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") {
+		dec := json.NewDecoder(r.Body)
+		dec.DisallowUnknownFields()
+
+		var in PenerimaanInput
+		if err := dec.Decode(&in); err != nil {
+			writeError(w, http.StatusBadRequest, "format JSON tidak valid: "+err.Error())
+			return
+		}
+
+		hasil, err := h.svc.CatatPenerimaan(r.Context(), user.ID, in)
+		if err != nil {
+			writeServiceError(w, err)
+			return
+		}
+
+		writeJSON(w, http.StatusCreated, map[string]any{"data": hasil})
+		return
+	}
+
+	// Bentuk form.
+	if err := r.ParseForm(); err != nil {
+		h.galatForm(w, r, validasi("form tidak valid: %s", err.Error()), "/penerimaan")
+		return
+	}
+	kembali := halamanKembaliDari(r, "/penerimaan")
+
+	in, err := penerimaanDariForm(r)
+	if err != nil {
+		h.galatForm(w, r, err, kembali)
 		return
 	}
 
 	hasil, err := h.svc.CatatPenerimaan(r.Context(), user.ID, in)
 	if err != nil {
-		writeServiceError(w, err)
+		h.galatForm(w, r, err, kembali)
 		return
 	}
 
-	writeJSON(w, http.StatusCreated, map[string]any{"data": hasil})
+	h.suksesForm(
+		w, r, kembali,
+		fmt.Sprintf("Penerimaan faktur %s tersimpan (%d item).", hasil.NoFaktur, len(hasil.Items)),
+		"/gudang/penerimaan/"+strconv.FormatInt(hasil.PurchaseID, 10),
+		hasil,
+	)
 }
 
 // ListPenerimaan menangani GET /gudang/penerimaan.
@@ -216,9 +267,11 @@ func (h *Handler) DetailBatch(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"data": hasil})
 }
 
-// BlokirBatch menangani POST /gudang/persediaan/batch/{id}/blokir.
-// Datanya berupa form biasa dengan satu field: alasan.
-// Jika berhasil, pengguna diarahkan (303) ke halaman detail batch.
+// BlokirBatch menangani POST /kedaluwarsa/{id}/blokir
+// dan POST /gudang/persediaan/batch/{id}/blokir.
+//
+// Datanya berupa form biasa dengan satu field wajib: alasan. Field opsional
+// "kembali" menentukan halaman tujuan setelah form dikirim dari browser.
 func (h *Handler) BlokirBatch(w http.ResponseWriter, r *http.Request) {
 	user, ok := middleware.CurrentUser(r)
 	if !ok {
@@ -226,32 +279,38 @@ func (h *Handler) BlokirBatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
-	if err != nil {
-		writeError(w, http.StatusBadRequest, "id batch harus berupa angka")
-		return
-	}
-
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
 	if err := r.ParseForm(); err != nil {
-		writeError(w, http.StatusBadRequest, "form tidak valid: "+err.Error())
+		h.galatForm(w, r, validasi("form tidak valid: %s", err.Error()), "/cek-stok")
+		return
+	}
+	kembali := halamanKembaliDari(r, "/cek-stok")
+
+	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	if err != nil {
+		h.galatForm(w, r, validasi("id batch harus berupa angka"), kembali)
 		return
 	}
 
 	if err := h.svc.BlokirBatch(r.Context(), user.ID, id, r.PostFormValue("alasan")); err != nil {
-		writeServiceError(w, err)
+		h.galatForm(w, r, err, kembali)
 		return
 	}
 
-	http.Redirect(w, r, "/gudang/persediaan/batch/"+strconv.FormatInt(id, 10), http.StatusSeeOther)
+	h.suksesForm(
+		w, r, kembali,
+		"Batch berhasil diblokir.",
+		"/gudang/persediaan/batch/"+strconv.FormatInt(id, 10),
+		map[string]any{"batch_id": id},
+	)
 }
 
-// CatatTindakLanjut menangani POST /gudang/tindak-lanjut.
+// CatatTindakLanjut menangani POST /kedaluwarsa/tindak-lanjut
+// dan POST /gudang/tindak-lanjut.
 //
 // Data berupa form biasa. Field: batch_receipt_id, jenis, sumber_tindak_lanjut,
-// alasan, qty_dasar, nilai_kompensasi (opsional), catatan (opsional).
-// Angka memakai titik desimal. Jika berhasil, pengguna diarahkan (303) ke
-// halaman detail batch supaya sisa stoknya terlihat.
+// alasan, qty_dasar, nilai_kompensasi (opsional), catatan (opsional), dan
+// kembali (opsional). Angka memakai titik desimal.
 func (h *Handler) CatatTindakLanjut(w http.ResponseWriter, r *http.Request) {
 	user, ok := middleware.CurrentUser(r)
 	if !ok {
@@ -261,23 +320,24 @@ func (h *Handler) CatatTindakLanjut(w http.ResponseWriter, r *http.Request) {
 
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
 	if err := r.ParseForm(); err != nil {
-		writeError(w, http.StatusBadRequest, "form tidak valid: "+err.Error())
+		h.galatForm(w, r, validasi("form tidak valid: %s", err.Error()), "/kedaluwarsa")
 		return
 	}
+	kembali := halamanKembaliDari(r, "/kedaluwarsa")
 
 	receiptID, err := angkaBulatForm(r, "batch_receipt_id")
 	if err != nil {
-		writeServiceError(w, err)
+		h.galatForm(w, r, err, kembali)
 		return
 	}
 	qty, err := angkaDesimalForm(r, "qty_dasar")
 	if err != nil {
-		writeServiceError(w, err)
+		h.galatForm(w, r, err, kembali)
 		return
 	}
 	kompensasi, err := angkaDesimalForm(r, "nilai_kompensasi")
 	if err != nil {
-		writeServiceError(w, err)
+		h.galatForm(w, r, err, kembali)
 		return
 	}
 
@@ -291,11 +351,20 @@ func (h *Handler) CatatTindakLanjut(w http.ResponseWriter, r *http.Request) {
 		Catatan:            r.PostFormValue("catatan"),
 	})
 	if err != nil {
-		writeServiceError(w, err)
+		h.galatForm(w, r, err, kembali)
 		return
 	}
 
-	http.Redirect(w, r, "/gudang/persediaan/batch/"+strconv.FormatInt(hasil.BatchID, 10), http.StatusSeeOther)
+	nama := "Pemusnahan"
+	if hasil.Jenis == jenisReturPBF {
+		nama = "Pengembalian ke PBF"
+	}
+	h.suksesForm(
+		w, r, kembali,
+		nama+" berhasil dicatat.",
+		"/gudang/persediaan/batch/"+strconv.FormatInt(hasil.BatchID, 10),
+		hasil,
+	)
 }
 
 // ListTindakLanjut menangani GET /gudang/tindak-lanjut.
@@ -336,11 +405,11 @@ func (h *Handler) ListTindakLanjut(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, hasil)
 }
 
-// CatatStockOpname menangani POST /gudang/stock-opname.
+// CatatStockOpname menangani POST /stock-opname dan POST /gudang/stock-opname.
 //
 // Data berupa form biasa. Field: batch_id, qty_fisik (wajib, boleh 0),
-// catatan (opsional), tgl_opname (opsional, YYYY-MM-DD). Angka memakai titik
-// desimal. Jika berhasil, pengguna diarahkan (303) ke detail hasil opname.
+// catatan (opsional), tgl_opname (opsional, YYYY-MM-DD), kembali (opsional).
+// Angka memakai titik desimal.
 func (h *Handler) CatatStockOpname(w http.ResponseWriter, r *http.Request) {
 	user, ok := middleware.CurrentUser(r)
 	if !ok {
@@ -350,18 +419,19 @@ func (h *Handler) CatatStockOpname(w http.ResponseWriter, r *http.Request) {
 
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
 	if err := r.ParseForm(); err != nil {
-		writeError(w, http.StatusBadRequest, "form tidak valid: "+err.Error())
+		h.galatForm(w, r, validasi("form tidak valid: %s", err.Error()), "/stock-opname")
 		return
 	}
+	kembali := halamanKembaliDari(r, "/stock-opname")
 
 	batchID, err := angkaBulatForm(r, "batch_id")
 	if err != nil {
-		writeServiceError(w, err)
+		h.galatForm(w, r, err, kembali)
 		return
 	}
 	qtyFisik, err := angkaDesimalWajibForm(r, "qty_fisik")
 	if err != nil {
-		writeServiceError(w, err)
+		h.galatForm(w, r, err, kembali)
 		return
 	}
 
@@ -372,11 +442,23 @@ func (h *Handler) CatatStockOpname(w http.ResponseWriter, r *http.Request) {
 		TglOpname: r.PostFormValue("tgl_opname"),
 	})
 	if err != nil {
-		writeServiceError(w, err)
+		h.galatForm(w, r, err, kembali)
 		return
 	}
 
-	http.Redirect(w, r, "/gudang/stock-opname/"+strconv.FormatInt(hasil.OpnameID, 10), http.StatusSeeOther)
+	pesan := "Stock opname tersimpan: stok sesuai."
+	switch hasil.StatusSelisih {
+	case selisihKurang:
+		pesan = "Stock opname tersimpan: kurang " + strconv.FormatFloat(-hasil.Selisih, 'f', -1, 64) + " " + hasil.SatuanDasar + "."
+	case selisihLebih:
+		pesan = "Stock opname tersimpan: lebih " + strconv.FormatFloat(hasil.Selisih, 'f', -1, 64) + " " + hasil.SatuanDasar + "."
+	}
+
+	h.suksesForm(
+		w, r, kembali, pesan,
+		"/gudang/stock-opname/"+strconv.FormatInt(hasil.OpnameID, 10),
+		hasil,
+	)
 }
 
 // DetailStockOpname menangani GET /gudang/stock-opname/{id}.
@@ -437,6 +519,53 @@ func (h *Handler) ListStockOpname(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, hasil)
 }
 
+// OpsiPenerimaan menangani GET /gudang/opsi/penerimaan.
+// Mengembalikan pilihan untuk form penerimaan: daftar PBF, serta daftar obat
+// aktif beserta satuan-satuannya (id satuan dan isi per satuan dasar).
+func (h *Handler) OpsiPenerimaan(w http.ResponseWriter, r *http.Request) {
+	hasil, err := h.svc.OpsiPenerimaan(r.Context())
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{"data": hasil})
+}
+
+// PratinjauStockOpname menangani GET /gudang/stock-opname/preview.
+//
+// Query string: batch_id dan qty_fisik (keduanya wajib). Mengembalikan
+// alokasi penyesuaian per lapisan seandainya opname disimpan sekarang,
+// tanpa mengubah data apa pun.
+func (h *Handler) PratinjauStockOpname(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+
+	batchID, err := angkaQuery(q, "batch_id")
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	teks := strings.TrimSpace(q.Get("qty_fisik"))
+	if teks == "" {
+		writeServiceError(w, validasi("qty_fisik wajib diisi"))
+		return
+	}
+	qtyFisik, err := desimalDariTeks(teks, "qty_fisik")
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	hasil, err := h.svc.PratinjauStockOpname(r.Context(), batchID, qtyFisik)
+	if err != nil {
+		writeServiceError(w, err)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{"data": hasil})
+}
+
 // angkaDesimalWajibForm sama seperti angkaDesimalForm, tetapi field TIDAK
 // boleh kosong. Dipakai untuk angka yang 0-nya bermakna (misalnya hasil hitung
 // fisik), supaya form yang lupa diisi tidak dianggap 0.
@@ -476,23 +605,8 @@ func angkaDesimalForm(r *http.Request, kunci string) (float64, error) {
 
 // writeServiceError mengubah error dari service menjadi response HTTP.
 func writeServiceError(w http.ResponseWriter, err error) {
-	switch {
-	case errors.Is(err, ErrValidasi):
-		writeError(w, http.StatusBadRequest, err.Error())
-
-	case errors.Is(err, ErrFakturDuplikat),
-		errors.Is(err, ErrKedaluwarsaBeda),
-		errors.Is(err, ErrSudahDiblokir),
-		errors.Is(err, ErrStokTidakCukup):
-		writeError(w, http.StatusConflict, err.Error())
-
-	case errors.Is(err, ErrTidakDitemukan):
-		writeError(w, http.StatusNotFound, err.Error())
-
-	default:
-		log.Printf("warehouse: kesalahan tak terduga: %v", err)
-		writeError(w, http.StatusInternalServerError, "Terjadi kesalahan pada server")
-	}
+	status, pesan := klasifikasiGalat(err)
+	writeError(w, status, pesan)
 }
 
 func writeJSON(w http.ResponseWriter, status int, body any) {
