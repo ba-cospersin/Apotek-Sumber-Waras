@@ -501,6 +501,10 @@ func (r *Repository) ListBatch(
 	}
 
 	switch q.Status {
+	case statusJualBermasalah:
+		// Diblokir, atau kedaluwarsa/mendekati kedaluwarsa (<= batas).
+		where += " AND (b.status_batch = ? OR b.tgl_kadaluarsa <= ?)"
+		args = append(args, statusBatchDiblokir, q.Batas)
 	case statusJualDiblokir:
 		where += " AND b.status_batch = ?"
 		args = append(args, statusBatchDiblokir)
@@ -1135,4 +1139,80 @@ func (r *Repository) ListStockOpname(
 	}
 
 	return hasil, total, nil
+}
+
+// ---------- Pilihan form penerimaan ----------
+
+// ListOpsiPenerimaan mengambil daftar PBF, serta obat aktif beserta satuannya.
+func (r *Repository) ListOpsiPenerimaan(ctx context.Context) (*OpsiPenerimaan, error) {
+	hasil := &OpsiPenerimaan{PBF: []PBFOpsi{}, Obat: []ObatOpsi{}}
+
+	pbf, err := r.db.QueryContext(ctx, `SELECT id, nama_pbf FROM suppliers ORDER BY nama_pbf ASC, id ASC`)
+	if err != nil {
+		return nil, fmt.Errorf("gagal mengambil daftar PBF: %w", err)
+	}
+	defer pbf.Close()
+	for pbf.Next() {
+		var p PBFOpsi
+		if err := pbf.Scan(&p.ID, &p.NamaPBF); err != nil {
+			return nil, fmt.Errorf("gagal membaca daftar PBF: %w", err)
+		}
+		hasil.PBF = append(hasil.PBF, p)
+	}
+	if err := pbf.Err(); err != nil {
+		return nil, fmt.Errorf("gagal membaca daftar PBF: %w", err)
+	}
+
+	obat, err := r.db.QueryContext(
+		ctx,
+		`SELECT id, kode, nama, satuan_dasar
+		   FROM medicines
+		  WHERE is_active = 1
+		  ORDER BY nama ASC, id ASC`,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("gagal mengambil daftar obat: %w", err)
+	}
+	defer obat.Close()
+
+	indeks := map[int64]int{}
+	for obat.Next() {
+		var o ObatOpsi
+		if err := obat.Scan(&o.ID, &o.Kode, &o.Nama, &o.SatuanDasar); err != nil {
+			return nil, fmt.Errorf("gagal membaca daftar obat: %w", err)
+		}
+		o.Satuan = []SatuanOpsi{}
+		indeks[o.ID] = len(hasil.Obat)
+		hasil.Obat = append(hasil.Obat, o)
+	}
+	if err := obat.Err(); err != nil {
+		return nil, fmt.Errorf("gagal membaca daftar obat: %w", err)
+	}
+
+	satuan, err := r.db.QueryContext(
+		ctx,
+		`SELECT id, medicine_id, nama_satuan, isi_per_satuan_dasar
+		   FROM medicine_units
+		  WHERE is_active = 1
+		  ORDER BY medicine_id ASC, isi_per_satuan_dasar DESC, nama_satuan ASC`,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("gagal mengambil daftar satuan: %w", err)
+	}
+	defer satuan.Close()
+	for satuan.Next() {
+		var s SatuanOpsi
+		var medicineID int64
+		if err := satuan.Scan(&s.ID, &medicineID, &s.NamaSatuan, &s.IsiPerSatuanDasar); err != nil {
+			return nil, fmt.Errorf("gagal membaca daftar satuan: %w", err)
+		}
+		if i, ada := indeks[medicineID]; ada {
+			hasil.Obat[i].Satuan = append(hasil.Obat[i].Satuan, s)
+		}
+	}
+	if err := satuan.Err(); err != nil {
+		return nil, fmt.Errorf("gagal membaca daftar satuan: %w", err)
+	}
+
+	return hasil, nil
 }
